@@ -43,13 +43,24 @@ building it as described here, not bolting `fetch` calls into pages.
 
 Consumed from `api::*` on the Strapi side:
 
-| Type | Kind | Notes |
-|---|---|---|
-| `article` | collection | The **only** type with draft & publish. `title`, `description` (max 80), `slug`, `cover`, `author` (m:1), `category` (m:1), `blocks` (dynamic zone) |
-| `author` | collection | `name`, `avatar`, `email` |
-| `category` | collection | `name`, `slug`, `description` |
-| `about` | single | `title`, `blocks` |
-| `global` | single | `siteName`, `siteDescription`, `favicon`, `defaultSeo` (`metaTitle`, `metaDescription`, `shareImage`) |
+| Type | Kind | Localised | Notes |
+|---|---|---|---|
+| `article` | collection | **yes** | The **only** type with draft & publish. `title` (required, max 120), `description` (max 160), `slug` (required, unique), `cover`, `author` (m:1), `category` (m:1), `blocks` (dynamic zone) |
+| `author` | collection | **no** | `name` (required), `avatar`, `email` |
+| `category` | collection | **yes** | `name` (required), `slug` (required, unique), `description` |
+| `about` | single | **yes** | `title` (required), `blocks` |
+| `global` | single | **yes** | `siteName`, `siteDescription`, `favicon` (**not** localised), `defaultSeo` (`metaTitle` ≤60, `metaDescription` ≤160, `shareImage`) |
+
+**Internationalisation.** The CMS default locale is **`fr`**. `article`, `category`, `about`
+and `global` are localised; `author` is not.
+
+- Every request for a localised type takes a **`locale` parameter** —
+  `GET /api/articles?locale=fr`. Omitting it returns the default locale only, not all
+  locales. The client must send it explicitly rather than relying on the default.
+- Localised entries expose a **`localizations`** relation to their siblings in other locales
+  — the basis for a future language switcher and for `hreflang` tags.
+- Locale belongs in the repository layer (§4.5), not in pages. When routing becomes
+  multilingual, the locale is a route parameter mapped to the query parameter in one place.
 
 `blocks` is a dynamic zone over `shared.media`, `shared.quote`, `shared.rich-text`,
 `shared.slider`. Each entry carries a `__component` discriminator.
@@ -58,8 +69,11 @@ Two things that will bite you if you assume otherwise:
 
 - **`shared.rich-text.body` is Markdown** (`richtext`), **not** the Strapi Blocks JSON AST.
   Render it with a Markdown renderer.
-- **Media URLs from Strapi are relative** (`/uploads/...`). They must be prefixed with the
-  Strapi origin — in exactly one place (§4.5), never inline in a template.
+- **Media URLs from Strapi are relative** (`/uploads/...`). Confirmed against the running
+  CMS: the local upload provider stores relative paths and the CMS `server.url` setting does
+  **not** rewrite them. Prefix them with `STRAPI_URL` in exactly one place (§4.5), never
+  inline in a template. If the CMS later moves uploads to object storage, the provider will
+  start returning absolute URLs and this prefixing must become conditional.
 
 ---
 
@@ -502,7 +516,8 @@ verification. Say so explicitly rather than claiming a change is "tested".
 Facts about the current repository. These are **not** conventions to imitate.
 
 1. **No Strapi integration whatsoever.** All content is local Markdown/MDX. The entire §4
-   architecture is still to be built.
+   architecture is still to be built — and it must now be built **locale-aware** from the
+   start, since the CMS has i18n enabled (see §1).
 2. **`site: 'https://example.com'`** — every canonical URL, the sitemap and the RSS feed are
    currently wrong.
 3. **No `devDependencies`** — TypeScript is not installed, so `astro check` cannot run.
