@@ -1,63 +1,73 @@
-# Astro Starter Kit: Blog
+# zero-blog-astro
+
+The public frontend of Zero Stratégie — an Astro 6 site served at
+**https://zero-strategie.dev**. Content will come from the Strapi CMS in
+[`cms-zero`](https://github.com/zero-strategie/cms-zero); today it still comes from local
+Markdown in `src/content/blog/`.
+
+Read [`AGENTS.md`](AGENTS.md) before contributing. It is prescriptive: it describes the
+architecture this project must converge on, not only what exists today.
+
+## Setup
+
+**pnpm only.** Never run `npm install` or `yarn` here, and never commit a second lockfile.
 
 ```sh
-pnpm create astro@latest -- --template blog
+pnpm install
+cp .env.example .env    # then fill in STRAPI_URL
+pnpm dev                # http://localhost:4321
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+`STRAPI_URL` is declared in the `astro:env` schema and is **required**: `pnpm build` fails
+without it rather than shipping a site pointed at nothing.
 
-Features:
+| Command | Purpose |
+|---|---|
+| `pnpm dev` | Dev server on `http://localhost:4321` |
+| `pnpm build` | Production build to `./dist/` |
+| `pnpm preview` | Serve the build locally |
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+`pnpm build` is currently the **only** quality gate: there is no typecheck, no linter and no
+test suite yet. See `AGENTS.md` §7 — those are required work, not optional.
 
-## 🚀 Project Structure
+## Rendering
 
-Inside of your Astro project, you'll see the following folders and files:
+`output` stays `static`. Pages are prerendered; a route opts out with
+`export const prerender = false` and a one-line comment saying why. Today the only such route
+is `/health`, which the deployment pipeline polls.
 
-```text
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
+The adapter is `@astrojs/node` in standalone mode — pinned to the `10.x` line, which is the
+one that matches Astro 6. `11.x` targets Astro 7 and fails at runtime here.
+
+## Deployment
+
+Merging to `main` builds an image, pushes it to GHCR and asks the server to run it. Rollback
+lives on the server, in `/opt/zero-front/deploy.sh`, so it behaves the same whether CI or a
+human triggers it. The server is provisioned from
+[`zero-infra`](https://github.com/zero-strategie/zero-infra) (`roles/front`).
+
+```sh
+# build the production image locally, the way CI does
+docker build --build-arg STRAPI_URL=https://admin.zero-strategie.dev \
+             --secret id=strapi_token,src=<(printf '%s' "$STRAPI_API_TOKEN") \
+             -t zero-front:local .
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+The site is **prerendered**, so publishing an article in Strapi changes nothing until this
+image is rebuilt. A Strapi webhook posts to `https://zero-strategie.dev/__rebuild`, and the
+relay behind it fires a `repository_dispatch` of type `rebuild` at this repository — which is
+why this workflow has that trigger.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+### Required GitHub configuration
 
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
+| Kind | Name | Notes |
+|---|---|---|
+| Secret | `SSH_HOST`, `SSH_USER`, `SSH_PORT` | must match the `zero-infra` inventory |
+| Secret | `SSH_PRIVATE_KEY` | its public half is in `deploy_authorized_keys` |
+| Secret | `SSH_KNOWN_HOSTS` | `ssh-keyscan -p <port> <host>` |
+| Secret | `STRAPI_API_TOKEN` | read-only token, passed as a BuildKit secret |
+| Variable | `STRAPI_URL` | `https://admin.zero-strategie.dev` |
+| Variable | `FRONT_DOMAIN` | `zero-strategie.dev` |
 
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+An `environment: production` must exist in this repository's settings; the deploy job is
+attached to it so a required reviewer can be added later without editing the workflow.

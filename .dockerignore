@@ -1,0 +1,16 @@
+# Everything the build does not read. Keeps the context small and prevents a
+# stray local .env or dist/ from ending up in an image.
+.git
+.github
+.vscode
+node_modules
+dist
+.astro
+.env
+.env.*
+!.env.example
+*.log
+README.md
+AGENTS.md
+Dockerfile
+.dockerignore

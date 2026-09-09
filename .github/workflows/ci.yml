@@ -1,0 +1,145 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Posted by the rebuild relay on the VPS when Strapi publishes something.
+  # The site is prerendered, so this is the only thing that puts new content
+  # online. See roles/hook in the zero-infra repository.
+  repository_dispatch:
+    types: [rebuild]
+
+# Never let two deployments race each other onto the same server.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # corepack resolves the pnpm version pinned in package.json.
+      - run: corepack enable
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The only gate that exists today. There is no typecheck, no linter and
+      # no test suite in this repository yet — stated rather than implied, per
+      # AGENTS.md 7.
+      - name: Build
+        env:
+          # Required by the astro:env schema, so the build fails without it.
+          STRAPI_URL: ${{ vars.STRAPI_URL }}
+        run: pnpm build
+
+  build-and-push:
+    name: Build and push image
+    needs: verify
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      || github.event_name == 'repository_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Lets the built-in GITHUB_TOKEN push to GHCR — no PAT needed here.
+      packages: write
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute the image tag
+        id: meta
+        # The commit SHA is what makes rollback possible: `latest` alone gives
+        # you nothing to roll back to. A content rebuild runs on the same
+        # commit, so it gets a run suffix — otherwise two different images
+        # would share a tag and rolling one back would be a no-op.
+        run: |
+          tag="${GITHUB_SHA::12}"
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            tag="${tag}-r${GITHUB_RUN_NUMBER}"
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: |
+            STRAPI_URL=${{ vars.STRAPI_URL }}
+          # A BuildKit secret, not a build-arg: the token must not end up in a
+          # layer or in `docker history`.
+          secrets: |
+            strapi_token=${{ secrets.STRAPI_API_TOKEN }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          # A cold build takes minutes; this keeps deployments quick.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to production
+    needs: build-and-push
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      || github.event_name == 'repository_dispatch'
+    runs-on: ubuntu-latest
+    # A GitHub Environment, so a required reviewer can be added later without
+    # touching this workflow.
+    environment:
+      name: production
+      url: https://${{ vars.FRONT_DOMAIN }}
+
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # Pinning the host key rather than StrictHostKeyChecking=no, which
+          # accepts a man-in-the-middle silently.
+          printf '%s\n' "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy
+        env:
+          TAG: ${{ needs.build-and-push.outputs.tag }}
+        run: |
+          # The server owns its deployment logic, including rollback, so this
+          # step only says which tag to run. See roles/front/files/deploy.sh in
+          # the zero-infra repository.
+          ssh -o BatchMode=yes \
+              -p "${{ secrets.SSH_PORT }}" \
+              "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+              "/opt/zero-front/deploy.sh ${TAG}"
+
+      - name: Verify the site is up
+        run: |
+          code="$(curl -s -o /dev/null -w '%{http_code}' "https://${{ vars.FRONT_DOMAIN }}/health")"
+          [ "$code" = "204" ] || { echo "::error::/health returned $code"; exit 1; }
+          echo "Deployed ${{ needs.build-and-push.outputs.tag }}"

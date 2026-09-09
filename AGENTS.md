@@ -30,10 +30,15 @@ requires new fields or new logic, it belongs in `cms-zero`.
 
 ### Current state — read this before assuming
 
-This repository is the **unmodified Astro `blog` starter** (a single commit). Content is
-loaded from local Markdown/MDX in `src/content/blog/` via the `glob()` loader.
-**There is no Strapi integration at all** — no API client, no `.env`, no adapter, and no
-`devDependencies` (not even TypeScript). `site` is still `https://example.com`.
+This repository is still the Astro `blog` starter as far as **content** goes: it is loaded
+from local Markdown/MDX in `src/content/blog/` via the `glob()` loader, and
+**there is no Strapi integration at all** — no API client, no repositories, no mappers.
+
+What has been built is the **delivery pipeline**, not the application: a real `site`, the
+`@astrojs/node` adapter (10.x — the line that matches Astro 6), the `astro:env` schema, a
+`/health` endpoint, a Dockerfile, a `.env.example` and a GitHub Actions workflow that builds,
+pushes to GHCR and deploys. There are still no `devDependencies` — no TypeScript, no linter,
+no tests.
 
 Do not read the existing files as project conventions — they are template output.
 §4 and §5 below define the target architecture. Building the Strapi integration means
@@ -93,6 +98,7 @@ pnpm install
 | Command | Purpose |
 |---|---|
 | `pnpm dev` | Dev server on `http://localhost:4321` |
+| `pnpm build` then `node ./dist/server/entry.mjs` | Run the standalone server the container runs |
 | `pnpm build` | Production build to `./dist/` |
 | `pnpm preview` | Serve the build locally |
 | `pnpm astro ...` | Astro CLI passthrough |
@@ -106,7 +112,7 @@ The schema validates at build time and enforces the client/server boundary.
 | Name | Context | Access | Purpose |
 |---|---|---|---|
 | `STRAPI_URL` | `server` | `public` | Base origin of the CMS (e.g. `http://localhost:1337`) |
-| `STRAPI_API_TOKEN` | `server` | **`secret`** | Read-only API token. **Never** `client`, never `PUBLIC_`-prefixed |
+| `STRAPI_API_TOKEN` | `server` | **`secret`** | Read-only API token, declared `optional` until a route actually needs it. **Never** `client`, never `PUBLIC_`-prefixed |
 
 ```js
 // astro.config.mjs
@@ -126,7 +132,9 @@ Add `.env` to `.gitignore` and ship a `.env.example` with placeholder values.
 
 ```
 zero-blog-astro/
-├── astro.config.mjs          site, integrations, fonts, (target: adapter + env schema)
+├── astro.config.mjs          site, node adapter, astro:env schema, integrations, fonts
+├── Dockerfile                Multi-stage build; the prerender happens here
+├── .env.example              Every variable the astro:env schema declares
 ├── tsconfig.json             extends astro/tsconfigs/strict
 ├── public/                   Served verbatim: favicons, (target: robots.txt)
 └── src/
@@ -150,6 +158,7 @@ zero-blog-astro/
 | `/blog/[...slug]` | `src/pages/blog/[...slug].astro` | `getStaticPaths()` |
 | `/rss.xml` | `src/pages/rss.xml.js` | `getCollection('blog')` |
 | `/sitemap-index.xml` | — | `@astrojs/sitemap` |
+| `/health` | `src/pages/health.ts` | on demand — 204, polled by the deployment pipeline |
 
 ### Target structure — where new code goes
 
@@ -518,11 +527,12 @@ Facts about the current repository. These are **not** conventions to imitate.
 1. **No Strapi integration whatsoever.** All content is local Markdown/MDX. The entire §4
    architecture is still to be built — and it must now be built **locale-aware** from the
    start, since the CMS has i18n enabled (see §1).
-2. **`site: 'https://example.com'`** — every canonical URL, the sitemap and the RSS feed are
-   currently wrong.
+2. ~~`site: 'https://example.com'`~~ — **fixed**, now `https://zero-strategie.dev`.
 3. **No `devDependencies`** — TypeScript is not installed, so `astro check` cannot run.
-   No linter, no formatter, no tests, no CI, no Docker, no adapter.
-4. **`package.json` has an empty `"name"`** field.
+   No linter, no formatter, no tests. CI, Docker and the adapter now exist; the CI's only
+   gate is `pnpm build`, which is exactly as weak as that sounds.
+4. ~~`package.json` has an empty `"name"`~~ — **fixed**, and `packageManager` is now pinned so
+   corepack resolves the same pnpm locally, in CI and in the image.
 5. **`tsconfig.json` sets `strictNullChecks: true`** redundantly — the `astro/tsconfigs/strict`
    preset already implies it.
 6. **`src/pages/rss.xml.js` is untyped JS** and spreads `...post.data` into feed items,
@@ -543,5 +553,5 @@ Facts about the current repository. These are **not** conventions to imitate.
     `target="_blank"` without `rel="noopener noreferrer"` (6 occurrences), no JSON-LD.
 13. **Missing files** — no `src/pages/404.astro`, no `public/robots.txt`, no `.env.example`.
 14. **No dark mode** and no `prefers-color-scheme` handling.
-15. **`README.md` is the stock Astro starter README**, including the "Seasoned astronaut?
-    Delete this file." line and Lighthouse claims not verified for this project.
+15. ~~`README.md` is the stock Astro starter README~~ — **fixed**; it now documents setup,
+    the rendering strategy and the deployment contract.
