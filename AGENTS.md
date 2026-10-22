@@ -163,6 +163,8 @@ zero-blog-astro/
 | `/about` | `src/pages/about.astro` | static |
 | `/blog` | `src/pages/blog/index.astro` | `getCollection('blog')` |
 | `/blog/[...slug]` | `src/pages/blog/[...slug].astro` | `getStaticPaths()` |
+| `/rubriques/[slug]` | `src/pages/rubriques/[slug].astro` | `getStaticPaths()` over `CATEGORIES` |
+| `/404` | `src/pages/404.astro` | static |
 | `/rss.xml` | `src/pages/rss.xml.js` | `getCollection('blog')` |
 | `/sitemap-index.xml` | — | `@astrojs/sitemap` |
 | `/health` | `src/pages/health.ts` | on demand — 204, polled by the deployment pipeline |
@@ -529,6 +531,10 @@ Budgets enforced by `pnpm check:weight` (1 KB = 1 024 bytes):
 
 Literal colors only in `src/styles/tokens.css`.
 
+`public/og-default.png` is generated, not drawn: `scripts/og-default.svg` is regenerated with
+fonttools **outside the project** (nothing in `package.json`), then rasterised with sharp.
+Only the PNG is served. Commands in `scripts/README.md`.
+
 **To be set up (currently missing — there are no `devDependencies` at all; treat as required
 work, not optional):**
 
@@ -575,7 +581,8 @@ Facts about the current repository. These are **not** conventions to imitate.
 12. **Accessibility gaps** — no skip-to-content link, no `<nav aria-label>`, `alt=""` on all
     hero images including blog index cards (announcing content images as decorative),
     `target="_blank"` without `rel="noopener noreferrer"` (6 occurrences), no JSON-LD.
-13. **Missing files** — no `src/pages/404.astro`, no `public/robots.txt`, no `.env.example`.
-14. **No dark mode** and no `prefers-color-scheme` handling.
+13. ~~Missing files~~ — `src/pages/404.astro` and `.env.example` exist now. Still missing:
+    `public/robots.txt`.
+14. ~~No dark mode~~ — **fixed**: `tokens.css` handles `prefers-color-scheme: dark`.
 15. ~~`README.md` is the stock Astro starter README~~ — **fixed**; it now documents setup,
     the rendering strategy and the deployment contract.
