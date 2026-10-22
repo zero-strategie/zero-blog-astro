@@ -1,0 +1,8 @@
+{
+  "data": [
+    { "id": 1, "documentId": "tag00000000000000000001", "name": "Cloud", "slug": "cloud", "locale": "fr" },
+    { "id": 2, "documentId": "tag00000000000000000002", "name": "Droit", "slug": "droit", "locale": "fr" },
+    { "id": 3, "documentId": "tag00000000000000000003", "name": "Administration", "slug": "administration", "locale": "fr" }
+  ],
+  "meta": { "pagination": { "page": 1, "pageSize": 25, "pageCount": 1, "total": 3 } }
+}

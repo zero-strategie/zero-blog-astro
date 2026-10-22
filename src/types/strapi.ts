@@ -90,19 +90,24 @@ export const sliderBlockDto = z.object({
 	files: z.array(mediaDto).nullish(),
 });
 
-/**
- * A block the frontend does not know yet. Accepted rather than rejected so a
- * new CMS block degrades to "not rendered" instead of failing every build
- * (AGENTS.md 4.3).
- */
-export const unknownBlockDto = z.object({ __component: z.string() }).loose();
-
-export const blockDto = z.union([
+export const knownBlockDto = z.discriminatedUnion('__component', [
 	richTextBlockDto,
 	quoteBlockDto,
 	mediaBlockDto,
 	sliderBlockDto,
-	unknownBlockDto,
+]);
+
+/**
+ * A block the frontend does not know yet is accepted and turned into `null`
+ * rather than rejected, so a new CMS block degrades to "not rendered" instead
+ * of failing every build (AGENTS.md 4.3).
+ */
+export const blockDto = z.union([
+	knownBlockDto,
+	z
+		.object({ __component: z.string() })
+		.loose()
+		.transform(() => null),
 ]);
 
 /** Fields requested by ARTICLE_LIST_POPULATE. */
