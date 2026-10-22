@@ -25,9 +25,26 @@ test("les identifiants restent uniques malgré la copie de la note", () => {
 	assert.deepEqual(ids.filter((id, index) => ids.indexOf(id) !== index), []);
 });
 
-test('la CSS masque les notes en marge sur mobile et les notes de fin en desktop', () => {
+test('les notes en marge sont masquées sur mobile et flottent à droite à partir de 85rem', () => {
 	assert.match(css, /\.sidenote[^{}]*\{[^}]*display: ?none/);
-	assert.match(css, /@media ?\(min-width: ?[^)]+\) ?\{[^@]*\[data-footnotes\][^{}]*\{[^}]*display: ?none/);
+	const desktop = css.match(/@media ?\(min-width: ?85rem\) ?\{(.*)/)?.[1] ?? '';
+	assert.match(desktop, /\.sidenote[^{}]*\{[^}]*float: ?right/);
+	assert.match(desktop, /\.sidenote[^{}]*\{[^}]*clear: ?right/);
+	assert.match(desktop, /\.sidenote[^{}]*\{[^}]*margin-right: ?calc\(-/);
+	assert.doesNotMatch(desktop, /\.sidenote[^{}]*\{[^}]*position: ?absolute/);
+});
+
+test('les notes de fin ne sont jamais masquées et les copies en marge sont aria-hidden', () => {
+	assert.doesNotMatch(css, /\[data-footnotes\][^{}]*\{[^}]*display: ?none/);
+	assert.match(html, /<span class="sidenote" aria-hidden="true">/);
+});
+
+test('le titre « Notes » est visible, en monospace capitales avec un filet', () => {
+	assert.doesNotMatch(html, /<h2[^>]*class="sr-only"[^>]*>Notes/);
+	const rule = css.match(/\[data-footnotes\] h2[^{}]*\{[^}]*\}/)?.[0] ?? '';
+	assert.match(rule, /font-family: ?var\(--font-mono\)/);
+	assert.match(rule, /text-transform: ?uppercase/);
+	assert.match(rule, /border-(top|bottom)[^;]*var\(--/);
 });
 
 test('les notes sont en monospace petit corps, numéro rouge texte, filet fin, via les tokens', () => {

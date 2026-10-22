@@ -70,7 +70,8 @@ function sidenote(number, body) {
 	return {
 		type: 'element',
 		tagName: 'span',
-		properties: { className: ['sidenote'], role: 'note' },
+		// Copie purement visuelle : la section de notes de fin reste la cible lue par les technologies d'assistance.
+		properties: { className: ['sidenote'], ariaHidden: 'true' },
 		children: [
 			{ type: 'element', tagName: 'span', properties: { className: ['sidenote-number'] }, children: [{ type: 'text', value: number }] },
 			...inlineCopy(body),
@@ -80,7 +81,7 @@ function sidenote(number, body) {
 
 /**
  * Plugin rehype : copie chaque note de bas de page en note en marge, après son premier appel.
- * La section de notes de fin est conservée, le CSS choisit laquelle afficher.
+ * La section de notes de fin est conservée et reste affichée, la copie en marge est décorative.
  * @returns {(tree: HastNode) => void}
  */
 export default function rehypeSidenotes() {

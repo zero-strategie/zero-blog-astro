@@ -39,6 +39,14 @@ test("la note en marge est insérée juste après le premier appel, sans lien re
 	assert.equal(find(paragraph.children[2], (n) => n.properties?.dataFootnoteBackref !== undefined).length, 0);
 });
 
+test("la note en marge est une copie visuelle cachée des technologies d'assistance", () => {
+	const tree = el('root', {}, [el('p', {}, [ref(1)]), footnotes({ n: 1, body: [text('Une note')] })]);
+	transform(tree);
+	const [sidenote] = find(tree, isSidenote);
+	assert.equal(sidenote.properties.ariaHidden, 'true');
+	assert.equal(sidenote.properties.role, undefined);
+});
+
 test('une seule note en marge est insérée quand la note est appelée deux fois', () => {
 	const tree = el('root', {}, [
 		el('p', {}, [ref(1), text(' puis '), ref(1, 2)]),

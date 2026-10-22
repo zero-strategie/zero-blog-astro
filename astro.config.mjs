@@ -36,7 +36,12 @@ export default defineConfig({
 		rehypePlugins: [rehypeSidenotes],
 		// Couleurs de syntaxe via --astro-code-* (tokens.css) : aucune couleur inline, thème clair/sombre natif.
 		shikiConfig: { theme: 'css-variables' },
-		remarkRehype: { footnoteLabel: 'Notes', footnoteBackLabel: 'Retour au texte' },
+		remarkRehype: {
+			footnoteLabel: 'Notes',
+			footnoteBackLabel: 'Retour au texte',
+			// Par défaut le titre est sr-only ; on le veut visible.
+			footnoteLabelProperties: {},
+		},
 	},
 
 	integrations: [mdx(), sitemap()],

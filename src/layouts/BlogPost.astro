@@ -47,26 +47,36 @@ const { title, description, pubDate, updatedDate, category, heroImage, heroAlt, 
 		.updated-on {
 			font-style: italic;
 		}
-		/* Notes : en fin d'article sur mobile, en marge dès que la marge existe. Une seule version est affichée. */
-		.content {
-			position: relative;
-		}
-		.content :global(.sidenote) {
-			display: none;
-		}
+		/* Notes de fin : toujours affichées, ce sont elles que l'appel cible (clavier, lecteur d'écran). */
 		.content :global([data-footnotes]) {
 			margin-top: 2rem;
-			border-top: 1px solid var(--ink);
 			color: var(--ink-soft);
 			font-family: var(--font-mono);
 			font-size: 0.85rem;
 		}
-		@media (min-width: 80rem) {
+		.content :global([data-footnotes] h2) {
+			margin: 0 0 0.75rem;
+			padding-top: 0.5rem;
+			border-top: 1px solid var(--ink);
+			font-family: var(--font-mono);
+			font-size: 0.8rem;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+		}
+		/* Copies en marge : décoratives (aria-hidden), absentes sous le point de rupture. */
+		.content :global(.sidenote) {
+			display: none;
+		}
+		/* Modèle Tufte : la note flotte à droite avec une marge négative, démarre sur la ligne de l'appel
+		   et s'empile sous la précédente. Rupture : colonne (66ch, environ 47rem avec son retrait) + 2 × (14rem + 1.5rem)
+		   de marge = environ 78rem, arrondi à 85rem pour ne jamais déclencher de défilement horizontal. */
+		@media (min-width: 85rem) {
 			.content :global(.sidenote) {
-				position: absolute;
-				left: calc(100% + 1.5rem);
+				float: right;
+				clear: right;
 				display: block;
 				width: 14rem;
+				margin-right: calc(-15.5rem);
 				padding-left: 0.75rem;
 				border-left: 1px solid var(--ink);
 				color: var(--ink-soft);
@@ -76,8 +86,9 @@ const { title, description, pubDate, updatedDate, category, heroImage, heroAlt, 
 				font-weight: 400;
 				line-height: 1.4;
 			}
-			.content :global([data-footnotes]) {
-				display: none;
+			/* Le blockquote ajoute 1.2rem de retrait et 2px de bordure à droite. */
+			.content :global(blockquote .sidenote) {
+				margin-right: calc(-15.5rem - 1.2rem - 2px);
 			}
 		}
 		.content :global(.sidenote-number) {
