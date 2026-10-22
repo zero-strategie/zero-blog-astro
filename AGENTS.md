@@ -30,19 +30,22 @@ requires new fields or new logic, it belongs in `cms-zero`.
 
 ### Current state — read this before assuming
 
-This repository is still the Astro `blog` starter as far as **content** goes: it is loaded
-from local Markdown/MDX in `src/content/blog/` via the `glob()` loader, and
-**there is no Strapi integration at all** — no API client, no repositories, no mappers.
+Content comes from Strapi. The §4 architecture is in place: `src/lib/strapi/client.ts` (the
+only `fetch`), repositories per type, Zod-validated wire shapes in `src/types/strapi.ts`,
+mappers to `src/types/domain.ts`, a block registry in `src/components/blocks/`, and
+`src/layouts/Layout.astro` as the single document shell. `src/content/` is gone.
 
-What has been built is the **delivery pipeline**, not the application: a real `site`, the
-`@astrojs/node` adapter (10.x — the line that matches Astro 6), the `astro:env` schema, a
-`/health` endpoint, a Dockerfile, a `.env.example` and a GitHub Actions workflow that builds,
-pushes to GHCR and deploys. There are still no `devDependencies` — no TypeScript, no linter,
-no tests.
+Editorial rendering (sourced journalism, see the CMS `AGENTS.md`, _Editorial fields_):
+Markdown is rendered once, in the mappers, by `src/lib/markdown.ts` — raw HTML dropped,
+tree sanitised, citation calls `[[n]](#source-n)` turned into links to `id="source-n"` in
+the numbered Sources list. The result is typed `SafeHtml`; only that type may reach `set:html`.
 
-Do not read the existing files as project conventions — they are template output.
-§4 and §5 below define the target architecture. Building the Strapi integration means
-building it as described here, not bolting `fetch` calls into pages.
+**Strapi unreachable → the build fails** with a `StrapiError` naming the origin, the
+system error code and `STRAPI_URL` (§4.8: prerendered pages never ship empty). A reachable
+CMS with zero articles builds, and every listing says so in a visible message.
+
+Without a CMS, `pnpm fixtures` serves `test/fixtures/*.json` on `:1338`
+(`STRAPI_URL=http://localhost:1338 pnpm build`).
 
 ### Data contract with the CMS
 
@@ -154,9 +157,11 @@ zero-blog-astro/
 |---|---|---|
 | `/` | `src/pages/index.astro` | static |
 | `/about` | `src/pages/about.astro` | static |
-| `/blog` | `src/pages/blog/index.astro` | `getCollection('blog')` |
-| `/blog/[...slug]` | `src/pages/blog/[...slug].astro` | `getStaticPaths()` |
-| `/rss.xml` | `src/pages/rss.xml.js` | `getCollection('blog')` |
+| `/blog` | `src/pages/blog/index.astro` | `getArticles()` |
+| `/blog/[slug]` | `src/pages/blog/[slug].astro` | `getArticleDetails()` in `getStaticPaths()` |
+| `/categories/[slug]` | `src/pages/categories/[slug].astro` | `getCategories()` + `getArticlesByCategory()` |
+| `/tags/[slug]` | `src/pages/tags/[slug].astro` | `getTags()` + `getArticlesByTag()` |
+| `/rss.xml` | `src/pages/rss.xml.ts` | `getArticles()` |
 | `/sitemap-index.xml` | — | `@astrojs/sitemap` |
 | `/health` | `src/pages/health.ts` | on demand — 204, polled by the deployment pipeline |
 
@@ -501,11 +506,17 @@ A change is done when all of the following pass.
 **Available today:**
 
 ```bash
-pnpm build
+pnpm check          # astro check (TypeScript 6: @astrojs/check does not support 7 yet)
+pnpm lint           # eslint + eslint-plugin-astro + typescript-eslint, `any` is an error
+pnpm format:check   # prettier + prettier-plugin-astro
+pnpm test           # vitest via getViteConfig (astro:env and the Container API work)
+pnpm build          # needs a reachable STRAPI_URL — see `pnpm fixtures`
 ```
 
-**To be set up (currently missing — there are no `devDependencies` at all; treat as required
-work, not optional):**
+CI still runs only `pnpm build`; wiring the other gates into `.github/workflows/ci.yml` is
+pending. E2E (Playwright) is not set up.
+
+**Original setup list:**
 
 | Gate | Setup | Command |
 |---|---|---|

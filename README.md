@@ -1,9 +1,8 @@
 # zero-blog-astro
 
 The public frontend of Zero Stratégie — an Astro 6 site served at
-**https://zero-strategie.dev**. Content will come from the Strapi CMS in
-[`cms-zero`](https://github.com/zero-strategie/cms-zero); today it still comes from local
-Markdown in `src/content/blog/`.
+**https://zero-strategie.dev**. Content comes from the Strapi CMS in
+[`cms-zero`](https://github.com/zero-strategie/cms-zero), fetched at build time.
 
 Read [`AGENTS.md`](AGENTS.md) before contributing. It is prescriptive: it describes the
 architecture this project must converge on, not only what exists today.
@@ -19,16 +18,26 @@ pnpm dev                # http://localhost:4321
 ```
 
 `STRAPI_URL` is declared in the `astro:env` schema and is **required**: `pnpm build` fails
-without it rather than shipping a site pointed at nothing.
+without it rather than shipping a site pointed at nothing. It also fails, with an explicit
+`StrapiError`, when the CMS cannot be reached.
+
+No CMS at hand? Serve the contract fixtures instead:
+
+```sh
+pnpm fixtures                                   # fake Strapi on http://localhost:1338
+STRAPI_URL=http://localhost:1338 pnpm build
+```
 
 | Command | Purpose |
 |---|---|
 | `pnpm dev` | Dev server on `http://localhost:4321` |
 | `pnpm build` | Production build to `./dist/` |
 | `pnpm preview` | Serve the build locally |
-
-`pnpm build` is currently the **only** quality gate: there is no typecheck, no linter and no
-test suite yet. See `AGENTS.md` §7 — those are required work, not optional.
+| `pnpm check` | Type check (`astro check`) |
+| `pnpm lint` | ESLint |
+| `pnpm format` / `pnpm format:check` | Prettier |
+| `pnpm test` | Unit tests (vitest) |
+| `pnpm fixtures` | Fake Strapi serving `test/fixtures/` |
 
 ## Rendering
 
