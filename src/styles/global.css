@@ -174,6 +174,20 @@ hr {
 	white-space: nowrap;
 }
 
+.skip-link {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 0.75rem 1rem;
+	background: var(--ink);
+	color: var(--paper);
+	transform: translateY(-100%);
+}
+
+.skip-link:focus-visible {
+	transform: none;
+}
+
 @media (max-width: 45rem) {
 	body {
 		font-size: 1.125rem;

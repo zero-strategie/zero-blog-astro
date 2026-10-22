@@ -86,3 +86,15 @@ test('aucun ClientRouter : pas de routeur client dans les pages ni dans les sour
 	const users = sourceFiles().filter((file) => /ClientRouter/.test(readFileSync(file, 'utf8')));
 	assert.deepEqual(users, []);
 });
+
+test('le premier lien du body est « Aller au contenu » vers l’id du <main>', () => {
+	for (const { file, html } of pages) {
+		const body = html.slice(html.indexOf('<body'));
+		const firstLink = body.match(/<a\b[^>]*>([\s\S]*?)<\/a>/);
+		assert.ok(firstLink, file);
+		assert.equal(firstLink[1].trim(), 'Aller au contenu', file);
+		const target = firstLink[0].match(/\bhref="#([^"]+)"/)?.[1];
+		assert.ok(target, `${file} : href="#…" attendu`);
+		assert.match(body, new RegExp(`<main\\b[^>]*\\bid="${target}"`), file);
+	}
+});
