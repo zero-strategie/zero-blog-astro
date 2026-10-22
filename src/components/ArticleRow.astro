@@ -8,19 +8,23 @@ interface Props {
 	href: string;
 	pubDate: Date;
 	category: (typeof CATEGORIES)[number]['slug'];
+	// h3 quand la liste est sous un h2 (accueil), h2 sinon (archive).
+	headingLevel?: 2 | 3;
 }
 
-const { title, href, pubDate, category } = Astro.props;
+const { title, href, pubDate, category, headingLevel = 2 } = Astro.props;
+const Heading = `h${headingLevel}` as const;
 ---
 
 <li class="article-row">
 	<span class="date"><FormattedDate date={pubDate} /></span>
 	<Stamp category={category} />
-	<h2><a href={href}>{title}</a></h2>
+	<Heading class="title"><a href={href}>{title}</a></Heading>
 </li>
 
 <style>
 	.article-row {
+		--stamp-column: 9rem;
 		display: grid;
 		grid-template-columns: 1fr auto;
 		align-items: center;
@@ -33,25 +37,25 @@ const { title, href, pubDate, category } = Astro.props;
 		font-family: var(--font-mono);
 		font-size: 0.85rem;
 	}
-	h2 {
+	.title {
 		grid-column: 1 / -1;
 		margin: 0;
 		font-size: 1.4rem;
 		font-weight: 700;
 	}
-	h2 a {
+	.title a {
 		text-decoration: none;
 	}
-	h2 a:hover {
+	.title a:hover {
 		color: var(--ink-red-text);
 		text-decoration: underline;
 	}
 	@media (min-width: 48rem) {
 		.article-row {
-			grid-template-columns: 11rem auto 1fr;
+			grid-template-columns: 11rem var(--stamp-column) 1fr;
 			gap: 0 1.25rem;
 		}
-		h2 {
+		.title {
 			grid-column: auto;
 		}
 	}

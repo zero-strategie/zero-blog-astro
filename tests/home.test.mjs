@@ -42,8 +42,20 @@ test('chaque ligne du sommaire a un time, un tampon et un titre lié', () => {
 	for (const row of rows()) {
 		assert.match(row, /<time\b/);
 		assert.match(row, /<a\b[^>]*class="[^"]*\bstamp\b/);
-		assert.match(row, /<h2\b[^>]*>\s*<a\b[^>]*href="\/blog\/[^"]+\/"/);
+		assert.match(row, /<h3\b[^>]*>\s*<a\b[^>]*href="\/blog\/[^"]+\/"/);
 	}
+});
+
+test('les titres du sommaire sont des h3 sous le h2 « Sommaire »', () => {
+	assert.match(home, /<h2\b[^>]*>\s*Sommaire\s*<\/h2>/);
+	assert.doesNotMatch(rows().join(''), /<h2\b/);
+});
+
+test('les colonnes des lignes ont des largeurs fixes pour aligner les titres', () => {
+	const css = pageCss(home).replace(/\s+/g, '');
+	const desktopColumns = css.match(/@media\(min-width:48rem\)\{\.article-row[^{]*\{[^}]*grid-template-columns:([^;}]+)/)?.[1] ?? '';
+	assert.ok(desktopColumns, 'colonnes desktop introuvables');
+	assert.doesNotMatch(desktopColumns, /auto/);
 });
 
 test('la couverture à la une est prioritaire, responsive et décrite par heroAlt', () => {

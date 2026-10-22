@@ -44,6 +44,7 @@ const { featured, summary } = splitFeatured(await getCollection('blog'));
 									href={articleUrl(post.id)}
 									pubDate={post.data.pubDate}
 									category={post.data.category}
+									headingLevel={3}
 								/>
 							))}
 						</ul>
