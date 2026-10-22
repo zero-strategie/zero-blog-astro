@@ -59,6 +59,18 @@ describe('strapi client', () => {
 		await expect(call).rejects.toThrow(/Strapi injoignable.*http:\/\/cms\.test.*STRAPI_URL/s);
 	});
 
+	it('surfaces the system error code undici buries in its cause', async () => {
+		const refused = Object.assign(new Error('connect ECONNREFUSED ::1:1337'), { code: 'ECONNREFUSED' });
+		const fetch = vi
+			.fn()
+			.mockRejectedValue(new TypeError('fetch failed', { cause: new AggregateError([refused]) }));
+		const client = createStrapiClient({ baseUrl: 'http://cms.test', fetch });
+
+		await expect(client.getCollection('/api/articles', {}, item)).rejects.toThrow(
+			'Strapi injoignable (GET http://cms.test/api/articles) : ECONNREFUSED.',
+		);
+	});
+
 	it('reports the HTTP status and the Strapi error message', async () => {
 		const fetch = vi
 			.fn()

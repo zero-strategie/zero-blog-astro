@@ -26,6 +26,21 @@ export interface StrapiClientOptions {
 	timeoutMs?: number;
 }
 
+/**
+ * undici reports a refused connection as `TypeError('fetch failed')` whose
+ * cause is an error — or an AggregateError, one per address tried — carrying
+ * the useful part: the system error code.
+ */
+function describeNetworkError(error: unknown, timeoutMs: number): string {
+	if (error instanceof Error && error.name === 'TimeoutError') {
+		return `pas de réponse en ${timeoutMs / 1000} s`;
+	}
+	let cause: unknown = error instanceof Error && error.cause ? error.cause : error;
+	if (cause instanceof AggregateError && cause.errors.length) cause = cause.errors[0];
+	if (cause && typeof cause === 'object' && 'code' in cause) return String(cause.code);
+	return cause instanceof Error ? cause.message : String(cause);
+}
+
 /** Strapi's default `api.rest.maxLimit`. */
 const PAGE_SIZE = 100;
 
@@ -48,12 +63,8 @@ export function createStrapiClient({
 		try {
 			res = await fetch(url, { headers, signal: AbortSignal.timeout(timeoutMs) });
 		} catch (cause) {
-			const reason =
-				cause instanceof Error && cause.name === 'TimeoutError'
-					? `pas de réponse en ${timeoutMs / 1000} s`
-					: String(cause instanceof Error && cause.cause ? cause.cause : cause);
 			throw new StrapiError(
-				`Strapi injoignable (GET ${url}) : ${reason}.\n` +
+				`Strapi injoignable (GET ${origin}${path}) : ${describeNetworkError(cause, timeoutMs)}.\n` +
 					`Vérifie que le CMS tourne sur ${origin} et que STRAPI_URL est correct. ` +
 					'Les pages sont prérendues : sans CMS, le build échoue plutôt que de publier un site vide.',
 				{ cause },
