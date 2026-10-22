@@ -26,8 +26,11 @@ body {
 	margin: 0;
 	padding: 0;
 	text-align: left;
-	background: linear-gradient(var(--gray-gradient)) no-repeat;
+	/* Explicit base colour: below the 600px gradient the page was transparent,
+	   so a browser in dark mode painted dark text on a near-black canvas. */
+	background: #fff linear-gradient(var(--gray-gradient)) no-repeat;
 	background-size: 100% 600px;
+	color-scheme: light;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: rgb(var(--gray-dark));
