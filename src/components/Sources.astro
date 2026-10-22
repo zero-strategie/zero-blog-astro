@@ -27,11 +27,11 @@ const { sources } = Astro.props;
 					<a href={source.url} rel="noopener noreferrer external">
 						{source.title}
 					</a>
-					{source.publisher && <span>, {source.publisher}</span>}
 					{source.level && (
 						<span class="source-level mono-label">{SOURCE_LEVEL_LABELS[source.level]}</span>
 					)}
 					<span class="source-dates">
+						{source.publisher && <span>{source.publisher} · </span>}
 						{source.publishedOn && (
 							<span>
 								{ARTICLE_LABELS.publishedOn} <FormattedDate date={source.publishedOn} />
