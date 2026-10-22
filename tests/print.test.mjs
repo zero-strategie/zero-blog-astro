@@ -44,6 +44,12 @@ for (const { file, html } of readDistHtml()) {
 		assert.doesNotMatch(print, /footer[^{]*\{[^}]*display:none/);
 	});
 
+	test(`${file} : l’impression neutralise la bichromie et laisse le code à la ligne`, () => {
+		assert.match(print, /\.riso\{background:none\}/);
+		assert.match(print, /\.risoimg\{mix-blend-mode:normal\}/);
+		assert.match(print, /pre\{[^}]*white-space:pre-wrap[^}]*overflow-wrap:anywhere/);
+	});
+
 	test(`${file} : l’impression écrit l’URL des liens externes après le texte`, () => {
 		assert.match(print, /maina\[href\^=http\]:after\{content:"\("attr\(href\)"\)"/);
 	});

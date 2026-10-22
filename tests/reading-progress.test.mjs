@@ -15,7 +15,7 @@ test('la barre de lecture est décorative et présente dans les articles, absent
 });
 
 test('sans support de animation-timeline, la barre est en display:none', () => {
-	assert.match(css, /\.reading-progress[^{@]*\{[^}]*display:none/);
+	assert.match(css, /\.reading-progress(\[[^\]]*\])?\{display:none\}@supports\(animation-timeline:scroll\(\)\)/);
 });
 
 test('la barre ne s’affiche et ne s’anime que sous @supports (animation-timeline: scroll())', () => {
@@ -36,4 +36,8 @@ test('la barre est un filet fin en haut de page, sans JavaScript', () => {
 	assert.match(css, /\.reading-progress[^{@]*\{[^}]*position:fixed[^}]*top:0/);
 	assert.match(css, /height:(\d+(\.\d+)?)px/);
 	assert.doesNotMatch(article.html, /<script/);
+});
+
+test('la barre est masquée à l’impression', () => {
+	assert.match(css, /@mediaprint\{\.reading-progress(\[[^\]]*\])?\{display:none\}\}/);
 });

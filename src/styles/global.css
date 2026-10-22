@@ -252,6 +252,20 @@ hr {
 		font-size: 12pt;
 	}
 
+	/* L'encre rouge devient noire à l'impression : sans cela, la bichromie donnerait un aplat noir. */
+	.riso {
+		background: none;
+	}
+
+	.riso img {
+		mix-blend-mode: normal;
+	}
+
+	pre {
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+
 	main a[href^='http']::after {
 		content: ' (' attr(href) ')';
 		font-size: 0.85em;
