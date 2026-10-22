@@ -112,7 +112,6 @@ export const blockDto = z.union([
 
 /** Fields requested by ARTICLE_LIST_POPULATE. */
 export const articleSummaryDto = z.object({
-	documentId: z.string(),
 	title: z.string(),
 	description: z.string().nullish(),
 	slug: z.string(),

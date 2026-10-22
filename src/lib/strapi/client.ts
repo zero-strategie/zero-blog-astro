@@ -32,7 +32,8 @@ const PAGE_SIZE = 100;
 export function createStrapiClient({
 	baseUrl,
 	token,
-	fetch = globalThis.fetch,
+	// Resolved per call, not captured at creation, so the global can be swapped.
+	fetch = (input, init) => globalThis.fetch(input, init),
 	timeoutMs = 10_000,
 }: StrapiClientOptions) {
 	const origin = baseUrl.replace(/\/+$/, '');
