@@ -75,7 +75,15 @@
           "__component": "shared.slider",
           "id": 9,
           "files": [
-            { "id": 6, "name": "a.jpg", "alternativeText": null, "caption": null, "width": 800, "height": 600, "url": "https://cdn.example.org/a.jpg" }
+            {
+              "id": 6,
+              "name": "a.jpg",
+              "alternativeText": null,
+              "caption": null,
+              "width": 800,
+              "height": 600,
+              "url": "https://cdn.example.org/a.jpg"
+            }
           ]
         },
         { "__component": "shared.carousel-3d", "id": 10, "items": [] }
@@ -137,9 +145,27 @@
       "dateMiseAJour": null,
       "erratum": null,
       "cover": null,
-      "author": { "id": 2, "documentId": "auth0000000000000000002", "name": "Camille Martin", "avatar": null },
-      "category": { "id": 1, "documentId": "cat00000000000000000001", "name": "Open source", "slug": "open-source", "description": null },
-      "tags": [{ "id": 3, "documentId": "tag00000000000000000003", "name": "Administration", "slug": "administration" }],
+      "author": {
+        "id": 2,
+        "documentId": "auth0000000000000000002",
+        "name": "Camille Martin",
+        "avatar": null
+      },
+      "category": {
+        "id": 1,
+        "documentId": "cat00000000000000000001",
+        "name": "Open source",
+        "slug": "open-source",
+        "description": null
+      },
+      "tags": [
+        {
+          "id": 3,
+          "documentId": "tag00000000000000000003",
+          "name": "Administration",
+          "slug": "administration"
+        }
+      ],
       "blocks": [
         {
           "__component": "shared.rich-text",
@@ -177,7 +203,13 @@
       "erratum": null,
       "cover": null,
       "author": null,
-      "category": { "id": 2, "documentId": "cat00000000000000000002", "name": "IA", "slug": "ia", "description": null },
+      "category": {
+        "id": 2,
+        "documentId": "cat00000000000000000002",
+        "name": "IA",
+        "slug": "ia",
+        "description": null
+      },
       "tags": [],
       "blocks": [],
       "sources": [],

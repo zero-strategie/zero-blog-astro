@@ -21,14 +21,16 @@ import Layout from '../layouts/Layout.astro';
 		consultée et son niveau :
 	</p>
 	<ul>
-		{Object.values(SOURCE_LEVEL_LABELS).map((label) => <li>{label}</li>)}
+		{Object.values(SOURCE_LEVEL_LABELS).map((label) => (
+			<li>{label}</li>
+		))}
 	</ul>
 
 	<h2>Les types de contenu</h2>
 	<p>
-		Chaque article affiche son type : {Object.values(CONTENT_TYPE_LABELS).join(', ')}. Une
-		opinion est toujours signalée comme telle, et un passage « Point de vue » au sein d'un autre
-		article est mis en forme à part.
+		Chaque article affiche son type : {Object.values(CONTENT_TYPE_LABELS).join(', ')}. Une opinion
+		est toujours signalée comme telle, et un passage « Point de vue » au sein d'un autre article est
+		mis en forme à part.
 	</p>
 
 	<h2>Vérifications et rectificatifs</h2>

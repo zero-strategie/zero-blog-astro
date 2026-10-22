@@ -15,31 +15,51 @@ interface Props {
 	verifiedOn?: Date;
 }
 
-const { title, description, contentType, category, authorName, publishedAt, updatedAt, verifiedOn } =
-	Astro.props;
+const {
+	title,
+	description,
+	contentType,
+	category,
+	authorName,
+	publishedAt,
+	updatedAt,
+	verifiedOn,
+} = Astro.props;
 const isOpinion = contentType === 'opinion';
 ---
 
 <header class="article-header">
 	<p class="kicker">
 		<ContentTypeBadge type={contentType} />
-		{category && <a class="category" href={categoryHref(category.slug)}>{category.name}</a>}
+		{category && (
+			<a class="category" href={categoryHref(category.slug)}>
+				{category.name}
+			</a>
+		)}
 	</p>
 	<h1>{title}</h1>
 	{description && <p class="chapo">{description}</p>}
-	{
-		isOpinion && (
-			<p class="opinion-notice" role="note">
-				<strong>Opinion.</strong> Tu lis un texte d'opinion : il défend le point de vue de son
-				auteur et n'engage que lui. Les faits sur lesquels il s'appuie sont sourcés en bas de page.
-			</p>
-		)
-	}
+	{isOpinion && (
+		<p class="opinion-notice" role="note">
+			<strong>Opinion.</strong> Tu lis un texte d'opinion : il défend le point de vue de son auteur
+			et n'engage que lui. Les faits sur lesquels il s'appuie sont sourcés en bas de page.
+		</p>
+	)}
 	<ul class="meta">
 		{authorName && <li>Par {authorName}</li>}
-		<li>Publié le <FormattedDate date={publishedAt} /></li>
-		{updatedAt && <li>Mis à jour le <FormattedDate date={updatedAt} /></li>}
-		{verifiedOn && <li class="verified">Vérifié le <FormattedDate date={verifiedOn} /></li>}
+		<li>
+			Publié le <FormattedDate date={publishedAt} />
+		</li>
+		{updatedAt && (
+			<li>
+				Mis à jour le <FormattedDate date={updatedAt} />
+			</li>
+		)}
+		{verifiedOn && (
+			<li class="verified">
+				Vérifié le <FormattedDate date={verifiedOn} />
+			</li>
+		)}
 	</ul>
 </header>
 

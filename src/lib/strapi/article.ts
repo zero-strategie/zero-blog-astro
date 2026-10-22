@@ -28,8 +28,7 @@ const list = async (filters: QueryParams | undefined, locale: string): Promise<A
 	).map(toArticleSummary);
 
 /** Every published article, newest first. */
-export const getArticles = (locale = LOCALE): Promise<ArticleSummary[]> =>
-	list(undefined, locale);
+export const getArticles = (locale = LOCALE): Promise<ArticleSummary[]> => list(undefined, locale);
 
 export const getArticlesByCategory = (slug: string, locale = LOCALE): Promise<ArticleSummary[]> =>
 	list({ category: { slug: { $eq: slug } } }, locale);

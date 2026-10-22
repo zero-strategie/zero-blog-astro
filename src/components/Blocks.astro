@@ -9,10 +9,8 @@ interface Props {
 const { blocks } = Astro.props;
 ---
 
-{
-	blocks.map((block) => {
-		const Component = blockComponent(block);
-		// An unknown block degrades, never crashes.
-		return Component ? <Component {...block} /> : null;
-	})
-}
+{blocks.map((block) => {
+	const Component = blockComponent(block);
+	// An unknown block degrades, never crashes.
+	return Component ? <Component {...block} /> : null;
+})}

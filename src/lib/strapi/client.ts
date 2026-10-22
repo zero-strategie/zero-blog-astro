@@ -116,7 +116,11 @@ export function createStrapiClient({
 	): Promise<z.infer<T>[]> {
 		const all: z.infer<T>[] = [];
 		for (let page = 1; ; page++) {
-			const res = await getCollection(path, { ...params, pagination: { page, pageSize: PAGE_SIZE } }, item);
+			const res = await getCollection(
+				path,
+				{ ...params, pagination: { page, pageSize: PAGE_SIZE } },
+				item,
+			);
 			all.push(...res.data);
 			if (page >= res.meta.pagination.pageCount) return all;
 		}

@@ -8,7 +8,10 @@ import { getTags } from '../../lib/strapi/tag';
 import type { Tag } from '../../types/domain';
 
 export const getStaticPaths = (async () =>
-	(await getTags()).map((tag) => ({ params: { slug: tag.slug }, props: { tag } }))) satisfies GetStaticPaths;
+	(await getTags()).map((tag) => ({
+		params: { slug: tag.slug },
+		props: { tag },
+	}))) satisfies GetStaticPaths;
 
 interface Props {
 	tag: Tag;
@@ -18,7 +21,13 @@ const { tag } = Astro.props;
 const articles = await getArticlesByTag(tag.slug);
 ---
 
-<Layout title={`#${tag.name}`} description={`Les articles sourcés de ${SITE_TITLE} sur « ${tag.name} ».`}>
+<Layout
+	title={`#${tag.name}`}
+	description={`Les articles sourcés de ${SITE_TITLE} sur « ${tag.name} ».`}
+>
 	<h1>#{tag.name}</h1>
-	<ArticleList articles={articles} emptyMessage="Aucun article publié avec ce mot-clé pour l'instant." />
+	<ArticleList
+		articles={articles}
+		emptyMessage="Aucun article publié avec ce mot-clé pour l'instant."
+	/>
 </Layout>

@@ -34,9 +34,12 @@ createServer((req, res) => {
 
 	const collection = collections[url.pathname];
 	if (!collection) {
-		return res
-			.writeHead(404, { 'content-type': 'application/json' })
-			.end(JSON.stringify({ data: null, error: { status: 404, name: 'NotFoundError', message: 'Not Found' } }));
+		return res.writeHead(404, { 'content-type': 'application/json' }).end(
+			JSON.stringify({
+				data: null,
+				error: { status: 404, name: 'NotFoundError', message: 'Not Found' },
+			}),
+		);
 	}
 
 	let data = collection.data.filter((e) => !q.get('locale') || e.locale === q.get('locale'));
@@ -50,7 +53,12 @@ createServer((req, res) => {
 	const body = {
 		data: data.slice((page - 1) * pageSize, page * pageSize),
 		meta: {
-			pagination: { page, pageSize, pageCount: Math.max(1, Math.ceil(data.length / pageSize)), total: data.length },
+			pagination: {
+				page,
+				pageSize,
+				pageCount: Math.max(1, Math.ceil(data.length / pageSize)),
+				total: data.length,
+			},
 		},
 	};
 	res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(body));

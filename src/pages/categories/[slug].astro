@@ -23,9 +23,15 @@ const articles = await getArticlesByCategory(category.slug);
 
 <Layout
 	title={category.name}
-	description={category.description ?? `Les articles sourcés de ${SITE_TITLE} sur le thème « ${category.name} ».`}
+	description={
+		category.description ??
+		`Les articles sourcés de ${SITE_TITLE} sur le thème « ${category.name} ».`
+	}
 >
 	<h1>{category.name}</h1>
 	{category.description && <p class="intro">{category.description}</p>}
-	<ArticleList articles={articles} emptyMessage="Aucun article publié dans cette catégorie pour l'instant." />
+	<ArticleList
+		articles={articles}
+		emptyMessage="Aucun article publié dans cette catégorie pour l'instant."
+	/>
 </Layout>

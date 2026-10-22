@@ -10,7 +10,12 @@ const target = String(href ?? '').match(/[^/]+/g)?.[0] ?? '';
 const isActive = section === target;
 ---
 
-<a href={href} class:list={[className, { active: isActive }]} aria-current={isActive ? 'page' : undefined} {...props}>
+<a
+	href={href}
+	class:list={[className, { active: isActive }]}
+	aria-current={isActive ? 'page' : undefined}
+	{...props}
+>
 	<slot />
 </a>
 

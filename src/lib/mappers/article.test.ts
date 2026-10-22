@@ -145,7 +145,8 @@ describe('toArticleDetail', () => {
 	it('lets seo override title, description and cover', () => {
 		expect(detail.seo).toEqual({
 			title: 'Cloud Act : ce que dit vraiment le texte',
-			description: 'Lecture sourcée du CLOUD Act et de sa portée sur les données hébergées en Europe.',
+			description:
+				'Lecture sourcée du CLOUD Act et de sa portée sur les données hébergées en Europe.',
 			image: {
 				url: 'http://cms.test/uploads/og_cloud_act.png',
 				alt: 'Cloud Act',
@@ -169,7 +170,9 @@ describe('toArticleDetail', () => {
 		const d = toArticleDetail(opinion);
 		const block = d.blocks[0];
 		expect(block.__component === 'shared.rich-text' && block.html).toContain('citation--missing');
-		expect(warn).toHaveBeenCalledWith(expect.stringMatching(/administration-code-ouvert-par-defaut.*source 4/));
+		expect(warn).toHaveBeenCalledWith(
+			expect.stringMatching(/administration-code-ouvert-par-defaut.*source 4/),
+		);
 		warn.mockRestore();
 	});
 

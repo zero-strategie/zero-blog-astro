@@ -6,7 +6,7 @@ import type { ContentType, SourceLevel } from './types/domain';
 
 export const SITE_TITLE = 'Zero Stratégie';
 export const SITE_DESCRIPTION =
-	"Open source, IA, souveraineté et géopolitique du numérique : des articles sourcés pour comprendre qui décide de tes outils et de tes données.";
+	'Open source, IA, souveraineté et géopolitique du numérique : des articles sourcés pour comprendre qui décide de tes outils et de tes données.';
 
 /** Content locale sent to Strapi on every localised request. */
 export const LOCALE = 'fr';

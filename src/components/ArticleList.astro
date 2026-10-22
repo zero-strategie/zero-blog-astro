@@ -12,29 +12,27 @@ interface Props {
 const { articles, emptyMessage } = Astro.props;
 ---
 
-{
-	articles.length > 0 ? (
-		<ul class="articles">
-			{articles.map((article) => (
-				<li>
-					<ArticleCard
-						href={articleHref(article.slug)}
-						title={article.title}
-						description={article.description}
-						contentType={article.contentType}
-						publishedAt={article.publishedAt}
-						categoryName={article.category?.name}
-						cover={article.cover}
-					/>
-				</li>
-			))}
-		</ul>
-	) : (
-		<p class="empty" role="status">
-			{emptyMessage}
-		</p>
-	)
-}
+{articles.length > 0 ? (
+	<ul class="articles">
+		{articles.map((article) => (
+			<li>
+				<ArticleCard
+					href={articleHref(article.slug)}
+					title={article.title}
+					description={article.description}
+					contentType={article.contentType}
+					publishedAt={article.publishedAt}
+					categoryName={article.category?.name}
+					cover={article.cover}
+				/>
+			</li>
+		))}
+	</ul>
+) : (
+	<p class="empty" role="status">
+		{emptyMessage}
+	</p>
+)}
 
 <style>
 	.articles {

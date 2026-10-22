@@ -6,21 +6,19 @@ type Props = MediaBlock;
 const { image, caption } = Astro.props;
 ---
 
-{
-	image && (
-		<figure class="media">
-			<img
-				src={image.url}
-				alt={image.alt}
-				width={image.width}
-				height={image.height}
-				loading="lazy"
-				decoding="async"
-			/>
-			{caption && <figcaption>{caption}</figcaption>}
-		</figure>
-	)
-}
+{image && (
+	<figure class="media">
+		<img
+			src={image.url}
+			alt={image.alt}
+			width={image.width}
+			height={image.height}
+			loading="lazy"
+			decoding="async"
+		/>
+		{caption && <figcaption>{caption}</figcaption>}
+	</figure>
+)}
 
 <style>
 	.media {

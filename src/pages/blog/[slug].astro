@@ -34,12 +34,14 @@ const faqLd = faqPageJsonLd(article.faq);
 >
 	<Fragment slot="head">
 		<meta property="article:published_time" content={article.publishedAt.toISOString()} />
-		{
-			article.updatedAt && (
-				<meta property="article:modified_time" content={article.updatedAt.toISOString()} />
-			)
-		}
-		<script is:inline type="application/ld+json" set:html={serializeJsonLd(articleJsonLd(article, url))} />
+		{article.updatedAt && (
+			<meta property="article:modified_time" content={article.updatedAt.toISOString()} />
+		)}
+		<script
+			is:inline
+			type="application/ld+json"
+			set:html={serializeJsonLd(articleJsonLd(article, url))}
+		/>
 		{faqLd && <script is:inline type="application/ld+json" set:html={serializeJsonLd(faqLd)} />}
 	</Fragment>
 
@@ -55,17 +57,15 @@ const faqLd = faqPageJsonLd(article.faq);
 			verifiedOn={article.verifiedOn}
 		/>
 		{article.erratum && <Erratum html={article.erratum} />}
-		{
-			article.cover && (
-				<img
-					class="cover"
-					src={article.cover.url}
-					alt={article.cover.alt}
-					width={article.cover.width}
-					height={article.cover.height}
-				/>
-			)
-		}
+		{article.cover && (
+			<img
+				class="cover"
+				src={article.cover.url}
+				alt={article.cover.alt}
+				width={article.cover.width}
+				height={article.cover.height}
+			/>
+		)}
 		<div class="prose">
 			<Blocks blocks={article.blocks} />
 		</div>

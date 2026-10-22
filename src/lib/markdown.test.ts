@@ -12,7 +12,9 @@ describe('renderMarkdown', () => {
 	});
 
 	it('drops raw HTML instead of injecting it', () => {
-		const html = renderMarkdown('Avant\n\n<script>alert(1)</script>\n\n<img src=x onerror="alert(1)">');
+		const html = renderMarkdown(
+			'Avant\n\n<script>alert(1)</script>\n\n<img src=x onerror="alert(1)">',
+		);
 		expect(html).not.toContain('<script');
 		expect(html).not.toContain('onerror');
 		expect(html).not.toContain('<img');
@@ -66,9 +68,9 @@ describe('renderMarkdown', () => {
 
 describe('markdownToText', () => {
 	it('keeps the words, drops the formatting and the citation calls', () => {
-		expect(markdownToText('Seulement *via* une [maison mère](https://ex.org) [[1]](#source-1).')).toBe(
-			'Seulement via une maison mère.',
-		);
+		expect(
+			markdownToText('Seulement *via* une [maison mère](https://ex.org) [[1]](#source-1).'),
+		).toBe('Seulement via une maison mère.');
 	});
 
 	it('drops raw HTML tags', () => {

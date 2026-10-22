@@ -51,8 +51,12 @@ describe('Sources', () => {
 		const html = await render(Sources, { sources });
 		expect(html).toContain('href="https://www.congress.gov/bill/115th-congress/house-bill/4943"');
 		expect(html).toContain('Congrès des États-Unis');
-		expect(html).toContain('publié le <time datetime="2018-03-23T00:00:00.000Z">23 mars 2018</time>');
-		expect(html).toContain('consulté le <time datetime="2026-10-14T00:00:00.000Z">14 octobre 2026</time>');
+		expect(html).toContain(
+			'publié le <time datetime="2018-03-23T00:00:00.000Z">23 mars 2018</time>',
+		);
+		expect(html).toContain(
+			'consulté le <time datetime="2026-10-14T00:00:00.000Z">14 octobre 2026</time>',
+		);
 		expect(html).toContain('Source primaire');
 	});
 
@@ -70,7 +74,7 @@ describe('Sources', () => {
 	it('says so when an article cites no source, rather than hiding the section', async () => {
 		const html = await render(Sources, { sources: [] });
 		expect(html).toContain('Sources');
-		expect(html).toContain("Cet article ne cite aucune source.");
+		expect(html).toContain('Cet article ne cite aucune source.');
 		expect(html).not.toContain('<ol');
 	});
 });

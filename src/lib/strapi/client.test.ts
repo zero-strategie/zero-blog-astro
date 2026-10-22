@@ -30,7 +30,11 @@ describe('strapi client', () => {
 			{},
 			item,
 		);
-		await createStrapiClient({ baseUrl: 'http://cms.test', fetch }).getCollection('/api/x', {}, item);
+		await createStrapiClient({ baseUrl: 'http://cms.test', fetch }).getCollection(
+			'/api/x',
+			{},
+			item,
+		);
 
 		expect(fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer t0k');
 		expect(fetch.mock.calls[1][1].headers.Authorization).toBeUndefined();
@@ -60,7 +64,9 @@ describe('strapi client', () => {
 	});
 
 	it('surfaces the system error code undici buries in its cause', async () => {
-		const refused = Object.assign(new Error('connect ECONNREFUSED ::1:1337'), { code: 'ECONNREFUSED' });
+		const refused = Object.assign(new Error('connect ECONNREFUSED ::1:1337'), {
+			code: 'ECONNREFUSED',
+		});
 		const fetch = vi
 			.fn()
 			.mockRejectedValue(new TypeError('fetch failed', { cause: new AggregateError([refused]) }));
@@ -75,7 +81,10 @@ describe('strapi client', () => {
 		const fetch = vi
 			.fn()
 			.mockResolvedValue(
-				json({ data: null, error: { status: 403, name: 'ForbiddenError', message: 'Forbidden' } }, 403),
+				json(
+					{ data: null, error: { status: 403, name: 'ForbiddenError', message: 'Forbidden' } },
+					403,
+				),
 			);
 		const client = createStrapiClient({ baseUrl: 'http://cms.test', fetch });
 
@@ -85,11 +94,12 @@ describe('strapi client', () => {
 	});
 
 	it('names the offending field when the response breaks the contract', async () => {
-		const fetch = vi
-			.fn()
-			.mockResolvedValue(
-				json({ data: [{ slug: 42 }], meta: { pagination: { page: 1, pageSize: 1, pageCount: 1, total: 1 } } }),
-			);
+		const fetch = vi.fn().mockResolvedValue(
+			json({
+				data: [{ slug: 42 }],
+				meta: { pagination: { page: 1, pageSize: 1, pageCount: 1, total: 1 } },
+			}),
+		);
 		const client = createStrapiClient({ baseUrl: 'http://cms.test', fetch });
 
 		await expect(client.getCollection('/api/articles', {}, item)).rejects.toThrow(

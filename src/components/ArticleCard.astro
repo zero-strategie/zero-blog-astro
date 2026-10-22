@@ -18,18 +18,27 @@ const { href, title, description, contentType, publishedAt, categoryName, cover 
 ---
 
 <article class="card">
-	{
-		cover && (
-			<img src={cover.url} alt={cover.alt} width={cover.width} height={cover.height} loading="lazy" decoding="async" />
-		)
-	}
+	{cover && (
+		<img
+			src={cover.url}
+			alt={cover.alt}
+			width={cover.width}
+			height={cover.height}
+			loading="lazy"
+			decoding="async"
+		/>
+	)}
 	<p class="kicker">
 		<ContentTypeBadge type={contentType} />
 		{categoryName && <span class="category">{categoryName}</span>}
 	</p>
-	<h2 class="title"><a href={href}>{title}</a></h2>
+	<h2 class="title">
+		<a href={href}>{title}</a>
+	</h2>
 	{description && <p class="description">{description}</p>}
-	<p class="date"><FormattedDate date={publishedAt} /></p>
+	<p class="date">
+		<FormattedDate date={publishedAt} />
+	</p>
 </article>
 
 <style>

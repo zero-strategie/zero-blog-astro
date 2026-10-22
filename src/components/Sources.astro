@@ -12,37 +12,35 @@ const { sources } = Astro.props;
 
 <section class="sources" aria-labelledby="sources-titre">
 	<h2 id="sources-titre">Sources</h2>
-	{
-		sources.length === 0 ? (
-			<p class="sources-vide">Cet article ne cite aucune source.</p>
-		) : (
-			<ol>
-				{sources.map((source) => (
-					<li id={`source-${source.index}`} value={source.index}>
-						<a href={source.url} rel="noopener noreferrer external">
-							{source.title}
-						</a>
-						{source.level && (
-							<span class={`source-niveau source-niveau--${source.level}`}>
-								{SOURCE_LEVEL_LABELS[source.level]}
+	{sources.length === 0 ? (
+		<p class="sources-vide">Cet article ne cite aucune source.</p>
+	) : (
+		<ol>
+			{sources.map((source) => (
+				<li id={`source-${source.index}`} value={source.index}>
+					<a href={source.url} rel="noopener noreferrer external">
+						{source.title}
+					</a>
+					{source.level && (
+						<span class={`source-niveau source-niveau--${source.level}`}>
+							{SOURCE_LEVEL_LABELS[source.level]}
+						</span>
+					)}
+					<span class="source-meta">
+						{source.publisher && <span class="source-editeur">{source.publisher}</span>}
+						{source.publishedOn && (
+							<span>
+								publié le <FormattedDate date={source.publishedOn} />
 							</span>
 						)}
-						<span class="source-meta">
-							{source.publisher && <span class="source-editeur">{source.publisher}</span>}
-							{source.publishedOn && (
-								<span>
-									publié le <FormattedDate date={source.publishedOn} />
-								</span>
-							)}
-							<span>
-								consulté le <FormattedDate date={source.consultedOn} />
-							</span>
+						<span>
+							consulté le <FormattedDate date={source.consultedOn} />
 						</span>
-					</li>
-				))}
-			</ol>
-		)
-	}
+					</span>
+				</li>
+			))}
+		</ol>
+	)}
 </section>
 
 <style>

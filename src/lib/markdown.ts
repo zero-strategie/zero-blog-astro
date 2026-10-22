@@ -42,7 +42,10 @@ function citation(index: number, source: CitableSource | undefined): Element {
 		return {
 			type: 'element',
 			tagName: 'sup',
-			properties: { className: ['citation', 'citation--missing'], title: `Source ${index} introuvable` },
+			properties: {
+				className: ['citation', 'citation--missing'],
+				title: `Source ${index} introuvable`,
+			},
 			children: [label],
 		};
 	}

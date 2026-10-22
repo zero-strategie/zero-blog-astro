@@ -4,7 +4,9 @@ import { articleDetailDto } from '../../types/strapi';
 import { toArticleDetail } from '../mappers/article';
 import { articleJsonLd, faqPageJsonLd, serializeJsonLd } from './json-ld';
 
-const [analyse, opinion, breve] = fixture.data.map((a) => toArticleDetail(articleDetailDto.parse(a)));
+const [analyse, opinion, breve] = fixture.data.map((a) =>
+	toArticleDetail(articleDetailDto.parse(a)),
+);
 const url = new URL('https://zero-strategie.dev/blog/cloud-act-donnees-europeennes/');
 
 describe('articleJsonLd', () => {
@@ -13,13 +15,18 @@ describe('articleJsonLd', () => {
 			'@context': 'https://schema.org',
 			'@type': 'Article',
 			headline: 'Le Cloud Act et les données européennes : ce que dit vraiment le texte',
-			description: 'Lecture sourcée du CLOUD Act et de sa portée sur les données hébergées en Europe.',
+			description:
+				'Lecture sourcée du CLOUD Act et de sa portée sur les données hébergées en Europe.',
 			inLanguage: 'fr',
 			mainEntityOfPage: url.href,
 			datePublished: '2026-10-12T07:30:00.000Z',
 			dateModified: '2026-10-15T09:00:00.000Z',
 			author: { '@type': 'Person', name: 'Rédaction Zero Stratégie' },
-			publisher: { '@type': 'Organization', name: 'Zero Stratégie', url: 'https://zero-strategie.dev/' },
+			publisher: {
+				'@type': 'Organization',
+				name: 'Zero Stratégie',
+				url: 'https://zero-strategie.dev/',
+			},
 			image: 'http://cms.test/uploads/og_cloud_act.png',
 			articleSection: 'Souveraineté numérique',
 			keywords: 'Cloud, Droit',
@@ -54,7 +61,7 @@ describe('faqPageJsonLd', () => {
 					name: "Le CLOUD Act s'applique-t-il à un hébergeur français ?",
 					acceptedAnswer: {
 						'@type': 'Answer',
-						text: 'Seulement s\'il relève de la juridiction américaine, par exemple via une maison mère.',
+						text: "Seulement s'il relève de la juridiction américaine, par exemple via une maison mère.",
 					},
 				},
 			],

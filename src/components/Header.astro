@@ -6,7 +6,9 @@ import HeaderLink from './HeaderLink.astro';
 
 <header>
 	<nav aria-label="Navigation principale">
-		<p class="site-title"><a href={HOME_HREF}>{SITE_TITLE}</a></p>
+		<p class="site-title">
+			<a href={HOME_HREF}>{SITE_TITLE}</a>
+		</p>
 		<div class="internal-links">
 			<HeaderLink href={HOME_HREF}>Accueil</HeaderLink>
 			<HeaderLink href={BLOG_HREF}>Articles</HeaderLink>

@@ -6,9 +6,10 @@ interface Props {
 }
 
 const { date } = Astro.props;
-const label = new Intl.DateTimeFormat(DATE_LOCALE, { dateStyle: 'long', timeZone: TIME_ZONE }).format(
-	date,
-);
+const label = new Intl.DateTimeFormat(DATE_LOCALE, {
+	dateStyle: 'long',
+	timeZone: TIME_ZONE,
+}).format(date);
 ---
 
 <time datetime={date.toISOString()}>{label}</time>
