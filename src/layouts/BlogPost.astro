@@ -68,8 +68,8 @@ const { title, description, pubDate, updatedDate, category, heroImage, heroAlt, 
 			display: none;
 		}
 		/* Modèle Tufte : la note flotte à droite avec une marge négative, démarre sur la ligne de l'appel
-		   et s'empile sous la précédente. Rupture : colonne (66ch, environ 47rem avec son retrait) + 2 × (14rem + 1.5rem)
-		   de marge = environ 78rem, arrondi à 85rem pour ne jamais déclencher de défilement horizontal. */
+		   et s'empile sous la précédente. Rupture : colonne (--measure : 41em, soit environ 66 caractères de Fraunces ; environ 51rem à 20 px de corps) + 2 × (14rem + 1.5rem)
+		   de marge = environ 82rem, arrondi à 85rem pour ne jamais déclencher de défilement horizontal. */
 		@media (min-width: 85rem) {
 			.content :global(.sidenote) {
 				float: right;

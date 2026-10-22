@@ -16,7 +16,7 @@
 		var(--font-fraunces), 'Fraunces fallback Times', 'Fraunces fallback Noto',
 		'Fraunces fallback DejaVu', Georgia, serif;
 	--font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-	--measure: 66ch;
+	--measure: 41em;
 	--halftone-size: 5px;
 
 	/* Thème Shiki « css-variables » : encre, rouge, gris. Le fond est un cran plus sombre que le papier. */

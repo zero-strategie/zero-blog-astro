@@ -39,3 +39,9 @@ for (const theme of ['light', 'dark']) {
 		});
 	}
 }
+
+test("--measure est en em : l'unité ch dépend du zéro de la fonte et recomposerait le texte au swap", () => {
+	const css = readFileSync(new URL('../src/styles/tokens.css', import.meta.url), 'utf8');
+	assert.match(css, /--measure:\s*[\d.]+em;/);
+	assert.doesNotMatch(css, /--measure:\s*[\d.]+ch/);
+});
