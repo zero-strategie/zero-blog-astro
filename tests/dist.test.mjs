@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import { findZeroJsViolations } from '../scripts/lib/dist.mjs';
+
+test('signale un attribut onclick dans une balise', () => {
+	const violations = findZeroJsViolations('<a href="#" onclick="alert(1)">x</a>');
+	assert.ok(violations.length > 0);
+});
+
+test('ne signale pas on=1 dans le texte', () => {
+	assert.deepEqual(findZeroJsViolations('<p>on=1 et onclick=2</p>'), []);
+});
