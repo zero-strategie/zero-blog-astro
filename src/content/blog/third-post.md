@@ -2,6 +2,7 @@
 title: 'Third post'
 description: 'Lorem ipsum dolor sit amet'
 pubDate: '2022-07-22'
+category: 'ia'
 heroImage: '../../assets/blog-placeholder-2.jpg'
 ---
 
