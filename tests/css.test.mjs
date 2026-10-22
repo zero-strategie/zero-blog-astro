@@ -4,6 +4,7 @@ import { pageCss, readDistHtml } from '../scripts/lib/dist.mjs';
 
 const MAX_CSS_BYTES = 15 * 1024;
 const pages = readDistHtml();
+const MAX_REGISTRATION_OFFSET_EM = 0.04;
 const compact = (css) => css.replace(/\s+/g, '');
 
 test('pageCss réunit la CSS inline et la CSS liée', () => {
@@ -29,6 +30,12 @@ for (const { file, html } of pages) {
 		assert.match(css, /prefers-reduced-motion:reduce/);
 		assert.match(css, /animation-duration:0s/);
 		assert.match(css, /transition-duration:0s/);
+	});
+
+	test(`${file} : décalage du calage du h1 discret (1 à 2 px)`, () => {
+		const [, x, y] = css.match(/(?:^|[};,])h1\{[^}]*text-shadow:(-?[\d.]+)em(-?[\d.]+)em/) ?? [];
+		assert.ok(x, 'pas de calage en em sur le h1');
+		assert.ok(Math.abs(x) <= MAX_REGISTRATION_OFFSET_EM && Math.abs(y) <= MAX_REGISTRATION_OFFSET_EM, `${x}em ${y}em`);
 	});
 
 	test(`${file} : liens en encre soulignés de rouge`, () => {

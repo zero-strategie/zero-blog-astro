@@ -48,7 +48,7 @@ h1 {
 	font-weight: 900;
 	letter-spacing: -0.025em;
 	/* Défaut de calage : la plaque rouge est décalée sous la noire. */
-	text-shadow: 0.055em 0.04em 0 var(--ink-red);
+	text-shadow: 0.035em 0.035em 0 var(--ink-red);
 }
 
 h2 {
