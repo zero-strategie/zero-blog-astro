@@ -1,6 +1,6 @@
 ---
 title: 'Third post'
-description: 'Lorem ipsum dolor sit amet'
+description: 'Troisième billet provisoire du carnet, en attente du texte définitif.'
 pubDate: '2022-07-22'
 category: 'ia'
 heroImage: '../../assets/blog-placeholder-2.jpg'

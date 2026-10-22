@@ -1,6 +1,6 @@
 ---
 title: 'First post'
-description: 'Lorem ipsum dolor sit amet'
+description: 'Premier billet provisoire du carnet, en attente du texte définitif.'
 pubDate: '2022-07-08'
 category: 'projets'
 heroImage: '../../assets/blog-placeholder-3.jpg'

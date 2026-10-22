@@ -1,6 +1,6 @@
 ---
 title: 'Second post'
-description: 'Lorem ipsum dolor sit amet'
+description: 'Deuxième billet provisoire du carnet, en attente du texte définitif.'
 pubDate: '2022-07-15'
 category: 'open-source'
 heroImage: '../../assets/blog-placeholder-4.jpg'
