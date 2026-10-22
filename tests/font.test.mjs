@@ -51,3 +51,10 @@ test('--font-text repose sur Fraunces', () => {
 test("l'axe opsz est exploité par font-optical-sizing: auto", () => {
 	assert.match(pageCss(home.html), /font-optical-sizing:\s*auto/);
 });
+
+for (const route of ['client/blog/index.html', 'client/blog/first-post/index.html']) {
+	test(`${route} : la date utilise var(--font-mono)`, () => {
+		const { html } = pages.find(({ file }) => file.endsWith(route));
+		assert.match(pageCss(html), /\.date[^{]*{[^}]*font-family:\s*var\(--font-mono\)/);
+	});
+}
