@@ -2,11 +2,12 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
+import Stamp from '../components/Stamp.astro';
 import Layout from './Layout.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = Omit<CollectionEntry<'blog'>['data'], 'category'> & Partial<Pick<CollectionEntry<'blog'>['data'], 'category'>>;
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, category, heroImage } = Astro.props;
 ---
 
 <Layout title={title} description={description} image={heroImage}>
@@ -51,6 +52,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		</div>
 		<div class="prose">
 			<div class="title">
+				{category && <Stamp category={category} />}
 				<div class="date">
 					<FormattedDate date={pubDate} />
 					{
