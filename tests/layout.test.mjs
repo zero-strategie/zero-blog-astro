@@ -80,3 +80,9 @@ test('aucun blog-placeholder-1 dans les meta, accueil, /about/ et /blog/', () =>
 		for (const meta of metas) assert.doesNotMatch(meta, /blog-placeholder-1/, suffix);
 	}
 });
+
+test('aucun ClientRouter : pas de routeur client dans les pages ni dans les sources', () => {
+	for (const { file, html } of pages) assert.doesNotMatch(html, /astro-route|ClientRouter/i, file);
+	const users = sourceFiles().filter((file) => /ClientRouter/.test(readFileSync(file, 'utf8')));
+	assert.deepEqual(users, []);
+});

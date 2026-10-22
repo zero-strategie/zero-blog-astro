@@ -43,3 +43,15 @@ for (const { file, html } of pages) {
 		for (const selector of shadowed) assert.match(selector, /^h1(\[|$|,)/, selector);
 	});
 }
+
+for (const { file, html } of pages) {
+	const css = compact(pageCss(html));
+
+	test(`${file} : transitions de vue natives, coupées sous reduced-motion`, () => {
+		assert.match(css, /@view-transition\{navigation:auto\}/);
+		assert.match(
+			css,
+			/@media\(prefers-reduced-motion:reduce\)\{[^@]*@view-transition\{navigation:none\}/,
+		);
+	});
+}
