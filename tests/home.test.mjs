@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { pageCss, readDistHtml } from '../scripts/lib/dist.mjs';
-import { MANIFESTO } from '../src/consts.ts';
+
+// Lecture texte de consts.ts : un test ne doit pas importer de .ts (Node < 22.18).
+const consts = readFileSync(new URL('../src/consts.ts', import.meta.url), 'utf8');
+const manifestoBlock = consts.match(/export const MANIFESTO = \{([\s\S]*?)\} as const;/)?.[1] ?? '';
+const MANIFESTO = {
+	title: manifestoBlock.match(/title: '([^']+)'/)?.[1] ?? '',
+	paragraphs: [...(manifestoBlock.match(/paragraphs: \[([\s\S]*?)\],/)?.[1] ?? '').matchAll(/"([^"]+)"/g)].map(([, text]) => text),
+};
 
 const home = (readDistHtml().find(({ file }) => file.endsWith('/client/index.html'))?.html ?? '').replaceAll('&#39;', "'");
 const attr = (tag, name) => tag.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
@@ -12,6 +20,7 @@ const datetimeOf = (html) => html.match(/<time\b[^>]*datetime="([^"]+)"/)?.[1];
 
 test("l'accueil affiche le manifeste et aucun reste du starter", () => {
 	assert.ok(home.length > 0);
+	assert.ok(MANIFESTO.title && MANIFESTO.paragraphs.length > 0, 'manifeste introuvable dans consts.ts');
 	for (const paragraph of MANIFESTO.paragraphs) assert.ok(home.includes(paragraph), paragraph);
 	assert.ok(home.includes(MANIFESTO.title));
 	assert.doesNotMatch(home, /Hello, Astronaut|Lorem/);
