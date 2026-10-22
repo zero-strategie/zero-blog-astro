@@ -19,3 +19,36 @@ test("l'en-tête de chaque page affiche « zero-stratégie » et son sous-titre"
 		assert.match(header, /carnet indépendant — open source, IA, souveraineté/, file);
 	}
 });
+
+const navOf = (html) => html.match(/<nav\b[^>]*>[\s\S]*?<\/nav>/)?.[0] ?? '';
+const links = (html) => [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)];
+
+test('la navigation est un <nav aria-label> avec Accueil, Archive et À propos', () => {
+	const nav = navOf(pageNamed('client/index.html'));
+	assert.match(nav, /^<nav\b[^>]*\baria-label="[^"]+"/);
+	const entries = links(nav).map(([, attributes, text]) => [
+		attributes.match(/href="([^"]*)"/)?.[1],
+		text.trim(),
+	]);
+	assert.deepEqual(entries, [
+		['/', 'Accueil'],
+		['/blog/', 'Archive'],
+		['/about/', 'À propos'],
+	]);
+});
+
+const ACTIVE_LABEL_BY_PAGE = {
+	'client/index.html': 'Accueil',
+	'blog/index.html': 'Archive',
+	'blog/first-post/index.html': 'Archive',
+	'about/index.html': 'À propos',
+};
+
+test('seul le lien de la section courante porte aria-current="page"', () => {
+	for (const [suffix, label] of Object.entries(ACTIVE_LABEL_BY_PAGE)) {
+		const current = links(navOf(pageNamed(suffix)))
+			.filter(([, attributes]) => /\baria-current="page"/.test(attributes))
+			.map(([, , text]) => text.trim());
+		assert.deepEqual(current, [label], suffix);
+	}
+});
