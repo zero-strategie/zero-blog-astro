@@ -1,3 +1,9 @@
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+export const DIST_DIR = fileURLToPath(new URL('../../dist/client', import.meta.url));
+
 const OPENING_TAG = /<[a-zA-Z][^>]*>/g;
 const EVENT_HANDLER_ATTRIBUTE = /\s(on[a-z]+)\s*=/i;
 const SCRIPT_TAG = /<script/i;
@@ -12,4 +18,19 @@ export function findZeroJsViolations(html) {
 		if (handler) violations.push(`attribut ${handler[1]} dans ${tag}`);
 	}
 	return violations;
+}
+
+export function listDistFiles(distDir = DIST_DIR) {
+	if (!existsSync(distDir)) {
+		throw new Error(`${distDir} est introuvable : lancez d'abord \`pnpm build\`.`);
+	}
+	return readdirSync(distDir, { recursive: true, withFileTypes: true })
+		.filter((entry) => entry.isFile())
+		.map((entry) => join(entry.parentPath, entry.name));
+}
+
+export function readDistHtml(distDir = DIST_DIR) {
+	return listDistFiles(distDir)
+		.filter((file) => file.endsWith('.html'))
+		.map((file) => ({ file, html: readFileSync(file, 'utf8') }));
 }
