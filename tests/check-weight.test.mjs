@@ -4,10 +4,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { DIST_DIR } from '../scripts/lib/dist.mjs';
 import { checkWeight } from '../scripts/lib/weight.mjs';
 
-const CLI = new URL('../scripts/check-weight.mjs', import.meta.url).pathname;
+const CLI = fileURLToPath(new URL('../scripts/check-weight.mjs', import.meta.url));
 const KB = 1024;
 const roots = [];
 
