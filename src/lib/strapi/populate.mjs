@@ -2,8 +2,9 @@
  * Named populate constants, one per use case (AGENTS.md 4.7). Never
  * `populate=*`: it drags every relation and every image format over the wire,
  * and still misses `seo.shareImage`.
+ *
+ * @typedef {import('./query.mjs').QueryParams} QueryParams
  */
-import type { QueryParams } from './query';
 
 const MEDIA = { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] };
 const CATEGORY = { fields: ['name', 'slug', 'description'] };
@@ -19,15 +20,21 @@ export const ARTICLE_LIST_FIELDS = [
 	'dateMiseAJour',
 ];
 
-/** Listings: cover, category and tags — no blocks, no sources. */
-export const ARTICLE_LIST_POPULATE: QueryParams = {
+/**
+ * Listings: cover, category and tags — no blocks, no sources.
+ * @type {QueryParams}
+ */
+export const ARTICLE_LIST_POPULATE = {
 	cover: MEDIA,
 	category: CATEGORY,
 	tags: TAG,
 };
 
-/** Article page: everything the page renders, each block populated by type. */
-export const ARTICLE_DETAIL_POPULATE: QueryParams = {
+/**
+ * Article page: everything the page renders, each block populated by type.
+ * @type {QueryParams}
+ */
+export const ARTICLE_DETAIL_POPULATE = {
 	...ARTICLE_LIST_POPULATE,
 	author: { fields: ['name'], populate: { avatar: MEDIA } },
 	blocks: {
@@ -42,3 +49,15 @@ export const ARTICLE_DETAIL_POPULATE: QueryParams = {
 	faq: true,
 	seo: { populate: { shareImage: MEDIA } },
 };
+
+/**
+ * Parameters every article request carries: locale explicit (AGENTS.md §1),
+ * published only, newest first.
+ * @param {string} locale
+ * @returns {QueryParams}
+ */
+export const articleBaseParams = (locale) => ({
+	locale,
+	status: 'published',
+	sort: ['publishedAt:desc'],
+});

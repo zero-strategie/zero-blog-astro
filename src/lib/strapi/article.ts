@@ -7,16 +7,15 @@ import type { ArticleDetail, ArticleSummary } from '../../types/domain';
 import { articleDetailDto, articleSummaryDto } from '../../types/strapi';
 import { toArticleDetail, toArticleSummary } from '../mappers/article';
 import { strapi } from './client';
-import { ARTICLE_DETAIL_POPULATE, ARTICLE_LIST_FIELDS, ARTICLE_LIST_POPULATE } from './populate';
-import type { QueryParams } from './query';
+import {
+	ARTICLE_DETAIL_POPULATE,
+	ARTICLE_LIST_FIELDS,
+	ARTICLE_LIST_POPULATE,
+	articleBaseParams as base,
+} from './populate.mjs';
+import type { QueryParams } from './query.mjs';
 
 const PATH = '/api/articles';
-
-const base = (locale: string): QueryParams => ({
-	locale,
-	status: 'published',
-	sort: ['publishedAt:desc'],
-});
 
 const list = async (filters: QueryParams | undefined, locale: string): Promise<ArticleSummary[]> =>
 	(

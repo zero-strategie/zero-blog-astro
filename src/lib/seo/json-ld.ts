@@ -7,7 +7,8 @@ import type { ArticleDetail, FaqItem } from '../../types/domain';
 
 type JsonLd = Record<string, unknown>;
 
-export function articleJsonLd(article: ArticleDetail, url: URL): JsonLd {
+/** `image` is the share image as served by the site, when there is one. */
+export function articleJsonLd(article: ArticleDetail, url: URL, image?: string): JsonLd {
 	const ld: JsonLd = {
 		'@context': 'https://schema.org',
 		'@type': 'Article',
@@ -23,7 +24,7 @@ export function articleJsonLd(article: ArticleDetail, url: URL): JsonLd {
 			: { '@type': 'Organization', name: SITE_TITLE },
 		publisher: { '@type': 'Organization', name: SITE_TITLE, url: new URL('/', url).href },
 	};
-	if (article.seo.image) ld.image = article.seo.image.url;
+	if (image) ld.image = image;
 	if (article.category) ld.articleSection = article.category.name;
 	if (article.tags.length) ld.keywords = article.tags.map((t) => t.name).join(', ');
 	if (article.sources.length) ld.citation = article.sources.map((s) => s.url);

@@ -12,11 +12,13 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
+    "check:weight": "node scripts/check-weight.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "build:fixtures": "node scripts/build-on-fixtures.mjs",
+    "test": "pnpm build:fixtures && node --test \"tests/*.test.mjs\"",
+    "test:unit": "vitest run",
     "fixtures": "node scripts/fixture-server.mjs"
   },
   "dependencies": {
@@ -31,6 +33,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "sharp": "^0.34.3",
+    "shiki": "4.2.0",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0"
   },

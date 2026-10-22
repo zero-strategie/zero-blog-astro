@@ -2,16 +2,21 @@
  * Strapi's REST API reads nested parameters in `qs` bracket notation:
  * `populate[seo][populate]=shareImage`, `filters[category][slug][$eq]=ia`.
  * Brackets are left readable; keys and values are percent-encoded.
+ *
+ * @typedef {string | number | boolean | undefined | QueryValue[] | QueryParams} QueryValue
+ * @typedef {{ [key: string]: QueryValue }} QueryParams
  */
-export type QueryValue = string | number | boolean | undefined | QueryValue[] | QueryParams;
-export interface QueryParams {
-	[key: string]: QueryValue;
-}
 
 // `$eq`, `$in`… stay readable: `$` is legal in a query string and qs reads it either way.
-const encodeKey = (key: string): string => encodeURIComponent(key).replaceAll('%24', '$');
+/** @param {string} key */
+const encodeKey = (key) => encodeURIComponent(key).replaceAll('%24', '$');
 
-function pairs(prefix: string, value: QueryValue): string[] {
+/**
+ * @param {string} prefix
+ * @param {QueryValue} value
+ * @returns {string[]}
+ */
+function pairs(prefix, value) {
 	if (value === undefined) return [];
 	if (Array.isArray(value)) return value.flatMap((v, i) => pairs(`${prefix}[${i}]`, v));
 	if (typeof value === 'object') {
@@ -20,7 +25,11 @@ function pairs(prefix: string, value: QueryValue): string[] {
 	return [`${prefix}=${encodeURIComponent(String(value))}`];
 }
 
-export function toQueryString(params: QueryParams): string {
+/**
+ * @param {QueryParams} params
+ * @returns {string}
+ */
+export function toQueryString(params) {
 	return Object.entries(params)
 		.flatMap(([k, v]) => pairs(encodeKey(k), v))
 		.join('&');

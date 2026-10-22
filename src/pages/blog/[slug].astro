@@ -1,13 +1,7 @@
 ---
 import type { GetStaticPaths } from 'astro';
-import ArticleHeader from '../../components/ArticleHeader.astro';
-import Blocks from '../../components/Blocks.astro';
-import Erratum from '../../components/Erratum.astro';
-import Faq from '../../components/Faq.astro';
-import Sources from '../../components/Sources.astro';
-import TagList from '../../components/TagList.astro';
-import { SITE_DESCRIPTION } from '../../consts';
-import Layout from '../../layouts/Layout.astro';
+import { getImage } from 'astro:assets';
+import BlogPost from '../../layouts/BlogPost.astro';
 import { articleJsonLd, faqPageJsonLd, serializeJsonLd } from '../../lib/seo/json-ld';
 import { getArticleDetails } from '../../lib/strapi/article';
 import type { ArticleDetail } from '../../types/domain';
@@ -24,69 +18,33 @@ interface Props {
 const { article } = Astro.props;
 const url = new URL(Astro.url.pathname, Astro.site);
 const faqLd = faqPageJsonLd(article.faq);
+
+// Image de partage au format attendu par Open Graph, copiée dans /_astro/ comme les autres.
+const share = article.seo.image;
+const shareImage = share && {
+	src: (
+		await getImage({
+			src: share.url,
+			width: 1200,
+			height: 630,
+			format: 'jpg',
+			...(share.width && share.height ? {} : { inferSize: true }),
+		})
+	).src,
+	alt: share.alt,
+};
+const ld = articleJsonLd(article, url, shareImage && new URL(shareImage.src, Astro.site).href);
 ---
 
-<Layout
-	title={article.seo.title}
-	description={article.seo.description ?? SITE_DESCRIPTION}
-	image={article.seo.image}
-	ogType="article"
->
+<BlogPost article={article} shareImage={shareImage}>
 	<Fragment slot="head">
 		<meta property="article:published_time" content={article.publishedAt.toISOString()} />
-		{article.updatedAt && (
-			<meta property="article:modified_time" content={article.updatedAt.toISOString()} />
-		)}
-		<script
-			is:inline
-			type="application/ld+json"
-			set:html={serializeJsonLd(articleJsonLd(article, url))}
-		/>
+		{
+			article.updatedAt && (
+				<meta property="article:modified_time" content={article.updatedAt.toISOString()} />
+			)
+		}
+		<script is:inline type="application/ld+json" set:html={serializeJsonLd(ld)} />
 		{faqLd && <script is:inline type="application/ld+json" set:html={serializeJsonLd(faqLd)} />}
 	</Fragment>
-
-	<article class:list={['article', { 'article--opinion': article.contentType === 'opinion' }]}>
-		<ArticleHeader
-			title={article.title}
-			description={article.description}
-			contentType={article.contentType}
-			category={article.category}
-			authorName={article.author?.name}
-			publishedAt={article.publishedAt}
-			updatedAt={article.updatedAt}
-			verifiedOn={article.verifiedOn}
-		/>
-		{article.erratum && <Erratum html={article.erratum} />}
-		{article.cover && (
-			<img
-				class="cover"
-				src={article.cover.url}
-				alt={article.cover.alt}
-				width={article.cover.width}
-				height={article.cover.height}
-			/>
-		)}
-		<div class="prose">
-			<Blocks blocks={article.blocks} />
-		</div>
-		<Faq items={article.faq} />
-		<Sources sources={article.sources} />
-		<TagList tags={article.tags} />
-	</article>
-</Layout>
-
-<style>
-	.cover {
-		display: block;
-		width: 100%;
-		margin-bottom: 2em;
-	}
-	/* A continuous margin rule: an opinion piece stays recognisable while scrolling. */
-	.article--opinion {
-		padding-left: 1em;
-		border-left: 4px solid var(--opinion);
-	}
-	.article :global(.tags) {
-		margin-top: 2em;
-	}
-</style>
+</BlogPost>

@@ -2,7 +2,7 @@ import rss from '@astrojs/rss';
 import type { APIContext } from 'astro';
 import { LANG, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { getArticles } from '../lib/strapi/article';
-import { articleHref } from '../lib/url';
+import { articleUrl } from '../lib/url';
 
 export async function GET(context: APIContext) {
 	if (!context.site) throw new Error('`site` must be set in astro.config.mjs');
@@ -16,7 +16,7 @@ export async function GET(context: APIContext) {
 			title: article.title,
 			description: article.description,
 			pubDate: article.publishedAt,
-			link: articleHref(article.slug),
+			link: articleUrl(article.slug),
 			categories: [article.category?.name, ...article.tags.map((t) => t.name)].filter(
 				(c): c is string => Boolean(c),
 			),

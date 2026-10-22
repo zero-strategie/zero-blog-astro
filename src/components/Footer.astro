@@ -1,31 +1,43 @@
 ---
-import { SITE_TITLE } from '../consts';
-import { ABOUT_HREF, RSS_HREF } from '../lib/url';
-
-const year = new Date().getFullYear();
+import { FOOTER_LINKS, LICENSE, LICENSE_PREFIX, SITE_TITLE } from '../consts';
 ---
 
 <footer>
-	<p>
-		&copy; {year} {SITE_TITLE}. Chaque affirmation factuelle est sourcée.
+	<p class="colophon">
+		{SITE_TITLE} — {LICENSE_PREFIX} <a href={LICENSE.url}>{LICENSE.name}</a>.
 	</p>
-	<p>
-		<a href={ABOUT_HREF}>Notre méthode</a> · <a href={RSS_HREF}>Flux RSS</a>
-	</p>
+	<ul class="footer-links">
+		{FOOTER_LINKS.map(({ href, label }) => <li><a href={href}>{label}</a></li>)}
+	</ul>
 </footer>
 
 <style>
 	footer {
-		padding: 2em 1em 6em 1em;
-		background: linear-gradient(var(--gray-gradient)) no-repeat;
-		color: rgb(var(--gray));
+		width: min(100% - 2rem, 48rem);
+		margin: 0 auto;
+		padding: 1.5rem 0 4rem;
+		border-top: 4px double var(--ink);
+		color: var(--ink-soft);
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
 		text-align: center;
-		font-size: 0.9em;
 	}
-	footer p {
-		margin: 0.25em 0;
+	.colophon {
+		margin: 0 0 0.75rem;
 	}
-	a {
-		color: rgb(var(--gray-dark));
+	.footer-links {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0 1.25rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	footer a {
+		display: inline-block;
+		padding: 0.5rem 0;
 	}
 </style>

@@ -1,16 +1,49 @@
 ---
-import ArticleList from '../../components/ArticleList.astro';
-import { SITE_TITLE } from '../../consts';
+import ArticleRow from '../../components/ArticleRow.astro';
 import Layout from '../../layouts/Layout.astro';
+import {
+	ARCHIVE_DESCRIPTION,
+	ARCHIVE_TITLE,
+	EMPTY_ARCHIVE_MESSAGE,
+	SITE_TITLE,
+	rubriqueOf,
+} from '../../consts';
 import { getArticles } from '../../lib/strapi/article';
+import { articleUrl } from '../../lib/url';
 
-const articles = await getArticles();
+// Strapi trie déjà du plus récent au plus ancien (lib/strapi/populate.mjs).
+const posts = await getArticles();
 ---
 
-<Layout
-	title="Tous les articles"
-	description={`Tous les articles de ${SITE_TITLE}, du plus récent au plus ancien : actualités, analyses, enquêtes, décryptages et opinions, chacun avec ses sources.`}
->
-	<h1>Tous les articles</h1>
-	<ArticleList articles={articles} emptyMessage="Aucun article publié pour l'instant." />
+<Layout title={`${ARCHIVE_TITLE} — ${SITE_TITLE}`} description={ARCHIVE_DESCRIPTION}>
+	<h1>{ARCHIVE_TITLE}</h1>
+	{
+		posts.length === 0 ? (
+			<p class="empty">{EMPTY_ARCHIVE_MESSAGE}</p>
+		) : (
+			<ul>
+				{posts.map((post) => (
+					<ArticleRow
+						title={post.title}
+						href={articleUrl(post.slug)}
+						pubDate={post.publishedAt}
+						category={rubriqueOf(post.category)}
+						contentType={post.contentType}
+					/>
+				))}
+			</ul>
+		)
+	}
 </Layout>
+
+<style>
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		border-bottom: 1px solid var(--ink);
+	}
+	.empty {
+		font-style: italic;
+	}
+</style>

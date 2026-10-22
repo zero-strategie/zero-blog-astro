@@ -1,0 +1,31 @@
+---
+/**
+ * A CMS upload through astro:assets: downloaded at build time from STRAPI_URL
+ * (image.remotePatterns in astro.config.mjs), resized and served from
+ * /_astro/, so pages never point at the CMS origin. A URL outside those
+ * patterns is rendered as is.
+ */
+import { Image } from 'astro:assets';
+import type { ImageRef } from '../types/domain';
+
+interface Props {
+	image: ImageRef;
+	/** Overrides image.alt — `''` for a decorative copy. */
+	alt?: string;
+	widths?: number[];
+	sizes?: string;
+	loading?: 'eager' | 'lazy';
+	fetchpriority?: 'high' | 'low' | 'auto';
+}
+
+const { image, alt = image.alt, ...rest } = Astro.props;
+const { url, width, height } = image;
+---
+
+{
+	width && height ? (
+		<Image src={url} width={width} height={height} alt={alt} {...rest} />
+	) : (
+		<Image src={url} inferSize alt={alt} {...rest} />
+	)
+}

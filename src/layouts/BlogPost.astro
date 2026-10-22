@@ -1,0 +1,273 @@
+---
+import type { ShareImage } from '../components/BaseHead.astro';
+import Blocks from '../components/Blocks.astro';
+import CmsImage from '../components/CmsImage.astro';
+import ContentTypeBadge from '../components/ContentTypeBadge.astro';
+import Erratum from '../components/Erratum.astro';
+import Faq from '../components/Faq.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Sources from '../components/Sources.astro';
+import Stamp from '../components/Stamp.astro';
+import TagList from '../components/TagList.astro';
+import {
+	ARTICLE_LABELS,
+	CONTENT_TYPE_LABELS,
+	readingTimeLabel,
+	rubriqueOf,
+	SITE_DESCRIPTION,
+	UPDATED_ON_LABEL,
+} from '../consts';
+import type { ArticleDetail } from '../types/domain';
+import Layout from './Layout.astro';
+
+interface Props {
+	article: ArticleDetail;
+	shareImage?: ShareImage;
+}
+
+const { article, shareImage } = Astro.props;
+const {
+	title,
+	contentType,
+	publishedAt,
+	updatedAt,
+	verifiedOn,
+	cover,
+	author,
+	readingMinutes,
+} = article;
+const category = rubriqueOf(article.category);
+const isOpinion = contentType === 'opinion';
+const COVER_WIDTHS = [480, 800, 1200];
+const COVER_SIZES = '(min-width: 64rem) 64rem, 100vw';
+---
+
+<Layout
+	title={article.seo.title}
+	description={article.seo.description ?? SITE_DESCRIPTION}
+	image={shareImage}
+	ogType="article"
+>
+	<slot name="head" slot="head" />
+	<style>
+		:global(main) {
+			width: 100%;
+			max-width: 100%;
+			margin: 0;
+		}
+		.hero-image {
+			width: min(100% - 2rem, 64rem);
+			margin: 0 auto;
+		}
+		.prose {
+			width: min(100% - 2rem, var(--measure));
+			margin: auto;
+			padding: 1rem;
+		}
+		.title {
+			margin-bottom: 1rem;
+			padding: 1rem 0;
+		}
+		.title h1 {
+			margin: 0 0 0.5em;
+		}
+		.date {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.25rem 1.25rem;
+			margin: 0 0 0.5rem;
+			color: var(--ink-soft);
+			font-family: var(--font-mono);
+			font-size: 0.9rem;
+		}
+		.updated-on {
+			font-style: italic;
+		}
+		.kicker {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.5rem 1rem;
+			margin: 0;
+		}
+		/* Une opinion se reconnaît à chaque écran : encadré en tête, filet rouge continu le long du texte. */
+		.opinion-notice {
+			margin: 1rem 0 0;
+			padding: 0.75rem 1rem;
+			border: 2px solid var(--ink-red-text);
+			font-size: 0.95rem;
+		}
+		.opinion-notice strong {
+			color: var(--ink-red-text);
+		}
+		.article--opinion .content {
+			padding-left: 1rem;
+			border-left: 4px solid var(--ink-red);
+		}
+		/* Notes de fin (GFM) et Sources : toujours affichées, ce sont elles que l'appel cible (clavier, lecteur d'écran). */
+		.content :global([data-footnotes]),
+		.prose :global(.sources) {
+			margin-top: 2rem;
+			color: var(--ink-soft);
+			font-family: var(--font-mono);
+			font-size: 0.85rem;
+		}
+		.content :global([data-footnotes] h2),
+		.prose :global(.sources h2) {
+			margin: 0 0 0.75rem;
+			padding-top: 0.5rem;
+			border-top: 1px solid var(--ink);
+			font-family: var(--font-mono);
+			font-size: 0.8rem;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+		}
+		/* Copies en marge : décoratives (aria-hidden), absentes sous le point de rupture. */
+		.content :global(.sidenote) {
+			display: none;
+		}
+		/* Modèle Tufte : la note flotte à droite avec une marge négative, démarre sur la ligne de l'appel
+		   et s'empile sous la précédente. Rupture : colonne (--measure : 41em, soit environ 66 caractères de Fraunces ; environ 51rem à 20 px de corps) + 2 × (14rem + 1.5rem)
+		   de marge = environ 82rem, arrondi à 85rem pour ne jamais déclencher de défilement horizontal. */
+		@media (min-width: 85rem) {
+			.content :global(.sidenote) {
+				float: right;
+				clear: right;
+				display: block;
+				width: 14rem;
+				margin-right: calc(-15.5rem);
+				margin-bottom: 0.75rem;
+				padding-left: 0.75rem;
+				border-left: 1px solid var(--ink);
+				color: var(--ink-soft);
+				font-family: var(--font-mono);
+				font-size: 0.8rem;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 1.4;
+			}
+			/* Le blockquote ajoute 1.2rem de retrait et 2px de bordure à droite. */
+			.content :global(blockquote .sidenote) {
+				margin-right: calc(-15.5rem - 1.2rem - 2px);
+			}
+		}
+		.content :global(.sidenote-number) {
+			margin-right: 0.4em;
+			color: var(--ink-red-text);
+			font-weight: 700;
+		}
+		/* Lettrine : float partout, initial-letter là où le navigateur le sait (Firefox reste en float). */
+		.content > :global(p:first-of-type)::first-letter {
+			float: left;
+			padding-right: 0.08em;
+			color: var(--ink-red);
+			font-family: var(--font-text);
+			font-size: 4.2em;
+			font-weight: 900;
+			line-height: 0.8;
+		}
+		@supports (initial-letter: 3) {
+			.content > :global(p:first-of-type)::first-letter {
+				float: none;
+				padding-right: 0.1em;
+				font-size: inherit;
+				line-height: inherit;
+				initial-letter: 3;
+			}
+		}
+		/* Barre de lecture : CSS pur, liée au défilement de la page. Sans support, elle reste masquée. */
+		.reading-progress {
+			display: none;
+		}
+		@supports (animation-timeline: scroll()) {
+			.reading-progress {
+				position: fixed;
+				top: 0;
+				left: 0;
+				z-index: 10;
+				display: block;
+				width: 100%;
+				height: 3px;
+				background: var(--ink-red);
+				transform: scaleX(0);
+				transform-origin: left;
+				animation: reading-progress linear both;
+				animation-timeline: scroll(root block);
+			}
+		}
+		@keyframes reading-progress {
+			to {
+				transform: scaleX(1);
+			}
+		}
+		@media (prefers-reduced-motion: reduce) {
+			.reading-progress {
+				display: none;
+			}
+		}
+		@media print {
+			.reading-progress {
+				display: none;
+			}
+		}
+	</style>
+	<div class="reading-progress" aria-hidden="true"></div>
+	<article class:list={{ 'article--opinion': isOpinion }}>
+		{
+			cover && (
+				<div class="hero-image riso">
+					<CmsImage
+						image={cover}
+						widths={COVER_WIDTHS}
+						sizes={COVER_SIZES}
+						loading="eager"
+						fetchpriority="high"
+					/>
+				</div>
+			)
+		}
+		<div class="prose">
+			<header class="title">
+				<p class="kicker">
+					{category && <Stamp category={category} />}
+					<ContentTypeBadge type={contentType} />
+				</p>
+				<h1>{title}</h1>
+				<p class="date">
+					<FormattedDate date={publishedAt} />
+					<span>{readingTimeLabel(readingMinutes)}</span>
+					{
+						updatedAt && (
+							<span class="updated-on">
+								{UPDATED_ON_LABEL} <FormattedDate date={updatedAt} />
+							</span>
+						)
+					}
+					{
+						verifiedOn && (
+							<span>
+								{ARTICLE_LABELS.verifiedOn} <FormattedDate date={verifiedOn} />
+							</span>
+						)
+					}
+					{author && <span>{ARTICLE_LABELS.by} {author.name}</span>}
+				</p>
+				{
+					isOpinion && (
+						<p class="opinion-notice" role="note">
+							<strong class="mono-label">{CONTENT_TYPE_LABELS.opinion}.</strong> {ARTICLE_LABELS.opinionNotice}
+						</p>
+					)
+				}
+				<hr />
+			</header>
+			{article.erratum && <Erratum html={article.erratum} />}
+			<div class="content">
+				<Blocks blocks={article.blocks} />
+			</div>
+			<Faq items={article.faq} />
+			<Sources sources={article.sources} />
+			<TagList tags={article.tags} />
+		</div>
+	</article>
+</Layout>

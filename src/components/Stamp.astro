@@ -1,0 +1,45 @@
+---
+import { type CategorySlug, categoryHeading } from '../consts';
+import { categoryUrl } from '../lib/url';
+
+type Props = { category: CategorySlug };
+
+const { category } = Astro.props;
+---
+
+<a class="stamp" href={categoryUrl(category)}>{categoryHeading(category)}</a>
+
+<style>
+	.stamp {
+		position: relative;
+		display: inline-block;
+		margin-bottom: 0.5rem;
+		padding: 0.25em 0.7em;
+		color: var(--ink-red-text);
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-decoration: none;
+		text-transform: uppercase;
+		white-space: nowrap;
+		transform: rotate(-2deg);
+	}
+	/* Le clip-path vit sur le pseudo-élément : il ne rogne ni le texte ni l'anneau de focus du lien. */
+	.stamp::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border: 2px solid currentColor;
+		clip-path: polygon(
+			0 6%, 8% 0, 22% 3%, 40% 0, 63% 2%, 82% 0, 100% 5%,
+			calc(100% - 1px) 30%, 100% 55%, calc(100% - 1px) 80%, 100% 96%,
+			85% 100%, 66% 97%, 45% 100%, 24% 98%, 7% 100%, 0 94%,
+			1px 70%, 0 45%, 1px 22%
+		);
+		pointer-events: none;
+	}
+	.stamp:hover {
+		color: var(--ink);
+	}
+</style>

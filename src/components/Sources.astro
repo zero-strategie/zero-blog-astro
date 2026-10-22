@@ -1,5 +1,11 @@
 ---
-import { SOURCE_LEVEL_LABELS } from '../consts';
+/**
+ * Les notes de fin de samizdat, nourries par les sources Strapi : chaque
+ * entrée porte l'ancre `#source-n` que visent les appels de note, et reste
+ * la cible lue par les technologies d'assistance (la copie en marge est
+ * aria-hidden). Toujours affichée, même quand la marge l'est aussi.
+ */
+import { ARTICLE_LABELS, SOURCE_LEVEL_LABELS } from '../consts';
 import type { Source } from '../types/domain';
 import FormattedDate from './FormattedDate.astro';
 
@@ -11,82 +17,64 @@ const { sources } = Astro.props;
 ---
 
 <section class="sources" aria-labelledby="sources-titre">
-	<h2 id="sources-titre">Sources</h2>
-	{sources.length === 0 ? (
-		<p class="sources-vide">Cet article ne cite aucune source.</p>
-	) : (
-		<ol>
-			{sources.map((source) => (
-				<li id={`source-${source.index}`} value={source.index}>
-					<a href={source.url} rel="noopener noreferrer external">
-						{source.title}
-					</a>
-					{source.level && (
-						<span class={`source-niveau source-niveau--${source.level}`}>
-							{SOURCE_LEVEL_LABELS[source.level]}
-						</span>
-					)}
-					<span class="source-meta">
-						{source.publisher && <span class="source-editeur">{source.publisher}</span>}
-						{source.publishedOn && (
-							<span>
-								publié le <FormattedDate date={source.publishedOn} />
-							</span>
+	<h2 id="sources-titre">{ARTICLE_LABELS.sources}</h2>
+	{
+		sources.length === 0 ? (
+			<p>{ARTICLE_LABELS.noSources}</p>
+		) : (
+			<ol>
+				{sources.map((source) => (
+					<li id={`source-${source.index}`} value={source.index}>
+						<a href={source.url} rel="noopener noreferrer external">
+							{source.title}
+						</a>
+						{source.publisher && <span>, {source.publisher}</span>}
+						{source.level && (
+							<span class="source-level mono-label">{SOURCE_LEVEL_LABELS[source.level]}</span>
 						)}
-						<span>
-							consulté le <FormattedDate date={source.consultedOn} />
+						<span class="source-dates">
+							{source.publishedOn && (
+								<span>
+									{ARTICLE_LABELS.publishedOn} <FormattedDate date={source.publishedOn} />
+								</span>
+							)}
+							{source.publishedOn && ' · '}
+							<span>
+								{ARTICLE_LABELS.consultedOn} <FormattedDate date={source.consultedOn} />
+							</span>
 						</span>
-					</span>
-				</li>
-			))}
-		</ol>
-	)}
+					</li>
+				))}
+			</ol>
+		)
+	}
 </section>
 
 <style>
-	.sources {
-		margin-top: 3em;
-		padding-top: 1em;
-		border-top: 2px solid rgb(var(--gray-light));
-		font-size: 0.85em;
-	}
-	.sources h2 {
-		font-size: 1.4em;
-	}
+	/* Bloc et titre : mêmes règles que les notes de fin, posées par BlogPost.astro. */
 	ol {
-		padding-left: 1.5em;
+		padding-left: 1.75em;
 	}
 	li {
-		margin-bottom: 0.75em;
-		scroll-margin-top: 1em;
+		margin-bottom: 0.6rem;
+		scroll-margin-top: 1rem;
 	}
-	/* The source a reader jumped to from a citation call. */
+	li::marker {
+		color: var(--ink-red-text);
+		font-weight: 700;
+	}
+	/* La source rejointe depuis un appel de note. */
 	li:target {
-		background: rgb(var(--gray-light));
-		outline: 2px solid var(--accent);
+		outline: 2px solid var(--ink-red-text);
 		outline-offset: 4px;
-		border-radius: 2px;
 	}
-	.source-meta {
-		display: block;
-		color: rgb(var(--gray));
-	}
-	.source-meta > span + span::before {
-		content: ' · ';
-	}
-	.source-niveau {
-		display: inline-block;
+	.source-level {
 		margin-left: 0.5em;
-		padding: 0 0.5em;
-		border: 1px solid rgb(var(--gray));
-		border-radius: 999px;
-		font-size: 0.8em;
-		color: rgb(var(--gray-dark));
-		white-space: nowrap;
+		padding: 0 0.4em;
+		border: 1px solid;
+		font-size: 0.75rem;
 	}
-	.source-niveau--primaire,
-	.source-niveau--institutionnelle {
-		border-color: var(--accent);
-		color: var(--accent-dark);
+	.source-dates {
+		display: block;
 	}
 </style>

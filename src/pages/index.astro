@@ -1,56 +1,99 @@
 ---
-import ArticleList from '../components/ArticleList.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import ArticleRow from '../components/ArticleRow.astro';
+import FeaturedArticle from '../components/FeaturedArticle.astro';
 import Layout from '../layouts/Layout.astro';
+import {
+	EMPTY_HOME_MESSAGE,
+	MANIFESTO,
+	SITE_DESCRIPTION,
+	SITE_TITLE,
+	SUMMARY_LABEL,
+	rubriqueOf,
+} from '../consts';
+import { splitFeatured } from '../lib/featured.mjs';
 import { getArticles } from '../lib/strapi/article';
-import { getCategories } from '../lib/strapi/category';
-import { BLOG_HREF, categoryHref } from '../lib/url';
+import { articleUrl } from '../lib/url';
 
-const LATEST = 6;
-const [articles, categories] = await Promise.all([getArticles(), getCategories()]);
+const { featured, summary } = splitFeatured(await getArticles());
 ---
 
 <Layout title={SITE_TITLE} description={SITE_DESCRIPTION}>
-	<h1>{SITE_TITLE}</h1>
-	<p class="intro">{SITE_DESCRIPTION}</p>
-
-	{categories.length > 0 && (
-		<nav aria-label="Catégories">
-			<ul class="categories">
-				{categories.map((category) => (
-					<li>
-						<a href={categoryHref(category.slug)}>{category.name}</a>
-					</li>
-				))}
-			</ul>
-		</nav>
-	)}
-
-	<h2>Derniers articles</h2>
-	<ArticleList
-		articles={articles.slice(0, LATEST)}
-		emptyMessage="Aucun article publié pour l'instant."
-	/>
-	{articles.length > LATEST && (
-		<p>
-			<a href={BLOG_HREF}>Voir tous les articles</a>
-		</p>
-	)}
+	<section class="manifesto">
+		<p class="kicker">{MANIFESTO.kicker}</p>
+		<h1>{MANIFESTO.title}</h1>
+		{MANIFESTO.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+	</section>
+	{
+		featured ? (
+			<>
+				<FeaturedArticle
+					title={featured.title}
+					description={featured.description}
+					href={articleUrl(featured.slug)}
+					pubDate={featured.publishedAt}
+					category={rubriqueOf(featured.category)}
+					contentType={featured.contentType}
+					cover={featured.cover}
+				/>
+				{summary.length > 0 && (
+					<section class="summary" aria-labelledby="sommaire">
+						<h2 id="sommaire" class="summary-title">{SUMMARY_LABEL}</h2>
+						<ul>
+							{summary.map((post) => (
+								<ArticleRow
+									title={post.title}
+									href={articleUrl(post.slug)}
+									pubDate={post.publishedAt}
+									category={rubriqueOf(post.category)}
+									contentType={post.contentType}
+									headingLevel={3}
+								/>
+							))}
+						</ul>
+					</section>
+				)}
+			</>
+		) : (
+			<p class="empty">{EMPTY_HOME_MESSAGE}</p>
+		)
+	}
 </Layout>
 
 <style>
-	.intro {
-		font-size: 1.1em;
+	.manifesto {
+		margin: 0 0 3rem;
+		padding: 0 0 2rem;
+		border-bottom: 0.5rem solid var(--ink-red);
 	}
-	.categories {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5em 1em;
-		margin: 0 0 2em;
+	.kicker {
+		margin: 0 0 0.5rem;
+		color: var(--ink-red-text);
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	.manifesto h1 {
+		margin-bottom: 1.25rem;
+	}
+	.manifesto p:not(.kicker) {
+		max-width: var(--measure);
+	}
+	.summary-title {
+		margin: 0 0 0.75rem;
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	.summary ul {
+		margin: 0;
 		padding: 0;
 		list-style: none;
+		border-bottom: 1px solid var(--ink);
 	}
-	h2 {
-		font-size: 1.6em;
+	.empty {
+		font-style: italic;
 	}
 </style>

@@ -1,41 +1,16 @@
 ---
-import { CONTENT_TYPE_LABELS, SITE_TITLE, SOURCE_LEVEL_LABELS } from '../consts';
 import Layout from '../layouts/Layout.astro';
+import { ABOUT, SITE_TITLE } from '../consts';
 ---
 
-<Layout
-	title="À propos et méthode"
-	description={`Comment ${SITE_TITLE} travaille : chaque affirmation est sourcée, chaque opinion est signalée, chaque erreur est corrigée publiquement.`}
->
-	<h1>À propos et méthode</h1>
-	<p>
-		{SITE_TITLE} traite de l'open source, de l'intelligence artificielle, de la souveraineté
-		numérique, de la politique et de la géopolitique du numérique. Une règle passe avant toutes les
-		autres : tout est sourcé.
-	</p>
-
-	<h2>Les sources</h2>
-	<p>
-		Chaque affirmation factuelle renvoie, par un appel numéroté, à la liste des sources en bas de
-		l'article. Tu y trouves l'éditeur, la date de publication, la date à laquelle la source a été
-		consultée et son niveau :
-	</p>
-	<ul>
-		{Object.values(SOURCE_LEVEL_LABELS).map((label) => (
-			<li>{label}</li>
-		))}
-	</ul>
-
-	<h2>Les types de contenu</h2>
-	<p>
-		Chaque article affiche son type : {Object.values(CONTENT_TYPE_LABELS).join(', ')}. Une opinion
-		est toujours signalée comme telle, et un passage « Point de vue » au sein d'un autre article est
-		mis en forme à part.
-	</p>
-
-	<h2>Vérifications et rectificatifs</h2>
-	<p>
-		La date « Vérifié le » indique la dernière vérification des faits. Quand une erreur est
-		corrigée, un rectificatif apparaît en tête de l'article et la date de mise à jour change.
-	</p>
+<Layout title={`${ABOUT.title} — ${SITE_TITLE}`} description={ABOUT.description}>
+	<h1>{ABOUT.title}</h1>
+	{ABOUT.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+	<p><a href={ABOUT.contact.href}>{ABOUT.contact.label}</a></p>
 </Layout>
+
+<style>
+	p {
+		max-width: var(--measure);
+	}
+</style>

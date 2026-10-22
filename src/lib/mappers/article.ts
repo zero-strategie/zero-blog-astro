@@ -13,7 +13,9 @@ import type {
 	Source,
 } from '../../types/domain';
 import type { ArticleDetailDto, ArticleSummaryDto, BlockDto, SourceDto } from '../../types/strapi';
-import { markdownToText, type RenderOptions, renderMarkdown } from '../markdown';
+import { isHeroAltValid } from '../hero-alt.mjs';
+import { markdownToText, type RenderOptions, renderMarkdown } from '../markdown.mjs';
+import { readingTime } from '../reading-time.mjs';
 import { toImageRef } from './media';
 import { toCategory, toTag } from './taxonomy';
 
@@ -27,6 +29,14 @@ const normalise = (value: string): string =>
 	value.trim().replace(/\s+/g, ' ').replace(/\s*:$/, '').toLowerCase();
 
 export function toArticleSummary(dto: ArticleSummaryDto): ArticleSummary {
+	const cover = toImageRef(dto.cover);
+	// Same content rule as the former local collection: a cover needs a real text alternative.
+	if (!isHeroAltValid({ heroImage: cover, heroAlt: cover?.alt })) {
+		console.warn(
+			`[strapi] Article « ${dto.slug} » : la couverture n'a pas de texte alternatif ` +
+				'(alternativeText vide dans la médiathèque Strapi).',
+		);
+	}
 	return {
 		slug: dto.slug,
 		title: dto.title,
@@ -34,7 +44,7 @@ export function toArticleSummary(dto: ArticleSummaryDto): ArticleSummary {
 		contentType: dto.typeContenu,
 		publishedAt: new Date(dto.publishedAt),
 		updatedAt: date(dto.dateMiseAJour),
-		cover: toImageRef(dto.cover),
+		cover,
 		category: dto.category ? toCategory(dto.category) : undefined,
 		tags: (dto.tags ?? []).map(toTag),
 	};
@@ -50,7 +60,9 @@ const toSource = (dto: SourceDto, i: number): Source => ({
 	level: dto.niveau ?? undefined,
 });
 
-function toBlock(dto: BlockDto, md: (markdown: string) => SafeHtml): Block | undefined {
+type Render = (markdown: string) => SafeHtml;
+
+function toBlock(dto: BlockDto, md: Render): Block | undefined {
 	// `null` is a block this frontend does not know yet: not rendered (AGENTS.md 4.3).
 	if (dto === null) return undefined;
 	switch (dto.__component) {
@@ -81,6 +93,14 @@ function toBlock(dto: BlockDto, md: (markdown: string) => SafeHtml): Block | und
 	}
 }
 
+/** The Markdown a reader actually reads, block by block. */
+function textOf(dto: BlockDto): string {
+	if (dto?.__component === 'shared.rich-text' || dto?.__component === 'shared.quote') {
+		return dto.body ?? '';
+	}
+	return '';
+}
+
 export function toArticleDetail(dto: ArticleDetailDto): ArticleDetail {
 	const summary = toArticleSummary(dto);
 	const sources = (dto.sources ?? []).map(toSource);
@@ -92,7 +112,12 @@ export function toArticleDetail(dto: ArticleDetailDto): ArticleDetail {
 					`absente de ses ${sources.length} source(s). Rendu sans lien.`,
 			),
 	};
-	const md = (markdown: string) => renderMarkdown(markdown, options);
+	// Body blocks share one set, so each source gets a single margin note, after
+	// its first call in reading order. Erratum and FAQ carry calls but no notes.
+	const sidenotes = new Set<number>();
+	const body: Render = (markdown) => renderMarkdown(markdown, { ...options, sidenotes });
+	const md: Render = (markdown) => renderMarkdown(markdown, options);
+	const blocks = dto.blocks ?? [];
 
 	const faq: FaqItem[] = (dto.faq ?? []).map((item) => ({
 		question: item.question,
@@ -111,11 +136,12 @@ export function toArticleDetail(dto: ArticleDetailDto): ArticleDetail {
 		author: dto.author
 			? { name: dto.author.name, avatar: toImageRef(dto.author.avatar) }
 			: undefined,
-		blocks: (dto.blocks ?? []).flatMap((b) => toBlock(b, md) ?? []),
+		blocks: blocks.flatMap((b) => toBlock(b, body) ?? []),
 		sources,
 		faq,
 		seo,
 		verifiedOn: date(dto.verifieLe),
 		erratum: dto.erratum?.trim() ? md(dto.erratum) : undefined,
+		readingMinutes: readingTime(blocks.map(textOf).join('\n\n')),
 	};
 }

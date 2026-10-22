@@ -9,25 +9,22 @@ interface Props {
 const { type } = Astro.props;
 ---
 
-<span class:list={['badge', `badge--${type}`]}>{CONTENT_TYPE_LABELS[type]}</span>
+<span class:list={['badge', 'mono-label', { 'badge--opinion': type === 'opinion' }]}>
+	{CONTENT_TYPE_LABELS[type]}
+</span>
 
 <style>
 	.badge {
 		display: inline-block;
-		padding: 0.1em 0.6em;
-		border: 1px solid currentColor;
-		border-radius: 4px;
-		font-size: 0.75em;
-		font-weight: 700;
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
+		padding: 0.1em 0.5em;
+		border: 1px solid var(--ink);
 		line-height: 1.5;
-		color: var(--accent-dark);
+		white-space: nowrap;
 	}
-	/* An opinion must never be mistaken for reporting: filled, high contrast. */
+	/* Une opinion ne doit jamais passer pour un compte rendu : aplat plein, papier sur rouge texte. */
 	.badge--opinion {
-		border-color: var(--opinion);
-		background: var(--opinion);
-		color: #fff;
+		border-color: var(--ink-red-text);
+		background: var(--ink-red-text);
+		color: var(--paper);
 	}
 </style>

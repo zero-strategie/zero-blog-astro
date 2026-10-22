@@ -4,8 +4,9 @@ import type { RichTextBlock } from '../../types/domain';
 type Props = RichTextBlock;
 
 // Already sanitised by renderMarkdown() in the mapper — the SafeHtml brand
-// guarantees it.
+// guarantees it. No wrapper: paragraphs stay direct children of the article
+// column, which the drop cap and the margin notes rely on.
 const { html } = Astro.props;
 ---
 
-<div class="rich-text" set:html={html} />
+<Fragment set:html={html} />

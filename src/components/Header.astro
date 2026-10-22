@@ -1,51 +1,111 @@
 ---
-import { SITE_TITLE } from '../consts';
-import { ABOUT_HREF, BLOG_HREF, HOME_HREF } from '../lib/url';
+import { CATEGORIES, CATEGORIES_NAV_LABEL, NAV_LABEL, NAV_LINKS, SITE_TAGLINE, SITE_TITLE } from '../consts';
+import { categoryUrl } from '../lib/url';
 import HeaderLink from './HeaderLink.astro';
+
 ---
 
 <header>
-	<nav aria-label="Navigation principale">
-		<p class="site-title">
-			<a href={HOME_HREF}>{SITE_TITLE}</a>
-		</p>
-		<div class="internal-links">
-			<HeaderLink href={HOME_HREF}>Accueil</HeaderLink>
-			<HeaderLink href={BLOG_HREF}>Articles</HeaderLink>
-			<HeaderLink href={ABOUT_HREF}>À propos</HeaderLink>
-		</div>
+	<p class="masthead"><a href="/">{SITE_TITLE}</a></p>
+	<p class="tagline">{SITE_TAGLINE}</p>
+	<nav aria-label={NAV_LABEL}>
+		{NAV_LINKS.map(({ href, label }) => <HeaderLink href={href}>{label}</HeaderLink>)}
+	</nav>
+	<nav class="rubriques" aria-label={CATEGORIES_NAV_LABEL}>
+		{
+			CATEGORIES.map(({ slug, number, label }) => (
+				<HeaderLink href={categoryUrl(slug)}>
+					<span class="number">§{number}</span> {label}
+				</HeaderLink>
+			))
+		}
 	</nav>
 </header>
 
 <style>
 	header {
-		margin: 0;
-		padding: 0 1em;
-		background: white;
-		box-shadow: 0 2px 8px rgba(var(--black), 5%);
+		width: min(100% - 2rem, 48rem);
+		margin: 0 auto;
+		padding: 1.5rem 0 0;
+		text-align: center;
 	}
-	.site-title {
+	.masthead {
 		margin: 0;
-		font-size: 1em;
-		font-weight: 700;
+		font-family: var(--font-text);
+		font-size: clamp(2.6rem, 11vw, 5.2rem);
+		font-weight: 900;
+		line-height: 0.95;
+		letter-spacing: -0.04em;
 	}
-	.site-title a {
+	.masthead a {
 		text-decoration: none;
+	}
+	.tagline {
+		margin: 0.9rem 0 1rem;
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
 	}
 	nav {
 		display: flex;
 		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
+		justify-content: center;
+		gap: 0 1.25rem;
+		padding: 0.25rem 0;
+		border-top: 4px double var(--ink);
+		border-bottom: 4px double var(--ink);
 	}
-	nav a {
-		padding: 1em 0.5em;
-		color: rgb(var(--black));
+	nav.rubriques {
+		flex-wrap: nowrap;
+		justify-content: flex-start;
+		gap: 0 1rem;
+		padding: 0;
+		overflow-x: auto;
+		scroll-snap-type: x proximity;
+		scrollbar-width: none;
+		border-top: 0;
+	}
+	nav.rubriques::-webkit-scrollbar {
+		display: none;
+	}
+	nav.rubriques :global(a) {
+		flex: none;
+		padding: 0.5rem 0.25rem;
+		scroll-snap-align: start;
+		font-size: 0.75rem;
+		letter-spacing: 0.04em;
+		white-space: nowrap;
+	}
+	nav.rubriques :global(a[aria-current='page']) {
+		scroll-initial-target: nearest;
+	}
+	.number {
+		color: var(--ink-soft);
+	}
+	nav.rubriques :global(a:focus-visible) {
+		outline: 3px solid var(--ink-red-text);
+		outline-offset: -3px;
+	}
+	@media (min-width: 48rem) {
+		nav.rubriques {
+			justify-content: center;
+		}
+	}
+	nav :global(a) {
+		padding: 0.75rem 0.25rem;
 		border-bottom: 4px solid transparent;
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		letter-spacing: 0.08em;
 		text-decoration: none;
+		text-transform: uppercase;
 	}
-	nav a:global(.active) {
-		text-decoration: none;
-		border-bottom-color: var(--accent);
+	nav :global(a[aria-current='page']) {
+		border-bottom-color: var(--ink-red);
+		font-weight: 700;
+	}
+	nav :global(a:not([aria-current]):hover) {
+		border-bottom-color: var(--ink);
 	}
 </style>

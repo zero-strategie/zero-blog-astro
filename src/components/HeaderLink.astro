@@ -1,31 +1,16 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
 
-type Props = HTMLAttributes<'a'>;
+type Props = HTMLAttributes<'a'> & { href: string };
 
-const { href, class: className, ...props } = Astro.props;
-const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
-const section = pathname.match(/[^/]+/g)?.[0] ?? '';
-const target = String(href ?? '').match(/[^/]+/g)?.[0] ?? '';
-const isActive = section === target;
+const { href, ...props } = Astro.props;
+const firstSegment = (path: string) => path.split('/').filter(Boolean)[0] ?? '';
+const isCategoryLink = firstSegment(href) === 'rubriques';
+const isActive = isCategoryLink
+	? Astro.url.pathname === href
+	: firstSegment(Astro.url.pathname) === firstSegment(href);
 ---
 
-<a
-	href={href}
-	class:list={[className, { active: isActive }]}
-	aria-current={isActive ? 'page' : undefined}
-	{...props}
->
+<a href={href} aria-current={isActive ? 'page' : undefined} {...props}>
 	<slot />
 </a>
-
-<style>
-	a {
-		display: inline-block;
-		text-decoration: none;
-	}
-	a.active {
-		font-weight: bolder;
-		text-decoration: underline;
-	}
-</style>

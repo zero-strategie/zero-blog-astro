@@ -110,4 +110,6 @@ export interface ArticleDetail extends ArticleSummary {
 	seo: Seo;
 	verifiedOn?: Date;
 	erratum?: SafeHtml;
+	/** Estimated from the Markdown of the text blocks (src/lib/reading-time.mjs). */
+	readingMinutes: number;
 }

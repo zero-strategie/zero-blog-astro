@@ -1,0 +1,72 @@
+---
+import { type CategorySlug } from '../consts';
+import type { ContentType } from '../types/domain';
+import ContentTypeBadge from './ContentTypeBadge.astro';
+import FormattedDate from './FormattedDate.astro';
+import Stamp from './Stamp.astro';
+
+interface Props {
+	title: string;
+	href: string;
+	pubDate: Date;
+	category?: CategorySlug;
+	contentType: ContentType;
+	// h3 quand la liste est sous un h2 (accueil), h2 sinon (archive).
+	headingLevel?: 2 | 3;
+}
+
+const { title, href, pubDate, category, contentType, headingLevel = 2 } = Astro.props;
+const Heading = `h${headingLevel}` as const;
+---
+
+<li class="article-row">
+	<span class="date">
+		<FormattedDate date={pubDate} />
+		{contentType === 'opinion' && <ContentTypeBadge type={contentType} />}
+	</span>
+	{category ? <Stamp category={category} /> : <span />}
+	<Heading class="title"><a href={href}>{title}</a></Heading>
+</li>
+
+<style>
+	.article-row {
+		--stamp-column: 11rem;
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-items: center;
+		gap: 0.25rem 1rem;
+		padding: 0.9rem 0;
+		border-top: 1px solid var(--ink);
+	}
+	.date {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.25rem 0.75rem;
+		color: var(--ink-soft);
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+	}
+	.title {
+		grid-column: 1 / -1;
+		margin: 0;
+		font-size: 1.4rem;
+		font-weight: 700;
+	}
+	.title a {
+		text-decoration: none;
+	}
+	.title a:hover {
+		color: var(--ink-red-text);
+		text-decoration: underline;
+	}
+	@media (min-width: 48rem) {
+		.article-row {
+			grid-template-columns: 11rem var(--stamp-column) 1fr;
+			gap: 0 1.25rem;
+		}
+		.title {
+			grid-column: auto;
+		}
+	}
+</style>

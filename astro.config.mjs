@@ -3,6 +3,23 @@
 import node from '@astrojs/node';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig, envField, fontProviders } from 'astro/config';
+import { existsSync, readFileSync } from 'node:fs';
+import { parseEnv } from 'node:util';
+
+// The astro:env schema below is what validates STRAPI_URL; it is read here
+// too, only to let astro:assets download and optimise the CMS uploads at
+// build time. The built pages then serve /_astro/… copies and never point at
+// the CMS origin, which may be internal to the build network.
+const STRAPI_URL =
+	process.env.STRAPI_URL ?? (existsSync('.env') ? parseEnv(readFileSync('.env', 'utf8')).STRAPI_URL : undefined);
+const cmsImages = (() => {
+	try {
+		const { protocol, hostname, port } = new URL(STRAPI_URL ?? '');
+		return [{ protocol: protocol.replace(':', ''), hostname, port, pathname: '/uploads/**' }];
+	} catch {
+		return [];
+	}
+})();
 
 // https://astro.build/config
 export default defineConfig({
@@ -29,24 +46,23 @@ export default defineConfig({
 		},
 	},
 
+	image: { remotePatterns: cmsImages },
+
+	// Le contenu vient de Strapi et passe par src/lib/markdown.mjs (assainissement,
+	// appels de note, notes en marge, coloration css-variables) : aucun Markdown
+	// local, donc ni `markdown` ni MDX ici.
 	integrations: [sitemap()],
 	fonts: [
 		{
 			provider: fontProviders.local(),
-			name: 'Atkinson',
-			cssVariable: '--font-atkinson',
-			fallbacks: ['sans-serif'],
+			name: 'Fraunces',
+			cssVariable: '--font-fraunces',
+			fallbacks: [],
 			options: {
 				variants: [
 					{
-						src: ['./src/assets/fonts/atkinson-regular.woff'],
-						weight: 400,
-						style: 'normal',
-						display: 'swap',
-					},
-					{
-						src: ['./src/assets/fonts/atkinson-bold.woff'],
-						weight: 700,
+						src: ['./src/assets/fonts/fraunces.woff2'],
+						weight: '400 900',
 						style: 'normal',
 						display: 'swap',
 					},

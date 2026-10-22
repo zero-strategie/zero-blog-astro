@@ -1,32 +1,30 @@
 ---
 import type { MediaBlock } from '../../types/domain';
+import CmsImage from '../CmsImage.astro';
 
 type Props = MediaBlock;
 
 const { image, caption } = Astro.props;
+const WIDTHS = [480, 800, 1200];
+const SIZES = '(min-width: 48rem) 41em, 100vw';
 ---
 
-{image && (
-	<figure class="media">
-		<img
-			src={image.url}
-			alt={image.alt}
-			width={image.width}
-			height={image.height}
-			loading="lazy"
-			decoding="async"
-		/>
-		{caption && <figcaption>{caption}</figcaption>}
-	</figure>
-)}
+{
+	image && (
+		<figure class="media">
+			<CmsImage image={image} widths={WIDTHS} sizes={SIZES} loading="lazy" />
+			{caption && <figcaption>{caption}</figcaption>}
+		</figure>
+	)
+}
 
 <style>
 	.media {
-		margin: 2em 0;
+		margin: 2rem 0;
 	}
 	figcaption {
-		margin-top: 0.25em;
-		color: rgb(var(--gray));
-		font-size: 0.85em;
+		margin-top: 0.4rem;
+		color: var(--ink-soft);
+		font-size: 0.85rem;
 	}
 </style>

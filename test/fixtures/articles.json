@@ -42,8 +42,18 @@
         "description": "Qui contrôle l'infrastructure, les données et les règles."
       },
       "tags": [
-        { "id": 1, "documentId": "tag00000000000000000001", "name": "Cloud", "slug": "cloud" },
-        { "id": 2, "documentId": "tag00000000000000000002", "name": "Droit", "slug": "droit" }
+        {
+          "id": 1,
+          "documentId": "tag00000000000000000001",
+          "name": "Cloud",
+          "slug": "cloud"
+        },
+        {
+          "id": 2,
+          "documentId": "tag00000000000000000002",
+          "name": "Droit",
+          "slug": "droit"
+        }
       ],
       "blocks": [
         {
@@ -86,7 +96,11 @@
             }
           ]
         },
-        { "__component": "shared.carousel-3d", "id": 10, "items": [] }
+        {
+          "__component": "shared.carousel-3d",
+          "id": 10,
+          "items": []
+        }
       ],
       "sources": [
         {
@@ -144,7 +158,16 @@
       "verifieLe": "2026-10-16",
       "dateMiseAJour": null,
       "erratum": null,
-      "cover": null,
+      "cover": {
+        "id": 9,
+        "documentId": "img00000000000000000009",
+        "name": "registre.jpg",
+        "alternativeText": "Registre papier ouvert sur un bureau d'administration",
+        "caption": null,
+        "width": 1600,
+        "height": 900,
+        "url": "/uploads/registre_3c7d.jpg"
+      },
       "author": {
         "id": 2,
         "documentId": "auth0000000000000000002",
@@ -215,7 +238,80 @@
       "sources": [],
       "faq": [],
       "seo": null
+    },
+    {
+      "id": 15,
+      "documentId": "exp0000000000000000000015",
+      "title": "Câbles sous-marins : qui contrôle les routes de l'internet",
+      "description": "Où passent les câbles, qui les finance et comment vérifier soi-même leur tracé avec des données ouvertes.",
+      "slug": "cables-sous-marins-routes-internet",
+      "typeContenu": "explainer",
+      "createdAt": "2026-10-04T08:00:00.000Z",
+      "updatedAt": "2026-10-05T08:00:00.000Z",
+      "publishedAt": "2026-10-05T06:00:00.000Z",
+      "locale": "fr",
+      "verifieLe": "2026-10-05",
+      "dateMiseAJour": null,
+      "erratum": null,
+      "cover": {
+        "id": 8,
+        "documentId": "img00000000000000000008",
+        "name": "cable.jpg",
+        "alternativeText": "Navire câblier déroulant un câble en mer",
+        "caption": null,
+        "width": 1600,
+        "height": 800,
+        "url": "/uploads/cable_8a1b.jpg"
+      },
+      "author": {
+        "id": 2,
+        "documentId": "auth0000000000000000002",
+        "name": "Camille Martin",
+        "avatar": null
+      },
+      "category": {
+        "id": 5,
+        "documentId": "cat00000000000000000005",
+        "name": "Géopolitique du numérique",
+        "slug": "geopolitique",
+        "description": null
+      },
+      "tags": [
+        {
+          "id": 1,
+          "documentId": "tag00000000000000000001",
+          "name": "Cloud",
+          "slug": "cloud"
+        }
+      ],
+      "blocks": [
+        {
+          "__component": "shared.rich-text",
+          "id": 51,
+          "body": "Plus de 95 % du trafic intercontinental passe par des câbles sous-marins [[1]](#source-1). Leur tracé est public : on peut l'interroger soi-même[^1].\n\n```bash\ncurl -s https://www.submarinecablemap.com/api/v3/cable/cable-geo.json | jq '.features | length'\n```\n\n> Qui pose le câble choisit aussi où il atterrit [[1]](#source-1).\n\n[^1]: Les données de TeleGeography sont publiées sous licence libre, voir [leur dépôt](https://github.com/telegeography/www.submarinecablemap.com)."
+        }
+      ],
+      "sources": [
+        {
+          "id": 121,
+          "titre": "Submarine Cable Map",
+          "url": "https://www.submarinecablemap.com/",
+          "editeur": "TeleGeography",
+          "datePublication": null,
+          "dateConsultation": "2026-10-05",
+          "niveau": "projet"
+        }
+      ],
+      "faq": [],
+      "seo": null
     }
   ],
-  "meta": { "pagination": { "page": 1, "pageSize": 25, "pageCount": 1, "total": 3 } }
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "pageSize": 25,
+      "pageCount": 1,
+      "total": 4
+    }
+  }
 }

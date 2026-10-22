@@ -30,22 +30,15 @@ requires new fields or new logic, it belongs in `cms-zero`.
 
 ### Current state — read this before assuming
 
-Content comes from Strapi. The §4 architecture is in place: `src/lib/strapi/client.ts` (the
-only `fetch`), repositories per type, Zod-validated wire shapes in `src/types/strapi.ts`,
-mappers to `src/types/domain.ts`, a block registry in `src/components/blocks/`, and
-`src/layouts/Layout.astro` as the single document shell. `src/content/` is gone.
+Content comes from **Strapi**; the local Markdown collection (`src/content/`) is gone. The
+design is « samizdat » (Fraunces, riso red, stamps, margin notes, print mode, zero JS) and
+the §4 architecture is in place underneath it — see **§9 Strapi integration** for how the
+two meet.
 
-Editorial rendering (sourced journalism, see the CMS `AGENTS.md`, _Editorial fields_):
-Markdown is rendered once, in the mappers, by `src/lib/markdown.ts` — raw HTML dropped,
-tree sanitised, citation calls `[[n]](#source-n)` turned into links to `id="source-n"` in
-the numbered Sources list. The result is typed `SafeHtml`; only that type may reach `set:html`.
-
-**Strapi unreachable → the build fails** with a `StrapiError` naming the origin, the
-system error code and `STRAPI_URL` (§4.8: prerendered pages never ship empty). A reachable
-CMS with zero articles builds, and every listing says so in a visible message.
-
-Without a CMS, `pnpm fixtures` serves `test/fixtures/*.json` on `:1338`
-(`STRAPI_URL=http://localhost:1338 pnpm build`).
+Also in place: a real `site`, the `@astrojs/node` adapter (10.x — the line that matches
+Astro 6), the `astro:env` schema, a `/health` endpoint, a Dockerfile, a `.env.example` and a
+GitHub Actions workflow that builds, pushes to GHCR and deploys. Tests are `node:test` files
+in `tests/` that assert on a `dist/client/` built against the Strapi fixtures (§7).
 
 ### Data contract with the CMS
 
@@ -103,6 +96,8 @@ pnpm install
 | `pnpm dev` | Dev server on `http://localhost:4321` |
 | `pnpm build` then `node ./dist/server/entry.mjs` | Run the standalone server the container runs |
 | `pnpm build` | Production build to `./dist/` |
+| `pnpm test` | `pnpm build`, then `node --test "tests/*.test.mjs"` on `dist/client/` |
+| `pnpm check:weight` | Budgets on `dist/client/` (see §7); exit code 1 on any overrun |
 | `pnpm preview` | Serve the build locally |
 | `pnpm astro ...` | Astro CLI passthrough |
 
@@ -139,16 +134,21 @@ zero-blog-astro/
 ├── Dockerfile                Multi-stage build; the prerender happens here
 ├── .env.example              Every variable the astro:env schema declares
 ├── tsconfig.json             extends astro/tsconfigs/strict
-├── public/                   Served verbatim: favicons, (target: robots.txt)
+├── public/                   Served verbatim: favicon, og-default.png (target: robots.txt)
+├── scripts/                  Out-of-build tooling: check-weight.mjs, lib/ (dist, tokens, contrast,
+│                             weight), og-default generator (see scripts/README.md)
+├── tests/                    node:test files (*.test.mjs) asserting on dist/client/
 └── src/
-    ├── assets/               Images + Atkinson Hyperlegible woff fonts
+    ├── assets/               Images + the single Fraunces woff2 (src/assets/fonts/)
     ├── components/           .astro presentational components
     ├── layouts/              Page shells
     ├── pages/                File-based routes
-    ├── content/blog/         Local Markdown/MDX (legacy — superseded by Strapi)
-    ├── content.config.ts     Content collection schemas
-    ├── consts.ts             SITE_TITLE, SITE_DESCRIPTION (placeholders)
-    └── styles/global.css     Global stylesheet + CSS custom-property tokens
+    ├── lib/                  strapi/, mappers/, markdown.mjs, url.ts, seo/ — see §9
+    ├── types/                strapi.ts (Zod wire shapes), domain.ts (what the UI consumes)
+    ├── consts.ts             Site-wide values, rubriques (CATEGORIES) and every UI string
+    └── styles/
+        ├── tokens.css        The only file with literal colors: palette, dark mode, font stack
+        └── global.css        Global stylesheet, system fallback @font-face, built on the tokens
 ```
 
 ### Current routes
@@ -159,8 +159,9 @@ zero-blog-astro/
 | `/about` | `src/pages/about.astro` | static |
 | `/blog` | `src/pages/blog/index.astro` | `getArticles()` |
 | `/blog/[slug]` | `src/pages/blog/[slug].astro` | `getArticleDetails()` in `getStaticPaths()` |
-| `/categories/[slug]` | `src/pages/categories/[slug].astro` | `getCategories()` + `getArticlesByCategory()` |
+| `/rubriques/[slug]` | `src/pages/rubriques/[slug].astro` | `CATEGORIES` × `getArticlesByCategory()` |
 | `/tags/[slug]` | `src/pages/tags/[slug].astro` | `getTags()` + `getArticlesByTag()` |
+| `/404` | `src/pages/404.astro` | static |
 | `/rss.xml` | `src/pages/rss.xml.ts` | `getArticles()` |
 | `/sitemap-index.xml` | — | `@astrojs/sitemap` |
 | `/health` | `src/pages/health.ts` | on demand — 204, polled by the deployment pipeline |
@@ -506,28 +507,42 @@ A change is done when all of the following pass.
 **Available today:**
 
 ```bash
-pnpm check          # astro check (TypeScript 6: @astrojs/check does not support 7 yet)
-pnpm lint           # eslint + eslint-plugin-astro + typescript-eslint, `any` is an error
-pnpm format:check   # prettier + prettier-plugin-astro
-pnpm test           # vitest via getViteConfig (astro:env and the Container API work)
-pnpm build          # needs a reachable STRAPI_URL — see `pnpm fixtures`
+pnpm test             # build on the Strapi fixtures + node --test "tests/*.test.mjs"
+pnpm check:weight     # budgets on dist/client/
+pnpm check            # astro check
+pnpm lint             # eslint + eslint-plugin-astro + typescript-eslint, `any` is an error
+pnpm format:check     # prettier + prettier-plugin-astro
 ```
 
-CI still runs only `pnpm build`; wiring the other gates into `.github/workflows/ci.yml` is
-pending. E2E (Playwright) is not set up.
+`pnpm test` does not need a CMS: `pnpm build:fixtures` starts `scripts/fixture-server.mjs`
+on a free port and builds against it. Tests take their expectations from
+`test/fixtures/*.json` through `scripts/lib/fixtures.mjs` rather than copying them.
 
-**Original setup list:**
+Tests are plain `node:test` files in `tests/` (`.mjs`, JSDoc for types), written TDD
+(red test seen before the code). Prefer assertions on `dist/client/` through
+`scripts/lib/dist.mjs`. **No test imports a `.ts` file**: Node < 22.18 cannot load them, so
+logic under test lives in `.mjs` modules (enforced by `tests/no-ts-import.test.mjs`).
+Do not add another test framework.
 
-| Gate | Setup | Command |
-|---|---|---|
-| Type check | `pnpm add -D typescript @astrojs/check` | `pnpm check` → `astro check` |
-| Lint | `pnpm add -D eslint eslint-plugin-astro typescript-eslint` | `pnpm lint` |
-| Format | `pnpm add -D prettier prettier-plugin-astro` | `pnpm format` — settles the tabs/spaces inconsistency |
-| Unit tests | `pnpm add -D vitest` | `pnpm test` — cover `src/lib/` (client, query builder, mappers) |
-| E2E (optional) | `pnpm add -D @playwright/test` | Critical routes: `/`, `/blog`, an article page |
+Budgets enforced by `pnpm check:weight` (1 KB = 1 024 bytes):
 
-Until those exist, `pnpm build` plus a manual check in the browser is the only real
-verification. Say so explicitly rather than claiming a change is "tested".
+| Budget | Limit |
+|---|---|
+| CSS (linked + inline) per page | ≤ 15 KB |
+| Home page, images excluded | ≤ 100 KB |
+| Webfonts | one only (Fraunces woff2), ≤ 50 KB |
+| Client JavaScript | none: no `<script` (only exception: `<script type="application/ld+json">`, a data block the browser never runs), no `on…=` attribute, no `javascript:`, no `.js`/`.mjs` file |
+
+Literal colors only in `src/styles/tokens.css`.
+
+`public/og-default.png` is generated, not drawn: `scripts/og-default.svg` is regenerated with
+fonttools **outside the project** (nothing in `package.json`), then rasterised with sharp.
+Only the PNG is served. Commands in `scripts/README.md`.
+
+**Not set up:** E2E (`@playwright/test`, critical routes `/`, `/blog`, an article page), and
+CI still runs only `pnpm build` (it runs neither `pnpm test` nor `pnpm check:weight`).
+Until then, `pnpm test` plus a manual check in the browser is the verification. Say so
+explicitly rather than claiming something is tested when only the build ran.
 
 ---
 
@@ -535,19 +550,19 @@ verification. Say so explicitly rather than claiming a change is "tested".
 
 Facts about the current repository. These are **not** conventions to imitate.
 
-1. **No Strapi integration whatsoever.** All content is local Markdown/MDX. The entire §4
-   architecture is still to be built — and it must now be built **locale-aware** from the
-   start, since the CMS has i18n enabled (see §1).
+1. ~~No Strapi integration whatsoever~~ — **fixed**, see §9. Still to do: the `global` and
+   `about` single types are not read yet (site-wide values stay in `consts.ts`), and only the
+   `fr` locale is built.
 2. ~~`site: 'https://example.com'`~~ — **fixed**, now `https://zero-strategie.dev`.
-3. **No `devDependencies`** — TypeScript is not installed, so `astro check` cannot run.
-   No linter, no formatter, no tests. CI, Docker and the adapter now exist; the CI's only
-   gate is `pnpm build`, which is exactly as weak as that sounds.
+3. ~~No `devDependencies`~~ — **fixed**: TypeScript, `astro check`, ESLint, Prettier. The
+   CI's only gate is still `pnpm build` (it does not run `pnpm test` nor `pnpm check:weight`
+   yet), and that build needs a reachable `STRAPI_URL`.
 4. ~~`package.json` has an empty `"name"`~~ — **fixed**, and `packageManager` is now pinned so
    corepack resolves the same pnpm locally, in CI and in the image.
 5. **`tsconfig.json` sets `strictNullChecks: true`** redundantly — the `astro/tsconfigs/strict`
    preset already implies it.
-6. **`src/pages/rss.xml.js` is untyped JS** and spreads `...post.data` into feed items,
-   silently pushing an `ImageMetadata` object into the XML.
+6. ~~`src/pages/rss.xml.js` is untyped JS~~ — **fixed**: `rss.xml.ts`, typed `APIContext`,
+   explicit item fields.
 7. **`Astro.site` is used unguarded** in `BaseHead.astro` and `context.site` in `rss.xml.js`;
    both misbehave if `site` is unset — currently masked only by the placeholder value.
 8. **No base layout.** The document shell is duplicated across three files; `BlogPost.astro`
@@ -562,7 +577,77 @@ Facts about the current repository. These are **not** conventions to imitate.
 12. **Accessibility gaps** — no skip-to-content link, no `<nav aria-label>`, `alt=""` on all
     hero images including blog index cards (announcing content images as decorative),
     `target="_blank"` without `rel="noopener noreferrer"` (6 occurrences), no JSON-LD.
-13. **Missing files** — no `src/pages/404.astro`, no `public/robots.txt`, no `.env.example`.
-14. **No dark mode** and no `prefers-color-scheme` handling.
+13. ~~Missing files~~ — `src/pages/404.astro` and `.env.example` exist now. Still missing:
+    `public/robots.txt`.
+14. ~~No dark mode~~ — **fixed**: `tokens.css` handles `prefers-color-scheme: dark`.
 15. ~~`README.md` is the stock Astro starter README~~ — **fixed**; it now documents setup,
     the rendering strategy and the deployment contract.
+
+---
+
+## 9. Strapi integration
+
+How the CMS data reaches the samizdat design. §4 and §5 still apply; this section records
+what was decided while building it.
+
+### Layers
+
+| File | Role |
+|---|---|
+| `src/lib/strapi/http.mjs` | The transport: the only `fetch()` to Strapi, `Authorization`, timeout, `StrapiError` messages, pagination (`collectPages`) |
+| `src/lib/strapi/client.ts` | Wires the transport to `astro:env` (`STRAPI_URL`, `STRAPI_API_TOKEN`) and validates every response with the Zod schemas of `src/types/strapi.ts` |
+| `src/lib/strapi/query.mjs`, `populate.mjs` | Bracket-notation query strings; named populate constants and the base article params (`locale`, `status=published`, `sort=publishedAt:desc`) |
+| `src/lib/strapi/{article,category,tag}.ts` | Repositories — return domain models or throw |
+| `src/lib/mappers/*.ts` | DTO → `src/types/domain.ts`; Markdown leaves here already rendered |
+| `src/lib/markdown.mjs` | The only Markdown renderer (below) |
+| `src/lib/url.ts`, `media-url.mjs` | Every internal href and `mediaUrl()` |
+| `src/lib/seo/json-ld.ts` | `Article` and `FAQPage` structured data |
+
+The testable logic is plain `.mjs` with JSDoc (§7: no test imports a `.ts`). The `.ts`
+modules that need `astro:env` or Zod generics stay thin and are covered through the built
+pages.
+
+### Markdown, citations and margin notes
+
+`renderMarkdown()` drops raw HTML, sanitises with GitHub's schema, then adds markup of ours:
+
+- **Sources are samizdat's endnotes.** A call `[[n]](#source-n)` becomes
+  `<sup class="citation"><a href="#source-n">[n]</a></sup>`; the numbered Sources list at the
+  end of the article (`Sources.astro`, `<li id="source-n">`) is the target assistive
+  technologies follow. The first call of each source in the body also gets a margin copy
+  (`<span class="sidenote" aria-hidden="true">`, link at `tabindex="-1"`, no id), styled by
+  `BlogPost.astro` like the GFM notes. A call to a missing source renders unlinked
+  (`citation--missing`) and warns at build time. Erratum and FAQ carry calls, no margin notes.
+- **GFM footnotes `[^1]`** still work, for explanatory notes that are not sources:
+  `rehype-sidenotes.mjs` copies them in the margin, the « Notes » section stays.
+- **Fenced code** is highlighted by Shiki with the `css-variables` theme (`--astro-code-*`
+  tokens, `<pre class="astro-code">`), exactly like Astro's own Markdown.
+
+The result is typed `SafeHtml`; only that type reaches `set:html`.
+
+### Rubriques, editorial elements, images
+
+- **Rubriques are the Strapi categories** `open-source`, `ia`, `souverainete`, `politique`,
+  `geopolitique`. Their number and short label live in `CATEGORIES` (`consts.ts`): it is
+  layout. An article whose category is not in that list gets no stamp.
+- Editorial elements in the samizdat style: content-type badge (Opinion filled red, plus an
+  opinion notice and a red rule along the text), « Point de vue » quote block, erratum
+  (« Rectificatif »), « Mis à jour le » / « Vérifié le », FAQ, tags (`/tags/[slug]`), JSON-LD.
+- **Images go through astro:assets.** `image.remotePatterns` is derived from `STRAPI_URL`
+  (`/uploads/**`): uploads are downloaded at build time, resized and served from `/_astro/`,
+  so the site never points at the CMS origin. The share image is a 1200×630 JPEG made by
+  `getImage()`. A cover needs a non-empty `alternativeText` (`hero-alt.mjs`, warned by the
+  mapper).
+
+### Failure and fixtures
+
+- **CMS unreachable → the build fails** with a `StrapiError` naming the origin, the system
+  error code and `STRAPI_URL`. A missing `STRAPI_URL` fails earlier, in the `astro:env`
+  validation. A reachable CMS with zero articles builds; every listing says so.
+- `pnpm fixtures` serves `test/fixtures/*.json` on `:1338` (locale, category and tag
+  filters, sort, pagination; uploads are generated placeholders in the announced format).
+  `STRAPI_URL=http://localhost:1338 pnpm build` then `node ./dist/server/entry.mjs` shows the
+  site without a CMS. The fixtures are the test data set: an analysis with sources, FAQ,
+  erratum, « Point de vue », media, slider, an unknown block and a trapped `<script>` /
+  `javascript:` link; an opinion; a brief with no blocks; an explainer with a GFM footnote and
+  code; and an empty `politique` rubrique.

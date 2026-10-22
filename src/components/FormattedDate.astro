@@ -1,15 +1,16 @@
 ---
-import { DATE_LOCALE, TIME_ZONE } from '../consts';
-
 interface Props {
 	date: Date;
 }
 
 const { date } = Astro.props;
-const label = new Intl.DateTimeFormat(DATE_LOCALE, {
-	dateStyle: 'long',
-	timeZone: TIME_ZONE,
-}).format(date);
+// UTC : la date éditoriale ne doit pas reculer d'un jour selon le fuseau du build.
+const formatter = new Intl.DateTimeFormat('fr-FR', {
+	day: 'numeric',
+	month: 'long',
+	year: 'numeric',
+	timeZone: 'UTC',
+});
 ---
 
-<time datetime={date.toISOString()}>{label}</time>
+<time datetime={date.toISOString()}>{formatter.format(date)}</time>

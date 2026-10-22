@@ -1,4 +1,5 @@
 ---
+import { ARTICLE_LABELS } from '../consts';
 import type { SafeHtml } from '../types/domain';
 
 interface Props {
@@ -8,27 +9,24 @@ interface Props {
 const { html } = Astro.props;
 ---
 
-<aside class="erratum" role="note" aria-labelledby="erratum-titre">
-	<p id="erratum-titre" class="erratum-titre">
-		Rectificatif
-	</p>
+<aside class="erratum" aria-labelledby="erratum-titre">
+	<p id="erratum-titre" class="erratum-titre mono-label">{ARTICLE_LABELS.erratum}</p>
 	<div class="erratum-corps" set:html={html} />
 </aside>
 
 <style>
+	/* Rectificatif façon papillon collé sur l'épreuve : filet double, titre au tampon. */
 	.erratum {
-		margin: 0 0 2em;
-		padding: 0.75em 1em;
-		border-left: 4px solid var(--erratum);
-		background: var(--erratum-bg);
-		font-size: 0.9em;
+		margin: 0 0 2rem;
+		padding: 0.75rem 1rem;
+		border: 4px double var(--ink-red-text);
+		font-size: 0.95rem;
 	}
 	.erratum-titre {
-		margin: 0 0 0.25em;
-		font-weight: 700;
-		color: var(--erratum);
+		margin: 0 0 0.25rem;
+		color: var(--ink-red-text);
 	}
-	.erratum-corps :global(p:last-child) {
-		margin-bottom: 0;
+	.erratum-corps :global(p) {
+		margin: 0;
 	}
 </style>

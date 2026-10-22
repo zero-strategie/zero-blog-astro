@@ -1,0 +1,96 @@
+---
+import CmsImage from './CmsImage.astro';
+import ContentTypeBadge from './ContentTypeBadge.astro';
+import FormattedDate from './FormattedDate.astro';
+import Stamp from './Stamp.astro';
+import { type CategorySlug, FEATURED_LABEL } from '../consts';
+import type { ContentType, ImageRef } from '../types/domain';
+
+interface Props {
+	title: string;
+	description?: string;
+	href: string;
+	pubDate: Date;
+	category?: CategorySlug;
+	contentType: ContentType;
+	cover?: ImageRef;
+}
+
+const { title, description, href, pubDate, category, contentType, cover } = Astro.props;
+// Lien de couverture masqué aux lecteurs d'écran (le titre mène au même article) : l'image est décorative.
+const COVER_WIDTHS = [480, 800, 1200];
+const COVER_SIZES = '(min-width: 48rem) 48rem, 100vw';
+---
+
+<article class="featured">
+	<p class="label">{FEATURED_LABEL}</p>
+	{
+		cover && (
+			<a class="cover riso" href={href} tabindex="-1" aria-hidden="true">
+				<CmsImage
+					image={cover}
+					alt=""
+					widths={COVER_WIDTHS}
+					sizes={COVER_SIZES}
+					loading="eager"
+					fetchpriority="high"
+				/>
+			</a>
+		)
+	}
+	<div class="meta">
+		{category && <Stamp category={category} />}
+		<ContentTypeBadge type={contentType} />
+		<FormattedDate date={pubDate} />
+	</div>
+	<h2><a href={href}>{title}</a></h2>
+	{description && <p class="description">{description}</p>}
+</article>
+
+<style>
+	.featured {
+		margin: 0 0 3rem;
+	}
+	.label {
+		display: inline-block;
+		margin: 0 0 0.75rem;
+		padding: 0.1em 0.6em;
+		background: var(--ink);
+		color: var(--paper);
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+	.cover {
+		display: block;
+	}
+	.meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem 1.25rem;
+		margin: 1.25rem 0 0.75rem;
+		color: var(--ink-soft);
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
+	}
+	h2 {
+		margin: 0 0 0.5rem;
+		font-size: clamp(2rem, 7vw, 3.2rem);
+		font-weight: 900;
+		letter-spacing: -0.02em;
+		line-height: 1.02;
+	}
+	h2 a {
+		text-decoration: none;
+	}
+	h2 a:hover {
+		color: var(--ink-red-text);
+	}
+	.description {
+		max-width: var(--measure);
+		margin: 0;
+		color: var(--ink-soft);
+	}
+</style>
