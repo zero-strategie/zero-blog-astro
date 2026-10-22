@@ -1,5 +1,5 @@
 ---
-import { CATEGORIES, NAV_LINKS, SITE_TAGLINE, SITE_TITLE } from '../consts';
+import { CATEGORIES, NAV_LABEL, NAV_LINKS, SITE_TAGLINE, SITE_TITLE } from '../consts';
 import { categoryUrl } from '../lib/url';
 import HeaderLink from './HeaderLink.astro';
 
@@ -12,7 +12,7 @@ const navLinks = [
 <header>
 	<p class="masthead"><a href="/">{SITE_TITLE}</a></p>
 	<p class="tagline">{SITE_TAGLINE}</p>
-	<nav aria-label="Navigation principale">
+	<nav aria-label={NAV_LABEL}>
 		{navLinks.map(({ href, label }) => <HeaderLink href={href}>{label}</HeaderLink>)}
 	</nav>
 </header>
@@ -36,7 +36,7 @@ const navLinks = [
 		text-decoration: none;
 	}
 	.tagline {
-		margin: 0.5rem 0 1rem;
+		margin: 0.9rem 0 1rem;
 		font-family: var(--font-mono);
 		font-size: 0.8rem;
 		letter-spacing: 0.06em;
@@ -64,7 +64,7 @@ const navLinks = [
 		border-bottom-color: var(--ink-red);
 		font-weight: 700;
 	}
-	nav :global(a:hover) {
+	nav :global(a:not([aria-current]):hover) {
 		border-bottom-color: var(--ink);
 	}
 </style>

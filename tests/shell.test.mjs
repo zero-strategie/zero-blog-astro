@@ -88,9 +88,16 @@ test('first-post affiche « 8 juillet 2022 » avec un datetime du 2022-07-08', (
 	assert.equal(time[2], '8 juillet 2022');
 });
 
-test("le texte du lien d'évitement vient de consts.ts, pas de Layout.astro", () => {
-	const layout = readFileSync(new URL('../src/layouts/Layout.astro', import.meta.url), 'utf8');
-	assert.doesNotMatch(layout, /Aller au contenu/);
+test('les textes de la coque viennent de consts.ts, pas des composants', () => {
+	const hardcoded = {
+		'layouts/Layout.astro': [/Aller au contenu/],
+		'components/Header.astro': [/Navigation principale/],
+		'components/Footer.astro': [/contenu sous licence/, />\s*RSS\s*</, />\s*GitHub\s*</],
+	};
+	for (const [file, patterns] of Object.entries(hardcoded)) {
+		const source = readFileSync(new URL(`../src/${file}`, import.meta.url), 'utf8');
+		for (const pattern of patterns) assert.doesNotMatch(source, pattern, file);
+	}
 });
 
 test("le lien d'évitement apparaît sur :focus et garde son anneau dans la fenêtre", () => {
@@ -108,4 +115,11 @@ test('masthead en Fraunces très gras, navigation en monospace capitales', () =>
 	assert.match(rule('nav\\[[^\\]]*\\]a'), /font-family:var\(--font-mono\)/);
 	assert.match(rule('nav\\[[^\\]]*\\]a'), /text-transform:uppercase/);
 	assert.match(rule('nav\\[[^\\]]*\\]a\\[aria-current=page\\]'), /border-bottom-color:var\(--ink-red\)|text-decoration-color:var\(--ink-red\)/);
+});
+
+test('le survol de la navigation ne retire pas le filet rouge du lien actif', () => {
+	const css = pageCss(pageNamed('client/index.html')).replace(/\s+/g, '');
+	const hover = css.match(/nav\[[^\]]*\]a[^{}]*:hover\{/g) ?? [];
+	assert.ok(hover.length > 0);
+	for (const selector of hover) assert.match(selector, /:not\(\[aria-current\]\)/, selector);
 });

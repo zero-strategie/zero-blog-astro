@@ -1,14 +1,13 @@
 ---
-import { LICENSE, RSS_PATH, SITE_TITLE, SOURCE_URL } from '../consts';
+import { FOOTER_LINKS, LICENSE, LICENSE_PREFIX, SITE_TITLE } from '../consts';
 ---
 
 <footer>
 	<p class="colophon">
-		{SITE_TITLE} — contenu sous licence <a href={LICENSE.url}>{LICENSE.name}</a>.
+		{SITE_TITLE} — {LICENSE_PREFIX} <a href={LICENSE.url}>{LICENSE.name}</a>.
 	</p>
 	<ul class="footer-links">
-		<li><a href={RSS_PATH}>RSS</a></li>
-		<li><a href={SOURCE_URL}>GitHub</a></li>
+		{FOOTER_LINKS.map(({ href, label }) => <li><a href={href}>{label}</a></li>)}
 	</ul>
 </footer>
 

@@ -34,3 +34,10 @@ export const CATEGORY_SLUGS = CATEGORIES.map(({ slug }) => slug) as [
 ];
 
 export const EMPTY_CATEGORY_MESSAGE = "Rien d'imprimé ici pour l'instant";
+
+export const NAV_LABEL = 'Navigation principale';
+export const LICENSE_PREFIX = 'contenu sous licence';
+export const FOOTER_LINKS = [
+	{ href: RSS_PATH, label: 'RSS' },
+	{ href: SOURCE_URL, label: 'GitHub' },
+] as const;
