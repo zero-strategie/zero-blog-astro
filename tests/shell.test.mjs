@@ -52,3 +52,14 @@ test('seul le lien de la section courante porte aria-current="page"', () => {
 		assert.deepEqual(current, [label], suffix);
 	}
 });
+
+const footerOf = (html) => html.match(/<footer\b[\s\S]*?<\/footer>/)?.[0] ?? '';
+
+test('le pied de page lie la licence CC BY-SA 4.0, le flux RSS et le dépôt source', () => {
+	for (const { file, html } of pages.filter(({ file }) => file.endsWith('.html'))) {
+		const hrefs = links(footerOf(html)).map(([, attributes]) => attributes.match(/href="([^"]*)"/)?.[1]);
+		assert.ok(hrefs.includes('https://creativecommons.org/licenses/by-sa/4.0/deed.fr'), file);
+		assert.ok(hrefs.includes('/rss.xml'), file);
+		assert.ok(hrefs.includes('https://github.com/zero-strategie/zero-blog-astro'), file);
+	}
+});
