@@ -32,8 +32,11 @@ test('atkinson est absent des HTML et CSS de dist/client', () => {
 	}
 });
 
-test('une fonte de secours avec size-adjust est déclarée', () => {
-	assert.match(pageCss(home.html), /@font-face\s*{[^}]*size-adjust/);
+test('la fonte de secours a un size-adjust calé sur le corps de texte (110 à 120 %)', () => {
+	const fallback = pageCss(home.html).match(/@font-face\s*{[^}]*fallback[^}]*size-adjust:([\d.]+)%/);
+	assert.ok(fallback, 'aucun @font-face de secours avec size-adjust');
+	const sizeAdjust = Number(fallback[1]);
+	assert.ok(sizeAdjust >= 110 && sizeAdjust <= 120, `size-adjust = ${sizeAdjust} %`);
 });
 
 test("l'accueil précharge le woff2 de Fraunces", () => {
