@@ -12,7 +12,7 @@
 	--ink-red: #e3412b;
 	--ink-red-text: #c0341f;
 
-	--font-text: var(--font-atkinson), Georgia, serif;
+	--font-text: var(--font-fraunces), Georgia, serif;
 	--font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 	--measure: 66ch;
 	--halftone-size: 5px;
