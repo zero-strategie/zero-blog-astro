@@ -34,6 +34,8 @@ export default defineConfig({
 	// Notes `[^1]` : copiées en marge (desktop) par rehypeSidenotes, section de fin conservée (mobile).
 	markdown: {
 		rehypePlugins: [rehypeSidenotes],
+		// Couleurs de syntaxe via --astro-code-* (tokens.css) : aucune couleur inline, thème clair/sombre natif.
+		shikiConfig: { theme: 'css-variables' },
 		remarkRehype: { footnoteLabel: 'Notes', footnoteBackLabel: 'Retour au texte' },
 	},
 
