@@ -36,3 +36,47 @@ test('le favicon est le SVG, sans favicon.ico dans le head ni dans dist/client',
 	const icons = listDistFiles().filter((file) => file.endsWith('favicon.ico'));
 	assert.deepEqual(icons, []);
 });
+
+const OG_DEFAULT_URL = 'https://zero-strategie.dev/og-default.png';
+const PNG_SIGNATURE = '89504e470d0a1a0a';
+
+function pngSize(buffer) {
+	assert.equal(buffer.subarray(0, 8).toString('hex'), PNG_SIGNATURE, "pas un PNG");
+	return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+}
+
+const pageNamed = (suffix) => {
+	const page = pages.find(({ file }) => file.endsWith(suffix));
+	assert.ok(page, suffix);
+	return page.html;
+};
+
+const metaContent = (html, attribute, name) =>
+	html.match(new RegExp(`<meta ${attribute}="${name}" content="([^"]*)"`))?.[1];
+
+test('og-default.png fait 1200×630', () => {
+	const file = new URL('../public/og-default.png', import.meta.url);
+	assert.deepEqual(pngSize(readFileSync(file)), { width: 1200, height: 630 });
+});
+
+test("l'accueil partage og-default.png en fr_FR", () => {
+	const html = pageNamed('client/index.html');
+	assert.equal(metaContent(html, 'property', 'og:image'), OG_DEFAULT_URL);
+	assert.equal(metaContent(html, 'property', 'twitter:image'), OG_DEFAULT_URL);
+	assert.equal(metaContent(html, 'property', 'og:locale'), 'fr_FR');
+});
+
+test('un article avec couverture partage sa couverture', () => {
+	const html = pageNamed('blog/first-post/index.html');
+	const image = metaContent(html, 'property', 'og:image');
+	assert.match(image, /^https:\/\/zero-strategie\.dev\/_astro\/.+\.(jpg|webp|png)$/);
+	assert.equal(metaContent(html, 'property', 'twitter:image'), image);
+});
+
+test('aucun blog-placeholder-1 dans les meta, accueil, /about/ et /blog/', () => {
+	for (const suffix of ['client/index.html', 'about/index.html', 'blog/index.html']) {
+		const metas = pageNamed(suffix).match(/<meta\b[^>]*>/g) ?? [];
+		assert.ok(metas.length > 0, suffix);
+		for (const meta of metas) assert.doesNotMatch(meta, /blog-placeholder-1/, suffix);
+	}
+});
