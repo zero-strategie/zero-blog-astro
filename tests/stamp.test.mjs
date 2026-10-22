@@ -57,3 +57,18 @@ test('le libellé du tampon est en monospace capitales', () => {
 	assert.match(rule, /font-family:\s*var\(--font-mono\)/);
 	assert.match(rule, /text-transform:\s*uppercase/);
 });
+
+const STAMP_RULE = '\\.stamp\\[data-astro-cid-[\\w]+\\]';
+const SIDE_INSET = /^(0|1px|100%|calc\(100% - 1px\))$/;
+
+test('les sommets latéraux du clip-path ne retirent que ~1px : les bords gauche et droit restent visibles', () => {
+	const polygon = ruleBody(stampCss(), '\\.stamp[^{,]*::?before').match(/clip-path:\s*polygon\((.*?)\)\s*(?:;|$)/)?.[1] ?? '';
+	const points = polygon.split(/,(?![^(]*\))/).map((point) => point.trim().split(/\s+(?![^(]*\))/));
+	const side = points.filter(([, y]) => parseFloat(y) > 10 && parseFloat(y) < 90);
+	assert.ok(side.length >= 4, polygon);
+	for (const [x] of side) assert.match(x, SIDE_INSET, polygon);
+});
+
+test('une marge basse écarte le tampon du texte suivant, pour que l’anneau de focus ne le chevauche pas', () => {
+	assert.match(ruleBody(stampCss(), STAMP_RULE), /margin-bottom:\s*[\d.]+r?em/);
+});
