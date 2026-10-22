@@ -184,8 +184,10 @@ hr {
 	transform: translateY(-100%);
 }
 
-.skip-link:focus-visible {
+.skip-link:focus {
 	transform: none;
+	/* Anneau rentré : à l'angle de la fenêtre, un anneau extérieur serait rogné. */
+	outline-offset: -6px;
 }
 
 @media (max-width: 45rem) {

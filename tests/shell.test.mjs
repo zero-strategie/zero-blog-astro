@@ -87,3 +87,15 @@ test('first-post affiche « 8 juillet 2022 » avec un datetime du 2022-07-08', (
 	assert.match(time[1], /^2022-07-08/);
 	assert.equal(time[2], '8 juillet 2022');
 });
+
+test("le texte du lien d'évitement vient de consts.ts, pas de Layout.astro", () => {
+	const layout = readFileSync(new URL('../src/layouts/Layout.astro', import.meta.url), 'utf8');
+	assert.doesNotMatch(layout, /Aller au contenu/);
+});
+
+test("le lien d'évitement apparaît sur :focus et garde son anneau dans la fenêtre", () => {
+	const css = readFileSync(new URL('../src/styles/global.css', import.meta.url), 'utf8').replace(/\s+/g, '');
+	const rule = css.match(/\.skip-link:focus\{([^}]*)\}/)?.[1] ?? '';
+	assert.match(rule, /transform:none/);
+	assert.match(rule, /outline-offset:-/);
+});

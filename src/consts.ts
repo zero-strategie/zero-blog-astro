@@ -18,3 +18,4 @@ export const LICENSE = {
 	name: 'CC BY-SA 4.0',
 	url: 'https://creativecommons.org/licenses/by-sa/4.0/deed.fr',
 } as const;
+export const SKIP_LINK_LABEL = 'Aller au contenu';
