@@ -40,7 +40,9 @@ for (const { file, html } of pages) {
 		assert.doesNotMatch(css, /background-attachment:fixed/);
 		const shadowed = [...css.matchAll(/([^{}]+)\{[^{}]*text-shadow:/g)].map(([, selector]) => selector);
 		assert.ok(shadowed.length > 0, 'pas de calage');
-		for (const selector of shadowed) assert.match(selector, /^h1(\[|$|,)/, selector);
+		for (const list of shadowed) {
+			for (const selector of list.split(',')) assert.match(selector, /^h1(\[|$)/, `${selector} (dans ${list})`);
+		}
 	});
 }
 
