@@ -233,3 +233,22 @@ hr {
 		transition-delay: 0s !important;
 	}
 }
+
+/* Impression minimale : texte seul, sans navigation ni trame. La licence du pied de page reste. */
+@media print {
+	body > header,
+	.skip-link {
+		display: none;
+	}
+
+	body {
+		background-image: none;
+		font-size: 12pt;
+	}
+
+	main a[href^='http']::after {
+		content: ' (' attr(href) ')';
+		font-size: 0.85em;
+		overflow-wrap: anywhere;
+	}
+}

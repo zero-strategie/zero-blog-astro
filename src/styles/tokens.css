@@ -51,3 +51,26 @@
 		--astro-code-token-link: #ff6b55;
 	}
 }
+
+/* Impression : papier blanc, encre noire, plus de rouge ni de gris. */
+@media print {
+	:root {
+		color-scheme: light;
+		--paper: #fff;
+		--ink: #000;
+		--ink-soft: #000;
+		--ink-red: #000;
+		--ink-red-text: #000;
+		--astro-code-background: #fff;
+		--astro-code-foreground: #000;
+		--astro-code-token-comment: #000;
+		--astro-code-token-keyword: #000;
+		--astro-code-token-string: #000;
+		--astro-code-token-string-expression: #000;
+		--astro-code-token-constant: #000;
+		--astro-code-token-function: #000;
+		--astro-code-token-parameter: #000;
+		--astro-code-token-punctuation: #000;
+		--astro-code-token-link: #000;
+	}
+}
