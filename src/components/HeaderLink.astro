@@ -5,7 +5,10 @@ type Props = HTMLAttributes<'a'> & { href: string };
 
 const { href, ...props } = Astro.props;
 const firstSegment = (path: string) => path.split('/').filter(Boolean)[0] ?? '';
-const isActive = firstSegment(Astro.url.pathname) === firstSegment(href);
+const isCategoryLink = firstSegment(href) === 'rubriques';
+const isActive = isCategoryLink
+	? Astro.url.pathname === href
+	: firstSegment(Astro.url.pathname) === firstSegment(href);
 ---
 
 <a href={href} aria-current={isActive ? 'page' : undefined} {...props}>

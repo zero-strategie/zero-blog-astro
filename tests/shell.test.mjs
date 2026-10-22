@@ -24,14 +24,14 @@ test("l'en-tête de chaque page affiche « zero-stratégie » et son sous-titre"
 const navOf = (html) => html.match(/<nav\b[^>]*>[\s\S]*?<\/nav>/)?.[0] ?? '';
 const links = (html) => [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)];
 
-test('la navigation est un <nav aria-label> avec Accueil, Archive et À propos', () => {
+test('la navigation est un <nav aria-label> qui commence par Accueil, Archive et À propos', () => {
 	const nav = navOf(pageNamed('client/index.html'));
 	assert.match(nav, /^<nav\b[^>]*\baria-label="[^"]+"/);
 	const entries = links(nav).map(([, attributes, text]) => [
 		attributes.match(/href="([^"]*)"/)?.[1],
 		text.trim(),
 	]);
-	assert.deepEqual(entries, [
+	assert.deepEqual(entries.slice(0, 3), [
 		['/', 'Accueil'],
 		['/blog/', 'Archive'],
 		['/about/', 'À propos'],

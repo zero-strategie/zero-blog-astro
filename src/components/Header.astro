@@ -1,13 +1,19 @@
 ---
-import { NAV_LINKS, SITE_TAGLINE, SITE_TITLE } from '../consts';
+import { CATEGORIES, NAV_LINKS, SITE_TAGLINE, SITE_TITLE } from '../consts';
+import { categoryUrl } from '../lib/url';
 import HeaderLink from './HeaderLink.astro';
+
+const navLinks = [
+	...NAV_LINKS,
+	...CATEGORIES.map(({ slug, label }) => ({ href: categoryUrl(slug), label })),
+];
 ---
 
 <header>
 	<p class="masthead"><a href="/">{SITE_TITLE}</a></p>
 	<p class="tagline">{SITE_TAGLINE}</p>
 	<nav aria-label="Navigation principale">
-		{NAV_LINKS.map(({ href, label }) => <HeaderLink href={href}>{label}</HeaderLink>)}
+		{navLinks.map(({ href, label }) => <HeaderLink href={href}>{label}</HeaderLink>)}
 	</nav>
 </header>
 
