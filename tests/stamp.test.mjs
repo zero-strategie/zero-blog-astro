@@ -27,3 +27,33 @@ test('chaque article contient exactement un tampon vers sa rubrique, avec numér
 		assert.deepEqual(stampsOf(articleHtml(id)), [{ href: `/rubriques/${slug}/`, text }], id);
 	}
 });
+
+const stampCss = () => {
+	const html = articleHtml('first-post');
+	return pageCss(html).replace(/\s+/g, ' ');
+};
+const ruleBody = (css, selectorPattern) => css.match(new RegExp(`${selectorPattern}\\s*\\{([^}]*)\\}`))?.[1] ?? '';
+
+test('le clip-path est sur le pseudo-élément du tampon, pas sur le lien', () => {
+	const css = stampCss();
+	assert.match(ruleBody(css, '\\.stamp[^{,]*::?before'), /clip-path:\s*polygon/);
+	assert.doesNotMatch(ruleBody(css, '\\.stamp\\[data-astro-cid-[\\w]+\\]'), /clip-path/);
+});
+
+test('le texte du tampon est en rouge texte, jamais en --ink-red, sans animation', () => {
+	const css = stampCss();
+	const rule = ruleBody(css, '\\.stamp\\[data-astro-cid-[\\w]+\\]');
+	assert.match(rule, /color:\s*var\(--ink-red-text\)/);
+	assert.doesNotMatch(rule, /var\(--ink-red\)/);
+	assert.doesNotMatch(rule, /animation|transition/);
+});
+
+test('un style :focus-visible est défini pour les liens', () => {
+	assert.match(stampCss(), /:focus-visible\s*\{[^}]*outline/);
+});
+
+test('le libellé du tampon est en monospace capitales', () => {
+	const rule = ruleBody(stampCss(), '\\.stamp\\[data-astro-cid-[\\w]+\\]');
+	assert.match(rule, /font-family:\s*var\(--font-mono\)/);
+	assert.match(rule, /text-transform:\s*uppercase/);
+});
