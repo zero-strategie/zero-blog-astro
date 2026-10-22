@@ -70,6 +70,11 @@ test('les rubriques défilent horizontalement sur une ligne, avec snap et focus 
 	assert.match(css, /nav\[[^\]]*\]\.rubriquesa:focus-visible\{[^}]*outline:/);
 });
 
+test('la rubrique active est entièrement visible au chargement (scroll-initial-target)', () => {
+	const css = pageCss(pageNamed('client/index.html')).replace(/\s+/g, '');
+	assert.match(css, /nav\[[^\]]*\]\.rubriquesa\[aria-current=["']?page["']?\](?:\[[^\]]*\])?\{[^}]*scroll-initial-target:nearest/);
+});
+
 test('les textes des deux navigations viennent de consts.ts', () => {
 	const consts = readFileSync(new URL('../src/consts.ts', import.meta.url), 'utf8');
 	assert.match(consts, /export const CATEGORIES_NAV_LABEL/);
