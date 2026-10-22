@@ -13,20 +13,15 @@ import type {
 	Source,
 } from '../../types/domain';
 import type { ArticleDetailDto, ArticleSummaryDto, BlockDto, SourceDto } from '../../types/strapi';
+import { isOpinionQuoteTitle } from '../editorial.mjs';
 import { isHeroAltValid } from '../hero-alt.mjs';
 import { markdownToText, type RenderOptions, renderMarkdown } from '../markdown.mjs';
 import { readingTime } from '../reading-time.mjs';
 import { toImageRef } from './media';
 import { toCategory, toTag } from './taxonomy';
 
-/** Title that marks a `shared.quote` as an opinion passage (editorial convention). */
-const OPINION_QUOTE_TITLE = 'point de vue';
-
 const date = (value: string | null | undefined): Date | undefined =>
 	value ? new Date(value) : undefined;
-
-const normalise = (value: string): string =>
-	value.trim().replace(/\s+/g, ' ').replace(/\s*:$/, '').toLowerCase();
 
 export function toArticleSummary(dto: ArticleSummaryDto): ArticleSummary {
 	const cover = toImageRef(dto.cover);
@@ -76,7 +71,7 @@ function toBlock(dto: BlockDto, md: Render): Block | undefined {
 				// `body` is plain text on the CMS side; rendering it as Markdown keeps
 				// the paragraphs and resolves any citation call it contains.
 				html: md(dto.body ?? ''),
-				isOpinion: title !== undefined && normalise(title) === OPINION_QUOTE_TITLE,
+				isOpinion: isOpinionQuoteTitle(title),
 			};
 		}
 		case 'shared.media':

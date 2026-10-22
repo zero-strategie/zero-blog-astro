@@ -289,6 +289,12 @@
           "__component": "shared.rich-text",
           "id": 51,
           "body": "Plus de 95 % du trafic intercontinental passe par des câbles sous-marins [[1]](#source-1). Leur tracé est public : on peut l'interroger soi-même[^1].\n\n```bash\ncurl -s https://www.submarinecablemap.com/api/v3/cable/cable-geo.json | jq '.features | length'\n```\n\n> Qui pose le câble choisit aussi où il atterrit [[1]](#source-1).\n\n[^1]: Les données de TeleGeography sont publiées sous licence libre, voir [leur dépôt](https://github.com/telegeography/www.submarinecablemap.com)."
+        },
+        {
+          "__component": "shared.quote",
+          "id": 52,
+          "title": "Un ingénieur câblier",
+          "body": "On ne répare pas un câble, on le remonte."
         }
       ],
       "sources": [

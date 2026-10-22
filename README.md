@@ -36,7 +36,9 @@ STRAPI_URL=http://localhost:1338 pnpm build
 | `pnpm check` | Type check (`astro check`) |
 | `pnpm lint` | ESLint |
 | `pnpm format` / `pnpm format:check` | Prettier |
-| `pnpm test` | Unit tests (vitest) |
+| `pnpm test` | Build on the fixtures, then `node --test "tests/*.test.mjs"` on `dist/client/` |
+| `pnpm build:fixtures` | Production build against the fixtures, no CMS needed |
+| `pnpm check:weight` | Weight budgets and zero JS on `dist/client/` |
 | `pnpm fixtures` | Fake Strapi serving `test/fixtures/` |
 
 ## Rendering

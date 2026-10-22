@@ -18,7 +18,6 @@
     "format:check": "prettier --check .",
     "build:fixtures": "node scripts/build-on-fixtures.mjs",
     "test": "pnpm build:fixtures && node --test \"tests/*.test.mjs\"",
-    "test:unit": "vitest run",
     "fixtures": "node scripts/fixture-server.mjs"
   },
   "dependencies": {
@@ -46,7 +45,6 @@
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.72.0",
-    "vitest": "^5.0.5"
+    "typescript-eslint": "^8.72.0"
   }
 }

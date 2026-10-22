@@ -518,6 +518,12 @@ pnpm format:check     # prettier + prettier-plugin-astro
 on a free port and builds against it. Tests take their expectations from
 `test/fixtures/*.json` through `scripts/lib/fixtures.mjs` rather than copying them.
 
+The Strapi layer is tested the same way: unit tests on its `.mjs` modules (`markdown.mjs`,
+`strapi/http.mjs`, `query.mjs`, `populate.mjs`, `media-url.mjs`, `editorial.mjs`) and
+assertions on the built article pages for what the `.ts` mappers, components and JSON-LD
+produce (`tests/strapi-article.test.mjs`). The vitest suite the integration started with was
+migrated there; vitest is gone.
+
 Tests are plain `node:test` files in `tests/` (`.mjs`, JSDoc for types), written TDD
 (red test seen before the code). Prefer assertions on `dist/client/` through
 `scripts/lib/dist.mjs`. **No test imports a `.ts` file**: Node < 22.18 cannot load them, so

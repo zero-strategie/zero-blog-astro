@@ -45,6 +45,4 @@ export function faqPageJsonLd(faq: readonly FaqItem[]): JsonLd | undefined {
 	};
 }
 
-/** JSON safe to inline in a `<script>`: `<` is escaped so `</script>` cannot appear. */
-export const serializeJsonLd = (data: JsonLd): string =>
-	JSON.stringify(data).replace(/</g, '\\u003c');
+export { serializeJsonLd } from './serialize.mjs';

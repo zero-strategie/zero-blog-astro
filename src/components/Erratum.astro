@@ -9,7 +9,7 @@ interface Props {
 const { html } = Astro.props;
 ---
 
-<aside class="erratum" aria-labelledby="erratum-titre">
+<aside class="erratum" role="note" aria-labelledby="erratum-titre">
 	<p id="erratum-titre" class="erratum-titre mono-label">{ARTICLE_LABELS.erratum}</p>
 	<div class="erratum-corps" set:html={html} />
 </aside>
