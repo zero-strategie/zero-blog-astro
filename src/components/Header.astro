@@ -1,19 +1,24 @@
 ---
-import { CATEGORIES, NAV_LABEL, NAV_LINKS, SITE_TAGLINE, SITE_TITLE } from '../consts';
+import { CATEGORIES, CATEGORIES_NAV_LABEL, NAV_LABEL, NAV_LINKS, SITE_TAGLINE, SITE_TITLE } from '../consts';
 import { categoryUrl } from '../lib/url';
 import HeaderLink from './HeaderLink.astro';
 
-const navLinks = [
-	...NAV_LINKS,
-	...CATEGORIES.map(({ slug, label }) => ({ href: categoryUrl(slug), label })),
-];
 ---
 
 <header>
 	<p class="masthead"><a href="/">{SITE_TITLE}</a></p>
 	<p class="tagline">{SITE_TAGLINE}</p>
 	<nav aria-label={NAV_LABEL}>
-		{navLinks.map(({ href, label }) => <HeaderLink href={href}>{label}</HeaderLink>)}
+		{NAV_LINKS.map(({ href, label }) => <HeaderLink href={href}>{label}</HeaderLink>)}
+	</nav>
+	<nav class="rubriques" aria-label={CATEGORIES_NAV_LABEL}>
+		{
+			CATEGORIES.map(({ slug, number, label }) => (
+				<HeaderLink href={categoryUrl(slug)}>
+					<span class="number">§{number}</span> {label}
+				</HeaderLink>
+			))
+		}
 	</nav>
 </header>
 
@@ -50,6 +55,39 @@ const navLinks = [
 		padding: 0.25rem 0;
 		border-top: 4px double var(--ink);
 		border-bottom: 4px double var(--ink);
+	}
+	nav.rubriques {
+		flex-wrap: nowrap;
+		justify-content: flex-start;
+		gap: 0 1rem;
+		padding: 0;
+		overflow-x: auto;
+		scroll-snap-type: x proximity;
+		scrollbar-width: none;
+		border-top: 0;
+	}
+	nav.rubriques::-webkit-scrollbar {
+		display: none;
+	}
+	nav.rubriques :global(a) {
+		flex: none;
+		padding: 0.5rem 0.25rem;
+		scroll-snap-align: start;
+		font-size: 0.75rem;
+		letter-spacing: 0.04em;
+		white-space: nowrap;
+	}
+	.number {
+		color: var(--ink-soft);
+	}
+	nav.rubriques :global(a:focus-visible) {
+		outline: 3px solid var(--ink-red-text);
+		outline-offset: -3px;
+	}
+	@media (min-width: 48rem) {
+		nav.rubriques {
+			justify-content: center;
+		}
 	}
 	nav :global(a) {
 		padding: 0.75rem 0.25rem;

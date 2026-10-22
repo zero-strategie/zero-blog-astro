@@ -65,7 +65,7 @@ test("une rubrique vide affiche son message et un lien vers l'archive", () => {
 	assert.doesNotMatch(mainOf(pageNamed('rubriques/ia/index.html')), /Rien d'imprimé/);
 });
 
-const navOf = (html) => html.match(/<nav\b[^>]*>[\s\S]*?<\/nav>/)?.[0] ?? '';
+const navOf = (html) => (html.match(/<nav\b[^>]*>[\s\S]*?<\/nav>/g) ?? []).join('');
 const navLinks = (html) =>
 	[...navOf(html).matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map(([, attributes, text]) => ({
 		href: attributes.match(/href="([^"]*)"/)?.[1],
@@ -73,7 +73,7 @@ const navLinks = (html) =>
 		text: text.trim(),
 	}));
 
-test('la navigation contient les 5 rubriques après les 3 liens existants', () => {
+test('la navigation contient les 5 rubriques dans la seconde ligne, après les 3 liens principaux', () => {
 	assert.deepEqual(navLinks(pageNamed('client/index.html')).map(({ href }) => href), [
 		'/',
 		'/blog/',

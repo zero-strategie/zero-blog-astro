@@ -38,6 +38,7 @@ export const ARCHIVE_LINK_LABEL = "Parcourir l'archive";
 export const categoryDescription = (label: string): string => `Les articles de la rubrique ${label}.`;
 
 export const NAV_LABEL = 'Navigation principale';
+export const CATEGORIES_NAV_LABEL = 'Rubriques';
 export const LICENSE_PREFIX = 'contenu sous licence';
 export const FOOTER_LINKS = [
 	{ href: RSS_PATH, label: 'RSS' },

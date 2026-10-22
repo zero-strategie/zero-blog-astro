@@ -21,21 +21,60 @@ test("l'en-tête de chaque page affiche « zero-stratégie » et son sous-titre"
 	}
 });
 
-const navOf = (html) => html.match(/<nav\b[^>]*>[\s\S]*?<\/nav>/)?.[0] ?? '';
+const navsOf = (html) => html.match(/<nav\b[^>]*>[\s\S]*?<\/nav>/g) ?? [];
+const navOf = (html) => navsOf(html)[0] ?? '';
+const rubriquesNavOf = (html) => navsOf(html)[1] ?? '';
 const links = (html) => [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)];
 
-test('la navigation est un <nav aria-label> qui commence par Accueil, Archive et À propos', () => {
+test('la navigation principale est un <nav aria-label> limité à Accueil, Archive et À propos', () => {
 	const nav = navOf(pageNamed('client/index.html'));
 	assert.match(nav, /^<nav\b[^>]*\baria-label="[^"]+"/);
 	const entries = links(nav).map(([, attributes, text]) => [
 		attributes.match(/href="([^"]*)"/)?.[1],
 		text.trim(),
 	]);
-	assert.deepEqual(entries.slice(0, 3), [
+	assert.deepEqual(entries, [
 		['/', 'Accueil'],
 		['/blog/', 'Archive'],
 		['/about/', 'À propos'],
 	]);
+});
+
+const labelOf = (nav) => nav.match(/^<nav\b[^>]*\baria-label="([^"]+)"/)?.[1];
+
+test('la seconde ligne « rubriques » est un <nav> distinct, labellisé autrement, avec 5 liens §0N', () => {
+	const html = pageNamed('client/index.html');
+	assert.equal(navsOf(html).length, 2);
+	assert.ok(labelOf(rubriquesNavOf(html)));
+	assert.notEqual(labelOf(rubriquesNavOf(html)), labelOf(navOf(html)));
+	const entries = links(rubriquesNavOf(html)).map(([, attributes, text]) => [
+		attributes.match(/href="([^"]*)"/)?.[1],
+		text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(),
+	]);
+	assert.deepEqual(entries, [
+		['/rubriques/projets/', '§01 Projets'],
+		['/rubriques/open-source/', '§02 Open source'],
+		['/rubriques/ia/', '§03 IA'],
+		['/rubriques/souverainete/', '§04 Souveraineté'],
+		['/rubriques/politique/', '§05 Politique'],
+	]);
+});
+
+test('les rubriques défilent horizontalement sur une ligne, avec snap et focus visible, sans JS', () => {
+	const css = pageCss(pageNamed('client/index.html')).replace(/\s+/g, '');
+	const rule = css.match(/nav\[[^\]]*\]\.rubriques\{([^}]*)\}/)?.[1] ?? '';
+	assert.match(rule, /overflow-x:auto/);
+	assert.match(rule, /scroll-snap-type:x/);
+	assert.match(rule, /flex-wrap:nowrap|white-space:nowrap/);
+	assert.match(rule, /scrollbar-width:none|scrollbar-width:thin/);
+	assert.match(css, /nav\[[^\]]*\]\.rubriquesa:focus-visible\{[^}]*outline:/);
+});
+
+test('les textes des deux navigations viennent de consts.ts', () => {
+	const consts = readFileSync(new URL('../src/consts.ts', import.meta.url), 'utf8');
+	assert.match(consts, /export const CATEGORIES_NAV_LABEL/);
+	const header = readFileSync(new URL('../src/components/Header.astro', import.meta.url), 'utf8');
+	assert.match(header, /CATEGORIES_NAV_LABEL/);
 });
 
 const ACTIVE_LABEL_BY_PAGE = {
@@ -47,7 +86,8 @@ const ACTIVE_LABEL_BY_PAGE = {
 
 test('seul le lien de la section courante porte aria-current="page"', () => {
 	for (const [suffix, label] of Object.entries(ACTIVE_LABEL_BY_PAGE)) {
-		const current = links(navOf(pageNamed(suffix)))
+		const current = navsOf(pageNamed(suffix))
+			.flatMap((nav) => links(nav))
 			.filter(([, attributes]) => /\baria-current="page"/.test(attributes))
 			.map(([, , text]) => text.trim());
 		assert.deepEqual(current, [label], suffix);
