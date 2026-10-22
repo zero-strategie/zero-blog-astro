@@ -4,6 +4,7 @@ import mdx from '@astrojs/mdx';
 import node from '@astrojs/node';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig, envField, fontProviders } from 'astro/config';
+import rehypeSidenotes from './src/lib/rehype-sidenotes.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -28,6 +29,12 @@ export default defineConfig({
 				optional: true,
 			}),
 		},
+	},
+
+	// Notes `[^1]` : copiées en marge (desktop) par rehypeSidenotes, section de fin conservée (mobile).
+	markdown: {
+		rehypePlugins: [rehypeSidenotes],
+		remarkRehype: { footnoteLabel: 'Notes', footnoteBackLabel: 'Retour au texte' },
 	},
 
 	integrations: [mdx(), sitemap()],
