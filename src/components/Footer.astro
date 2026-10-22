@@ -11,3 +11,34 @@ import { LICENSE, RSS_PATH, SITE_TITLE, SOURCE_URL } from '../consts';
 		<li><a href={SOURCE_URL}>GitHub</a></li>
 	</ul>
 </footer>
+
+<style>
+	footer {
+		width: min(100% - 2rem, 48rem);
+		margin: 0 auto;
+		padding: 1.5rem 0 4rem;
+		border-top: 4px double var(--ink);
+		color: var(--ink-soft);
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		text-align: center;
+	}
+	.colophon {
+		margin: 0 0 0.75rem;
+	}
+	.footer-links {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0 1.25rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	footer a {
+		display: inline-block;
+		padding: 0.5rem 0;
+	}
+</style>

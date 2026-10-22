@@ -10,3 +10,55 @@ import HeaderLink from './HeaderLink.astro';
 		{NAV_LINKS.map(({ href, label }) => <HeaderLink href={href}>{label}</HeaderLink>)}
 	</nav>
 </header>
+
+<style>
+	header {
+		width: min(100% - 2rem, 48rem);
+		margin: 0 auto;
+		padding: 1.5rem 0 0;
+		text-align: center;
+	}
+	.masthead {
+		margin: 0;
+		font-family: var(--font-text);
+		font-size: clamp(2.6rem, 11vw, 5.2rem);
+		font-weight: 900;
+		line-height: 0.95;
+		letter-spacing: -0.04em;
+	}
+	.masthead a {
+		text-decoration: none;
+	}
+	.tagline {
+		margin: 0.5rem 0 1rem;
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+	nav {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0 1.25rem;
+		padding: 0.25rem 0;
+		border-top: 4px double var(--ink);
+		border-bottom: 4px double var(--ink);
+	}
+	nav :global(a) {
+		padding: 0.75rem 0.25rem;
+		border-bottom: 4px solid transparent;
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		letter-spacing: 0.08em;
+		text-decoration: none;
+		text-transform: uppercase;
+	}
+	nav :global(a[aria-current='page']) {
+		border-bottom-color: var(--ink-red);
+		font-weight: 700;
+	}
+	nav :global(a:hover) {
+		border-bottom-color: var(--ink);
+	}
+</style>

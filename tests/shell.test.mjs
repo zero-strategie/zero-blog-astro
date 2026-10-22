@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { listDistFiles, readDistHtml } from '../scripts/lib/dist.mjs';
+import { listDistFiles, pageCss, readDistHtml } from '../scripts/lib/dist.mjs';
 
 const pages = readDistHtml();
 
@@ -98,4 +98,14 @@ test("le lien d'évitement apparaît sur :focus et garde son anneau dans la fen�
 	const rule = css.match(/\.skip-link:focus\{([^}]*)\}/)?.[1] ?? '';
 	assert.match(rule, /transform:none/);
 	assert.match(rule, /outline-offset:-/);
+});
+
+test('masthead en Fraunces très gras, navigation en monospace capitales', () => {
+	const css = pageCss(pageNamed('client/index.html')).replace(/\s+/g, '');
+	const rule = (selector) => css.match(new RegExp(`${selector}[^{}]*\\{([^}]*)\\}`))?.[1] ?? '';
+	assert.match(rule('\\.masthead'), /font-weight:900/);
+	assert.match(rule('\\.masthead'), /font-family:var\(--font-text\)/);
+	assert.match(rule('nav\\[[^\\]]*\\]a'), /font-family:var\(--font-mono\)/);
+	assert.match(rule('nav\\[[^\\]]*\\]a'), /text-transform:uppercase/);
+	assert.match(rule('nav\\[[^\\]]*\\]a\\[aria-current=page\\]'), /border-bottom-color:var\(--ink-red\)|text-decoration-color:var\(--ink-red\)/);
 });
