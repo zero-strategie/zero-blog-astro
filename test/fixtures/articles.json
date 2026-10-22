@@ -1,0 +1,323 @@
+{
+  "data": [
+    {
+      "id": 12,
+      "documentId": "k3v9q2x7mz0a1b2c3d4e5f6g",
+      "title": "Le Cloud Act et les données européennes : ce que dit vraiment le texte",
+      "description": "Un hébergeur américain peut-il être contraint de livrer des données stockées en Europe ? Lecture du texte, des arrêts et des contrats.",
+      "slug": "cloud-act-donnees-europeennes",
+      "typeContenu": "analyse",
+      "createdAt": "2026-10-10T08:00:00.000Z",
+      "updatedAt": "2026-10-15T09:12:00.000Z",
+      "publishedAt": "2026-10-12T07:30:00.000Z",
+      "locale": "fr",
+      "verifieLe": "2026-10-14",
+      "dateMiseAJour": "2026-10-15T09:00:00.000Z",
+      "erratum": "Une version précédente datait l'adoption du texte de **2017** ; il a été promulgué en **mars 2018** [[1]](#source-1).",
+      "cover": {
+        "id": 4,
+        "documentId": "img00000000000000000004",
+        "name": "datacenter.jpg",
+        "alternativeText": "Allée de serveurs dans un centre de données",
+        "caption": null,
+        "width": 1600,
+        "height": 900,
+        "formats": {},
+        "url": "/uploads/datacenter_4f2a.jpg",
+        "mime": "image/jpeg",
+        "provider": "local"
+      },
+      "author": {
+        "id": 1,
+        "documentId": "auth0000000000000000001",
+        "name": "Rédaction Zero Stratégie",
+        "email": "redaction@zero-strategie.dev",
+        "avatar": null
+      },
+      "category": {
+        "id": 3,
+        "documentId": "cat00000000000000000003",
+        "name": "Souveraineté numérique",
+        "slug": "souverainete",
+        "description": "Qui contrôle l'infrastructure, les données et les règles."
+      },
+      "tags": [
+        {
+          "id": 1,
+          "documentId": "tag00000000000000000001",
+          "name": "Cloud",
+          "slug": "cloud"
+        },
+        {
+          "id": 2,
+          "documentId": "tag00000000000000000002",
+          "name": "Droit",
+          "slug": "droit"
+        }
+      ],
+      "blocks": [
+        {
+          "__component": "shared.rich-text",
+          "id": 31,
+          "body": "## Ce que dit le texte\n\nLe *CLOUD Act* permet aux autorités américaines d'exiger des données détenues par un fournisseur soumis à leur juridiction, où qu'elles soient stockées [[1]](#source-1). La Commission européenne a analysé ce point [[2]](#source-2).\n\n<script>alert('xss')</script>\n\n[Lien piégé](javascript:alert(1))"
+        },
+        {
+          "__component": "shared.quote",
+          "id": 7,
+          "title": "Point de vue",
+          "body": "Héberger en Europe chez un acteur américain ne suffit pas à se mettre hors de portée du droit américain [[2]](#source-2)."
+        },
+        {
+          "__component": "shared.media",
+          "id": 8,
+          "file": {
+            "id": 5,
+            "documentId": "img00000000000000000005",
+            "name": "schema.png",
+            "alternativeText": "Schéma des flux de réquisition",
+            "caption": "Le circuit d'une réquisition",
+            "width": 1200,
+            "height": 800,
+            "url": "/uploads/schema_9c1d.png"
+          }
+        },
+        {
+          "__component": "shared.slider",
+          "id": 9,
+          "files": [
+            {
+              "id": 6,
+              "name": "a.jpg",
+              "alternativeText": null,
+              "caption": null,
+              "width": 800,
+              "height": 600,
+              "url": "https://cdn.example.org/a.jpg"
+            }
+          ]
+        },
+        {
+          "__component": "shared.carousel-3d",
+          "id": 10,
+          "items": []
+        }
+      ],
+      "sources": [
+        {
+          "id": 101,
+          "titre": "H.R.4943 — CLOUD Act",
+          "url": "https://www.congress.gov/bill/115th-congress/house-bill/4943",
+          "editeur": "Congrès des États-Unis",
+          "datePublication": "2018-03-23",
+          "dateConsultation": "2026-10-14",
+          "niveau": "primaire"
+        },
+        {
+          "id": 102,
+          "titre": "Analyse d'impact sur l'accès transfrontière aux preuves électroniques",
+          "url": "https://commission.europa.eu/e-evidence",
+          "editeur": "Commission européenne",
+          "datePublication": null,
+          "dateConsultation": "2026-10-14",
+          "niveau": "institutionnelle"
+        }
+      ],
+      "faq": [
+        {
+          "id": 201,
+          "question": "Le CLOUD Act s'applique-t-il à un hébergeur français ?",
+          "reponse": "Seulement s'il relève de la juridiction américaine, par exemple *via* une maison mère [[1]](#source-1)."
+        }
+      ],
+      "seo": {
+        "id": 301,
+        "metaTitle": "Cloud Act : ce que dit vraiment le texte",
+        "metaDescription": "Lecture sourcée du CLOUD Act et de sa portée sur les données hébergées en Europe.",
+        "shareImage": {
+          "id": 7,
+          "name": "og.png",
+          "alternativeText": "Cloud Act",
+          "caption": null,
+          "width": 1200,
+          "height": 630,
+          "url": "/uploads/og_cloud_act.png"
+        }
+      }
+    },
+    {
+      "id": 13,
+      "documentId": "opn0000000000000000000013",
+      "title": "Pourquoi l'administration devrait publier son code par défaut",
+      "description": "Le code payé par le public devrait être lisible par le public. Plaidoyer.",
+      "slug": "administration-code-ouvert-par-defaut",
+      "typeContenu": "opinion",
+      "createdAt": "2026-10-16T08:00:00.000Z",
+      "updatedAt": "2026-10-16T08:00:00.000Z",
+      "publishedAt": "2026-10-16T10:00:00.000Z",
+      "locale": "fr",
+      "verifieLe": "2026-10-16",
+      "dateMiseAJour": null,
+      "erratum": null,
+      "cover": {
+        "id": 9,
+        "documentId": "img00000000000000000009",
+        "name": "registre.jpg",
+        "alternativeText": "Registre papier ouvert sur un bureau d'administration",
+        "caption": null,
+        "width": 1600,
+        "height": 900,
+        "url": "/uploads/registre_3c7d.jpg"
+      },
+      "author": {
+        "id": 2,
+        "documentId": "auth0000000000000000002",
+        "name": "Camille Martin",
+        "avatar": null
+      },
+      "category": {
+        "id": 1,
+        "documentId": "cat00000000000000000001",
+        "name": "Open source",
+        "slug": "open-source",
+        "description": null
+      },
+      "tags": [
+        {
+          "id": 3,
+          "documentId": "tag00000000000000000003",
+          "name": "Administration",
+          "slug": "administration"
+        }
+      ],
+      "blocks": [
+        {
+          "__component": "shared.rich-text",
+          "id": 41,
+          "body": "La loi pour une République numérique fait déjà des codes sources des documents administratifs communicables [[1]](#source-1). Une citation orpheline [[4]](#source-4)."
+        }
+      ],
+      "sources": [
+        {
+          "id": 111,
+          "titre": "Loi n° 2016-1321 pour une République numérique",
+          "url": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000033202746",
+          "editeur": "Légifrance",
+          "datePublication": "2016-10-07",
+          "dateConsultation": "2026-10-16",
+          "niveau": null
+        }
+      ],
+      "faq": [],
+      "seo": null
+    },
+    {
+      "id": 14,
+      "documentId": "act0000000000000000000014",
+      "title": "Brève : publication d'un nouveau rapport sur l'IA générative",
+      "description": null,
+      "slug": "breve-rapport-ia-generative",
+      "typeContenu": "actualite",
+      "createdAt": "2026-10-01T08:00:00.000Z",
+      "updatedAt": "2026-10-01T08:00:00.000Z",
+      "publishedAt": "2026-10-01T09:00:00.000Z",
+      "locale": "fr",
+      "verifieLe": null,
+      "dateMiseAJour": null,
+      "erratum": null,
+      "cover": null,
+      "author": null,
+      "category": {
+        "id": 2,
+        "documentId": "cat00000000000000000002",
+        "name": "IA",
+        "slug": "ia",
+        "description": null
+      },
+      "tags": [],
+      "blocks": [],
+      "sources": [],
+      "faq": [],
+      "seo": null
+    },
+    {
+      "id": 15,
+      "documentId": "exp0000000000000000000015",
+      "title": "Câbles sous-marins : qui contrôle les routes de l'internet",
+      "description": "Où passent les câbles, qui les finance et comment vérifier soi-même leur tracé avec des données ouvertes.",
+      "slug": "cables-sous-marins-routes-internet",
+      "typeContenu": "explainer",
+      "createdAt": "2026-10-04T08:00:00.000Z",
+      "updatedAt": "2026-10-05T08:00:00.000Z",
+      "publishedAt": "2026-10-05T06:00:00.000Z",
+      "locale": "fr",
+      "verifieLe": "2026-10-05",
+      "dateMiseAJour": null,
+      "erratum": null,
+      "cover": {
+        "id": 8,
+        "documentId": "img00000000000000000008",
+        "name": "cable.jpg",
+        "alternativeText": "Navire câblier déroulant un câble en mer",
+        "caption": null,
+        "width": 1600,
+        "height": 800,
+        "url": "/uploads/cable_8a1b.jpg"
+      },
+      "author": {
+        "id": 2,
+        "documentId": "auth0000000000000000002",
+        "name": "Camille Martin",
+        "avatar": null
+      },
+      "category": {
+        "id": 5,
+        "documentId": "cat00000000000000000005",
+        "name": "Géopolitique du numérique",
+        "slug": "geopolitique",
+        "description": null
+      },
+      "tags": [
+        {
+          "id": 1,
+          "documentId": "tag00000000000000000001",
+          "name": "Cloud",
+          "slug": "cloud"
+        }
+      ],
+      "blocks": [
+        {
+          "__component": "shared.rich-text",
+          "id": 51,
+          "body": "Plus de 95 % du trafic intercontinental passe par des câbles sous-marins [[1]](#source-1). Leur tracé est public : on peut l'interroger soi-même[^1].\n\n```bash\ncurl -s https://www.submarinecablemap.com/api/v3/cable/cable-geo.json | jq '.features | length'\n```\n\n> Qui pose le câble choisit aussi où il atterrit [[1]](#source-1).\n\n[^1]: Les données de TeleGeography sont publiées sous licence libre, voir [leur dépôt](https://github.com/telegeography/www.submarinecablemap.com)."
+        },
+        {
+          "__component": "shared.quote",
+          "id": 52,
+          "title": "Un ingénieur câblier",
+          "body": "On ne répare pas un câble, on le remonte."
+        }
+      ],
+      "sources": [
+        {
+          "id": 121,
+          "titre": "Submarine Cable Map",
+          "url": "https://www.submarinecablemap.com/",
+          "editeur": "TeleGeography",
+          "datePublication": null,
+          "dateConsultation": "2026-10-05",
+          "niveau": "projet"
+        }
+      ],
+      "faq": [],
+      "seo": null
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "pageSize": 25,
+      "pageCount": 1,
+      "total": 4
+    }
+  }
+}

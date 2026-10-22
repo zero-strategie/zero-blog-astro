@@ -41,7 +41,7 @@ const OG_DEFAULT_URL = 'https://zero-strategie.dev/og-default.png';
 const PNG_SIGNATURE = '89504e470d0a1a0a';
 
 function pngSize(buffer) {
-	assert.equal(buffer.subarray(0, 8).toString('hex'), PNG_SIGNATURE, "pas un PNG");
+	assert.equal(buffer.subarray(0, 8).toString('hex'), PNG_SIGNATURE, 'pas un PNG');
 	return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
 }
 
@@ -66,8 +66,8 @@ test("l'accueil partage og-default.png en fr_FR", () => {
 	assert.equal(metaContent(html, 'property', 'og:locale'), 'fr_FR');
 });
 
-test('un article avec couverture partage sa couverture', () => {
-	const html = pageNamed('blog/first-post/index.html');
+test('un article avec image de partage Strapi la partage, copiée dans /_astro/', () => {
+	const html = pageNamed('blog/cloud-act-donnees-europeennes/index.html');
 	const image = metaContent(html, 'property', 'og:image');
 	assert.match(image, /^https:\/\/zero-strategie\.dev\/_astro\/.+\.(jpg|webp|png)$/);
 	assert.equal(metaContent(html, 'property', 'twitter:image'), image);

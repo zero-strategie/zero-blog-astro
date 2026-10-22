@@ -3,16 +3,40 @@ import { test } from 'node:test';
 import rehypeSidenotes from '../src/lib/rehype-sidenotes.mjs';
 
 const text = (value) => ({ type: 'text', value });
-const el = (tagName, properties = {}, children = []) => ({ type: 'element', tagName, properties, children });
+const el = (tagName, properties = {}, children = []) => ({
+	type: 'element',
+	tagName,
+	properties,
+	children,
+});
 const ref = (n, occurrence = 1) =>
 	el('sup', {}, [
-		el('a', { href: `#user-content-fn-${n}`, id: `user-content-fnref-${n}${occurrence > 1 ? `-${occurrence}` : ''}`, dataFootnoteRef: '' }, [text(String(n))]),
+		el(
+			'a',
+			{
+				href: `#user-content-fn-${n}`,
+				id: `user-content-fnref-${n}${occurrence > 1 ? `-${occurrence}` : ''}`,
+				dataFootnoteRef: '',
+			},
+			[text(String(n))],
+		),
 	]);
-const backref = (n) => el('a', { href: `#user-content-fnref-${n}`, dataFootnoteBackref: '', ariaLabel: 'Retour au texte' }, [text('↩')]);
+const backref = (n) =>
+	el(
+		'a',
+		{ href: `#user-content-fnref-${n}`, dataFootnoteBackref: '', ariaLabel: 'Retour au texte' },
+		[text('↩')],
+	);
 const footnotes = (...notes) =>
 	el('section', { dataFootnotes: '', className: ['footnotes'] }, [
 		el('h2', { id: 'footnote-label' }, [text('Notes')]),
-		el('ol', {}, notes.map(({ n, body }) => el('li', { id: `user-content-fn-${n}` }, [el('p', {}, [...body, text(' '), backref(n)])]))),
+		el(
+			'ol',
+			{},
+			notes.map(({ n, body }) =>
+				el('li', { id: `user-content-fn-${n}` }, [el('p', {}, [...body, text(' '), backref(n)])]),
+			),
+		),
 	]);
 const transform = (tree) => {
 	rehypeSidenotes()(tree);
@@ -24,9 +48,10 @@ const find = (node, predicate, found = []) => {
 	for (const child of node.children ?? []) find(child, predicate, found);
 	return found;
 };
-const isSidenote = (node) => node.type === 'element' && node.properties?.className?.includes('sidenote');
+const isSidenote = (node) =>
+	node.type === 'element' && node.properties?.className?.includes('sidenote');
 
-test("la note en marge est insérée juste après le premier appel, sans lien retour", () => {
+test('la note en marge est insérée juste après le premier appel, sans lien retour', () => {
 	const tree = el('root', {}, [
 		el('p', {}, [text('Texte'), ref(1), text(' suite')]),
 		footnotes({ n: 1, body: [text('Une note')] }),
@@ -36,11 +61,17 @@ test("la note en marge est insérée juste après le premier appel, sans lien re
 	assert.equal(paragraph.children[1].tagName, 'sup');
 	assert.ok(isSidenote(paragraph.children[2]));
 	assert.match(JSON.stringify(paragraph.children[2]), /Une note/);
-	assert.equal(find(paragraph.children[2], (n) => n.properties?.dataFootnoteBackref !== undefined).length, 0);
+	assert.equal(
+		find(paragraph.children[2], (n) => n.properties?.dataFootnoteBackref !== undefined).length,
+		0,
+	);
 });
 
 test("la note en marge est une copie visuelle cachée des technologies d'assistance", () => {
-	const tree = el('root', {}, [el('p', {}, [ref(1)]), footnotes({ n: 1, body: [text('Une note')] })]);
+	const tree = el('root', {}, [
+		el('p', {}, [ref(1)]),
+		footnotes({ n: 1, body: [text('Une note')] }),
+	]);
 	transform(tree);
 	const [sidenote] = find(tree, isSidenote);
 	assert.equal(sidenote.properties.ariaHidden, 'true');
@@ -71,7 +102,10 @@ test("la copie ne contient aucun élément de bloc, garde ses liens et n'a pas d
 	]);
 	transform(tree);
 	const [sidenote] = find(tree, isSidenote);
-	assert.deepEqual(find(sidenote, (n) => BLOCKS.includes(n.tagName)), []);
+	assert.deepEqual(
+		find(sidenote, (n) => BLOCKS.includes(n.tagName)),
+		[],
+	);
 	const [kept] = find(sidenote, (n) => n.tagName === 'a');
 	assert.equal(kept.properties.href, 'https://example.org/');
 	assert.equal(kept.properties.id, undefined);
@@ -96,6 +130,9 @@ test('les paragraphes multiples de la note sont fusionnés en ligne', () => {
 	const tree = el('root', {}, [el('p', {}, [ref(1)]), section]);
 	transform(tree);
 	const [sidenote] = find(tree, isSidenote);
-	assert.deepEqual(find(sidenote, (n) => n.tagName === 'p'), []);
+	assert.deepEqual(
+		find(sidenote, (n) => n.tagName === 'p'),
+		[],
+	);
 	assert.match(JSON.stringify(sidenote), /Un.*Deux/);
 });

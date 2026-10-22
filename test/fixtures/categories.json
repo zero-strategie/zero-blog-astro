@@ -1,0 +1,45 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "documentId": "cat00000000000000000001",
+      "name": "Open source",
+      "slug": "open-source",
+      "description": null,
+      "locale": "fr"
+    },
+    {
+      "id": 2,
+      "documentId": "cat00000000000000000002",
+      "name": "IA",
+      "slug": "ia",
+      "description": null,
+      "locale": "fr"
+    },
+    {
+      "id": 3,
+      "documentId": "cat00000000000000000003",
+      "name": "Souveraineté numérique",
+      "slug": "souverainete",
+      "description": "Qui contrôle l'infrastructure, les données et les règles.",
+      "locale": "fr"
+    },
+    {
+      "id": 4,
+      "documentId": "cat00000000000000000004",
+      "name": "Politique du numérique",
+      "slug": "politique",
+      "description": null,
+      "locale": "fr"
+    },
+    {
+      "id": 5,
+      "documentId": "cat00000000000000000005",
+      "name": "Géopolitique du numérique",
+      "slug": "geopolitique",
+      "description": null,
+      "locale": "fr"
+    }
+  ],
+  "meta": { "pagination": { "page": 1, "pageSize": 25, "pageCount": 1, "total": 5 } }
+}

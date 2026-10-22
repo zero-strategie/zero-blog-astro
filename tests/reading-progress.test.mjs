@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { pageCss, readDistHtml } from '../scripts/lib/dist.mjs';
+import { findZeroJsViolations, pageCss, readDistHtml } from '../scripts/lib/dist.mjs';
 
 const pages = readDistHtml();
-const article = pages.find(({ file }) => file.endsWith('blog/first-post/index.html'));
+const article = pages.find(({ file }) =>
+	file.endsWith('blog/cloud-act-donnees-europeennes/index.html'),
+);
 const compact = (css) => css.replace(/\s+/g, '');
 const css = compact(pageCss(article.html));
 
@@ -15,7 +17,10 @@ test('la barre de lecture est décorative et présente dans les articles, absent
 });
 
 test('sans support de animation-timeline, la barre est en display:none', () => {
-	assert.match(css, /\.reading-progress(\[[^\]]*\])?\{display:none\}@supports\(animation-timeline:scroll\(\)\)/);
+	assert.match(
+		css,
+		/\.reading-progress(\[[^\]]*\])?\{display:none\}@supports\(animation-timeline:scroll\(\)\)/,
+	);
 });
 
 test('la barre ne s’affiche et ne s’anime que sous @supports (animation-timeline: scroll())', () => {
@@ -35,7 +40,8 @@ test('la barre est masquée sous prefers-reduced-motion', () => {
 test('la barre est un filet fin en haut de page, sans JavaScript', () => {
 	assert.match(css, /\.reading-progress[^{@]*\{[^}]*position:fixed[^}]*top:0/);
 	assert.match(css, /height:(\d+(\.\d+)?)px/);
-	assert.doesNotMatch(article.html, /<script/);
+	// Le seul <script> d'un article est son JSON-LD, un bloc de données que le navigateur n'exécute pas.
+	assert.deepEqual(findZeroJsViolations(article.html), []);
 });
 
 test('la barre est masquée à l’impression', () => {

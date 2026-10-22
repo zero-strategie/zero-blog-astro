@@ -1,5 +1,4 @@
 ---
-import { getCollection } from 'astro:content';
 import FormattedDate from '../../components/FormattedDate.astro';
 import Layout from '../../layouts/Layout.astro';
 import {
@@ -10,19 +9,17 @@ import {
 	EMPTY_CATEGORY_MESSAGE,
 	SITE_TITLE,
 } from '../../consts';
+import { getArticlesByCategory } from '../../lib/strapi/article';
 import { archiveUrl, articleUrl } from '../../lib/url';
 
+// Une page par rubrique, même vide. Strapi filtre par catégorie et trie du plus récent au plus ancien.
 export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return CATEGORIES.map((category) => ({
-		params: { slug: category.slug },
-		props: {
-			category,
-			posts: posts
-				.filter((post) => post.data.category === category.slug)
-				.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
-		},
-	}));
+	return Promise.all(
+		CATEGORIES.map(async (category) => ({
+			params: { slug: category.slug },
+			props: { category, posts: await getArticlesByCategory(category.slug) },
+		})),
+	);
 }
 
 const { category, posts } = Astro.props;
@@ -31,22 +28,20 @@ const heading = categoryHeading(category.slug);
 
 <Layout title={`${heading} — ${SITE_TITLE}`} description={categoryDescription(category.label)}>
 	<h1>{heading}</h1>
-	{
-		posts.length === 0 ? (
-			<p>
-				{EMPTY_CATEGORY_MESSAGE}. <a href={archiveUrl()}>{ARCHIVE_LINK_LABEL}</a>
-			</p>
-		) : (
-			<ul>
-				{posts.map((post) => (
-					<li>
-						<a href={articleUrl(post.id)}>{post.data.title}</a>
-						<FormattedDate date={post.data.pubDate} />
-					</li>
-				))}
-			</ul>
-		)
-	}
+	{posts.length === 0 ? (
+		<p>
+			{EMPTY_CATEGORY_MESSAGE}. <a href={archiveUrl()}>{ARCHIVE_LINK_LABEL}</a>
+		</p>
+	) : (
+		<ul>
+			{posts.map((post) => (
+				<li>
+					<a href={articleUrl(post.slug)}>{post.title}</a>
+					<FormattedDate date={post.publishedAt} />
+				</li>
+			))}
+		</ul>
+	)}
 </Layout>
 
 <style>

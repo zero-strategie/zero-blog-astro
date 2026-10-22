@@ -1,21 +1,27 @@
 ---
-import type { ImageMetadata } from 'astro';
-import { DEFAULT_SHARE_IMAGE_PATH, SITE_TITLE } from '../consts';
 import { Font } from 'astro:assets';
+import { DEFAULT_SHARE_IMAGE_PATH, SITE_TITLE } from '../consts';
 
-interface Props {
+export interface ShareImage {
+	/** Chemin servi par le site (copie optimisée dans /_astro/) ou URL absolue. */
+	src: string;
+	alt?: string;
+}
+
+export interface Props {
 	title: string;
 	description: string;
-	image?: ImageMetadata;
+	image?: ShareImage;
+	ogType?: 'website' | 'article';
 	// Page sans URL propre (404) : pas de canonical ni d'URL Open Graph.
 	noindex?: boolean;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, image, noindex = false } = Astro.props;
+const { title, description, image, ogType = 'website', noindex = false } = Astro.props;
 const shareImage = image
-	? new URL(image.src, Astro.url)
+	? new URL(image.src, Astro.site)
 	: new URL(DEFAULT_SHARE_IMAGE_PATH, Astro.site);
 ---
 
@@ -43,12 +49,14 @@ const shareImage = image
 <meta name="description" content={description} />
 
 <!-- Open Graph / Facebook -->
-<meta property="og:type" content="website" />
+<meta property="og:type" content={ogType} />
+<meta property="og:site_name" content={SITE_TITLE} />
 <meta property="og:locale" content="fr_FR" />
 {!noindex && <meta property="og:url" content={Astro.url} />}
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={shareImage} />
+{image?.alt && <meta property="og:image:alt" content={image.alt} />}
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image" />

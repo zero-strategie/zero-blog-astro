@@ -1,0 +1,38 @@
+---
+import type { SliderBlock } from '../../types/domain';
+import CmsImage from '../CmsImage.astro';
+
+type Props = SliderBlock;
+
+const { images } = Astro.props;
+---
+
+{images.length > 0 && (
+	<ul class="slider" role="list">
+		{images.map((image) => (
+			<li>
+				<CmsImage image={image} loading="lazy" />
+			</li>
+		))}
+	</ul>
+)}
+
+<style>
+	/* Bande qui défile horizontalement : aucun JavaScript (AGENTS.md 4.7). */
+	.slider {
+		display: flex;
+		gap: 1rem;
+		margin: 2rem 0;
+		padding: 0 0 0.5rem;
+		list-style: none;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+	}
+	li {
+		flex: 0 0 85%;
+		scroll-snap-align: start;
+	}
+	li :global(img) {
+		width: 100%;
+	}
+</style>

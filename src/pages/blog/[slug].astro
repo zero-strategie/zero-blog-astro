@@ -1,0 +1,48 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getImage } from 'astro:assets';
+import BlogPost from '../../layouts/BlogPost.astro';
+import { articleJsonLd, faqPageJsonLd, serializeJsonLd } from '../../lib/seo/json-ld';
+import { getArticleDetails } from '../../lib/strapi/article';
+import type { ArticleDetail } from '../../types/domain';
+
+export const getStaticPaths = (async () => {
+	const articles = await getArticleDetails();
+	return articles.map((article) => ({ params: { slug: article.slug }, props: { article } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+	article: ArticleDetail;
+}
+
+const { article } = Astro.props;
+const url = new URL(Astro.url.pathname, Astro.site);
+const faqLd = faqPageJsonLd(article.faq);
+
+// Image de partage au format attendu par Open Graph, copiée dans /_astro/ comme les autres.
+const share = article.seo.image;
+const shareImage = share && {
+	src: (
+		await getImage({
+			src: share.url,
+			width: 1200,
+			height: 630,
+			format: 'jpg',
+			...(share.width && share.height ? {} : { inferSize: true }),
+		})
+	).src,
+	alt: share.alt,
+};
+const ld = articleJsonLd(article, url, shareImage && new URL(shareImage.src, Astro.site).href);
+---
+
+<BlogPost article={article} shareImage={shareImage}>
+	<Fragment slot="head">
+		<meta property="article:published_time" content={article.publishedAt.toISOString()} />
+		{article.updatedAt && (
+			<meta property="article:modified_time" content={article.updatedAt.toISOString()} />
+		)}
+		<script is:inline type="application/ld+json" set:html={serializeJsonLd(ld)} />
+		{faqLd && <script is:inline type="application/ld+json" set:html={serializeJsonLd(faqLd)} />}
+	</Fragment>
+</BlogPost>

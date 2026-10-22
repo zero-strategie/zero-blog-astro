@@ -1,0 +1,78 @@
+---
+/**
+ * Les notes de fin de samizdat, nourries par les sources Strapi : chaque
+ * entrée porte l'ancre `#source-n` que visent les appels de note, et reste
+ * la cible lue par les technologies d'assistance (la copie en marge est
+ * aria-hidden). Toujours affichée, même quand la marge l'est aussi.
+ */
+import { ARTICLE_LABELS, SOURCE_LEVEL_LABELS } from '../consts';
+import type { Source } from '../types/domain';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+	sources: readonly Source[];
+}
+
+const { sources } = Astro.props;
+---
+
+<section class="sources" aria-labelledby="sources-titre">
+	<h2 id="sources-titre">{ARTICLE_LABELS.sources}</h2>
+	{sources.length === 0 ? (
+		<p>{ARTICLE_LABELS.noSources}</p>
+	) : (
+		<ol>
+			{sources.map((source) => (
+				<li id={`source-${source.index}`} value={source.index}>
+					<a href={source.url} rel="noopener noreferrer external">
+						{source.title}
+					</a>
+					{source.level && (
+						<span class="source-level mono-label">{SOURCE_LEVEL_LABELS[source.level]}</span>
+					)}
+					<span class="source-dates">
+						{source.publisher && <span>{source.publisher} · </span>}
+						{source.publishedOn && (
+							<span>
+								{ARTICLE_LABELS.publishedOn} <FormattedDate date={source.publishedOn} />
+							</span>
+						)}
+						{source.publishedOn && ' · '}
+						<span>
+							{ARTICLE_LABELS.consultedOn} <FormattedDate date={source.consultedOn} />
+						</span>
+					</span>
+				</li>
+			))}
+		</ol>
+	)}
+</section>
+
+<style>
+	/* Bloc et titre : mêmes règles que les notes de fin, posées par BlogPost.astro. */
+	ol {
+		padding-left: 1.75em;
+	}
+	li {
+		margin-bottom: 0.6rem;
+		scroll-margin-top: 1rem;
+	}
+	li::marker {
+		color: var(--ink-red-text);
+		font-weight: 700;
+	}
+	/* La source rejointe depuis un appel de note. */
+	li:target {
+		outline: 2px solid var(--ink-red-text);
+		outline-offset: 4px;
+	}
+	.source-level {
+		margin-left: 0.5em;
+		padding: 0 0.4em;
+		border: 1px solid;
+		font-size: 0.75rem;
+	}
+	.source-dates {
+		display: block;
+	}
+</style>

@@ -4,7 +4,9 @@ import { test } from 'node:test';
 import { pageCss, readDistHtml } from '../scripts/lib/dist.mjs';
 
 const compact = (css) => css.replace(/\s+/g, '');
-const tokensCss = compact(readFileSync(new URL('../src/styles/tokens.css', import.meta.url), 'utf8'));
+const tokensCss = compact(
+	readFileSync(new URL('../src/styles/tokens.css', import.meta.url), 'utf8'),
+);
 
 /** Contenu des blocs `@media print` (accolades équilibrées). */
 const printBlocks = (css) => {

@@ -32,7 +32,8 @@
 
 @font-face {
 	font-family: 'Fraunces fallback Times';
-	src: local('Times New Roman Bold'), local('TimesNewRomanPS-BoldMT'), local('Liberation Serif Bold');
+	src:
+		local('Times New Roman Bold'), local('TimesNewRomanPS-BoldMT'), local('Liberation Serif Bold');
 	font-weight: 600 900;
 	font-style: normal;
 	size-adjust: 119.7363%;
@@ -265,6 +266,15 @@ hr {
 	margin: 2rem 0;
 	border: 0;
 	border-top: 4px double var(--ink);
+}
+
+/* Étiquette éditoriale (rectificatif, point de vue, mots-clés…) : monospace capitales, comme le tampon. */
+.mono-label {
+	font-family: var(--font-mono);
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
 }
 
 .sr-only {

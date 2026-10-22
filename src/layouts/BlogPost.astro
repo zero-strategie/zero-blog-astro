@@ -1,18 +1,46 @@
 ---
-import { Image } from 'astro:assets';
-import type { CollectionEntry } from 'astro:content';
+import type { ShareImage } from '../components/BaseHead.astro';
+import Blocks from '../components/Blocks.astro';
+import CmsImage from '../components/CmsImage.astro';
+import ContentTypeBadge from '../components/ContentTypeBadge.astro';
+import Erratum from '../components/Erratum.astro';
+import Faq from '../components/Faq.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import Sources from '../components/Sources.astro';
 import Stamp from '../components/Stamp.astro';
-import { readingTimeLabel, UPDATED_ON_LABEL } from '../consts';
+import TagList from '../components/TagList.astro';
+import {
+	ARTICLE_LABELS,
+	CONTENT_TYPE_LABELS,
+	readingTimeLabel,
+	rubriqueOf,
+	SITE_DESCRIPTION,
+	UPDATED_ON_LABEL,
+} from '../consts';
+import type { ArticleDetail } from '../types/domain';
 import Layout from './Layout.astro';
 
-type Props = Omit<CollectionEntry<'blog'>['data'], 'category'> &
-	Partial<Pick<CollectionEntry<'blog'>['data'], 'category'>> & { readingMinutes: number };
+interface Props {
+	article: ArticleDetail;
+	shareImage?: ShareImage;
+}
 
-const { title, description, pubDate, updatedDate, category, heroImage, heroAlt, readingMinutes } = Astro.props;
+const { article, shareImage } = Astro.props;
+const { title, contentType, publishedAt, updatedAt, verifiedOn, cover, author, readingMinutes } =
+	article;
+const category = rubriqueOf(article.category);
+const isOpinion = contentType === 'opinion';
+const COVER_WIDTHS = [480, 800, 1200];
+const COVER_SIZES = '(min-width: 64rem) 64rem, 100vw';
 ---
 
-<Layout title={title} description={description} image={heroImage}>
+<Layout
+	title={article.seo.title}
+	description={article.seo.description ?? SITE_DESCRIPTION}
+	image={shareImage}
+	ogType="article"
+>
+	<slot name="head" slot="head" />
 	<style>
 		:global(main) {
 			width: 100%;
@@ -47,14 +75,37 @@ const { title, description, pubDate, updatedDate, category, heroImage, heroAlt, 
 		.updated-on {
 			font-style: italic;
 		}
-		/* Notes de fin : toujours affichées, ce sont elles que l'appel cible (clavier, lecteur d'écran). */
-		.content :global([data-footnotes]) {
+		.kicker {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.5rem 1rem;
+			margin: 0;
+		}
+		/* Une opinion se reconnaît à chaque écran : encadré en tête, filet rouge continu le long du texte. */
+		.opinion-notice {
+			margin: 1rem 0 0;
+			padding: 0.75rem 1rem;
+			border: 2px solid var(--ink-red-text);
+			font-size: 0.95rem;
+		}
+		.opinion-notice strong {
+			color: var(--ink-red-text);
+		}
+		.article--opinion .content {
+			padding-left: 1rem;
+			border-left: 4px solid var(--ink-red);
+		}
+		/* Notes de fin (GFM) et Sources : toujours affichées, ce sont elles que l'appel cible (clavier, lecteur d'écran). */
+		.content :global([data-footnotes]),
+		.prose :global(.sources) {
 			margin-top: 2rem;
 			color: var(--ink-soft);
 			font-family: var(--font-mono);
 			font-size: 0.85rem;
 		}
-		.content :global([data-footnotes] h2) {
+		.content :global([data-footnotes] h2),
+		.prose :global(.sources h2) {
 			margin: 0 0 0.75rem;
 			padding-top: 0.5rem;
 			border-top: 1px solid var(--ink);
@@ -153,34 +204,59 @@ const { title, description, pubDate, updatedDate, category, heroImage, heroAlt, 
 		}
 	</style>
 	<div class="reading-progress" aria-hidden="true"></div>
-	<article>
-		{
-			heroImage && (
-				<div class="hero-image riso">
-					<Image width={1020} height={510} src={heroImage} alt={heroAlt ?? ''} />
-				</div>
-			)
-		}
+	<article class:list={{ 'article--opinion': isOpinion }}>
+		{cover && (
+			<div class="hero-image riso">
+				<CmsImage
+					image={cover}
+					widths={COVER_WIDTHS}
+					sizes={COVER_SIZES}
+					loading="eager"
+					fetchpriority="high"
+				/>
+			</div>
+		)}
 		<div class="prose">
 			<header class="title">
-				{category && <Stamp category={category} />}
+				<p class="kicker">
+					{category && <Stamp category={category} />}
+					<ContentTypeBadge type={contentType} />
+				</p>
 				<h1>{title}</h1>
 				<p class="date">
-					<FormattedDate date={pubDate} />
+					<FormattedDate date={publishedAt} />
 					<span>{readingTimeLabel(readingMinutes)}</span>
-					{
-						updatedDate && (
-							<span class="updated-on">
-								{UPDATED_ON_LABEL} <FormattedDate date={updatedDate} />
-							</span>
-						)
-					}
+					{updatedAt && (
+						<span class="updated-on">
+							{UPDATED_ON_LABEL} <FormattedDate date={updatedAt} />
+						</span>
+					)}
+					{verifiedOn && (
+						<span>
+							{ARTICLE_LABELS.verifiedOn} <FormattedDate date={verifiedOn} />
+						</span>
+					)}
+					{author && (
+						<span>
+							{ARTICLE_LABELS.by} {author.name}
+						</span>
+					)}
 				</p>
+				{isOpinion && (
+					<p class="opinion-notice" role="note">
+						<strong class="mono-label">{CONTENT_TYPE_LABELS.opinion}.</strong>{' '}
+						{ARTICLE_LABELS.opinionNotice}
+					</p>
+				)}
 				<hr />
 			</header>
+			{article.erratum && <Erratum html={article.erratum} />}
 			<div class="content">
-				<slot />
+				<Blocks blocks={article.blocks} />
 			</div>
+			<Faq items={article.faq} />
+			<Sources sources={article.sources} />
+			<TagList tags={article.tags} />
 		</div>
 	</article>
 </Layout>

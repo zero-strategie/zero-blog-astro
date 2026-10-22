@@ -1,25 +1,33 @@
 ---
+import { type CategorySlug } from '../consts';
+import type { ContentType } from '../types/domain';
+import ContentTypeBadge from './ContentTypeBadge.astro';
 import FormattedDate from './FormattedDate.astro';
 import Stamp from './Stamp.astro';
-import type { CATEGORIES } from '../consts';
 
 interface Props {
 	title: string;
 	href: string;
 	pubDate: Date;
-	category: (typeof CATEGORIES)[number]['slug'];
+	category?: CategorySlug;
+	contentType: ContentType;
 	// h3 quand la liste est sous un h2 (accueil), h2 sinon (archive).
 	headingLevel?: 2 | 3;
 }
 
-const { title, href, pubDate, category, headingLevel = 2 } = Astro.props;
+const { title, href, pubDate, category, contentType, headingLevel = 2 } = Astro.props;
 const Heading = `h${headingLevel}` as const;
 ---
 
 <li class="article-row">
-	<span class="date"><FormattedDate date={pubDate} /></span>
-	<Stamp category={category} />
-	<Heading class="title"><a href={href}>{title}</a></Heading>
+	<span class="date">
+		<FormattedDate date={pubDate} />
+		{contentType === 'opinion' && <ContentTypeBadge type={contentType} />}
+	</span>
+	{category ? <Stamp category={category} /> : <span />}
+	<Heading class="title">
+		<a href={href}>{title}</a>
+	</Heading>
 </li>
 
 <style>
@@ -33,6 +41,10 @@ const Heading = `h${headingLevel}` as const;
 		border-top: 1px solid var(--ink);
 	}
 	.date {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.25rem 0.75rem;
 		color: var(--ink-soft);
 		font-family: var(--font-mono);
 		font-size: 0.85rem;

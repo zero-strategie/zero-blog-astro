@@ -1,0 +1,60 @@
+---
+import type { GetStaticPaths } from 'astro';
+import ArticleRow from '../../components/ArticleRow.astro';
+import Layout from '../../layouts/Layout.astro';
+import {
+	ARCHIVE_LINK_LABEL,
+	EMPTY_CATEGORY_MESSAGE,
+	SITE_TITLE,
+	TAG_PAGE,
+	rubriqueOf,
+} from '../../consts';
+import { getArticlesByTag } from '../../lib/strapi/article';
+import { getTags } from '../../lib/strapi/tag';
+import { archiveUrl, articleUrl } from '../../lib/url';
+import type { Tag } from '../../types/domain';
+
+export const getStaticPaths = (async () =>
+	(await getTags()).map((tag) => ({
+		params: { slug: tag.slug },
+		props: { tag },
+	}))) satisfies GetStaticPaths;
+
+interface Props {
+	tag: Tag;
+}
+
+const { tag } = Astro.props;
+const posts = await getArticlesByTag(tag.slug);
+const heading = TAG_PAGE.title(tag.name);
+---
+
+<Layout title={`${heading} — ${SITE_TITLE}`} description={TAG_PAGE.description(tag.name)}>
+	<h1>{heading}</h1>
+	{posts.length === 0 ? (
+		<p>
+			{EMPTY_CATEGORY_MESSAGE}. <a href={archiveUrl()}>{ARCHIVE_LINK_LABEL}</a>
+		</p>
+	) : (
+		<ul>
+			{posts.map((post) => (
+				<ArticleRow
+					title={post.title}
+					href={articleUrl(post.slug)}
+					pubDate={post.publishedAt}
+					category={rubriqueOf(post.category)}
+					contentType={post.contentType}
+				/>
+			))}
+		</ul>
+	)}
+</Layout>
+
+<style>
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		border-bottom: 1px solid var(--ink);
+	}
+</style>

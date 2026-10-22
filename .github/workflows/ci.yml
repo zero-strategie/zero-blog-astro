@@ -37,14 +37,24 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # The only gate that exists today. There is no typecheck, no linter and
-      # no test suite in this repository yet — stated rather than implied, per
-      # AGENTS.md 7.
-      - name: Build
-        env:
-          # Required by the astro:env schema, so the build fails without it.
-          STRAPI_URL: ${{ vars.STRAPI_URL }}
-        run: pnpm build
+      # The gates of AGENTS.md 7. None of them needs the CMS: `pnpm test`
+      # builds the site against the fixture server (scripts/build-on-fixtures.mjs)
+      # and check:weight measures that build. The real CMS is only read by the
+      # image build below.
+      - name: Typecheck
+        run: pnpm check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format
+        run: pnpm format:check
+
+      - name: Tests (build on fixtures + node:test)
+        run: pnpm test
+
+      - name: Weight budgets
+        run: pnpm check:weight
 
   build-and-push:
     name: Build and push image
@@ -53,6 +63,10 @@ jobs:
       (github.event_name == 'push' && github.ref == 'refs/heads/main')
       || github.event_name == 'repository_dispatch'
     runs-on: ubuntu-latest
+    # STRAPI_URL is a variable of the production environment, not of the
+    # repository: without this the image would be prerendered against an empty
+    # origin. The site is baked from the production CMS at build time.
+    environment: production
     permissions:
       contents: read
       # Lets the built-in GITHUB_TOKEN push to GHCR — no PAT needed here.

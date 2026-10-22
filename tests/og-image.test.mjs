@@ -6,7 +6,8 @@ import { parseTokens } from '../scripts/lib/tokens.mjs';
 const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 const { light } = parseTokens(read('../src/styles/tokens.css'));
 const svg = read('../scripts/og-default.svg');
-const svgColors = (attribute) => [...svg.matchAll(new RegExp(`${attribute}="(#[0-9a-fA-F]{6})"`, 'g'))].map(([, hex]) => hex);
+const svgColors = (attribute) =>
+	[...svg.matchAll(new RegExp(`${attribute}="(#[0-9a-fA-F]{6})"`, 'g'))].map(([, hex]) => hex);
 
 test("la source de l'image de partage n'utilise que des couleurs de jetons clairs", () => {
 	const tokenColors = new Set(Object.values(light));

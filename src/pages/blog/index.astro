@@ -1,5 +1,4 @@
 ---
-import { getCollection } from 'astro:content';
 import ArticleRow from '../../components/ArticleRow.astro';
 import Layout from '../../layouts/Layout.astro';
 import {
@@ -7,32 +6,32 @@ import {
 	ARCHIVE_TITLE,
 	EMPTY_ARCHIVE_MESSAGE,
 	SITE_TITLE,
+	rubriqueOf,
 } from '../../consts';
+import { getArticles } from '../../lib/strapi/article';
 import { articleUrl } from '../../lib/url';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+// Strapi trie déjà du plus récent au plus ancien (lib/strapi/populate.mjs).
+const posts = await getArticles();
 ---
 
 <Layout title={`${ARCHIVE_TITLE} — ${SITE_TITLE}`} description={ARCHIVE_DESCRIPTION}>
 	<h1>{ARCHIVE_TITLE}</h1>
-	{
-		posts.length === 0 ? (
-			<p class="empty">{EMPTY_ARCHIVE_MESSAGE}</p>
-		) : (
-			<ul>
-				{posts.map((post) => (
-					<ArticleRow
-						title={post.data.title}
-						href={articleUrl(post.id)}
-						pubDate={post.data.pubDate}
-						category={post.data.category}
-					/>
-				))}
-			</ul>
-		)
-	}
+	{posts.length === 0 ? (
+		<p class="empty">{EMPTY_ARCHIVE_MESSAGE}</p>
+	) : (
+		<ul>
+			{posts.map((post) => (
+				<ArticleRow
+					title={post.title}
+					href={articleUrl(post.slug)}
+					pubDate={post.publishedAt}
+					category={rubriqueOf(post.category)}
+					contentType={post.contentType}
+				/>
+			))}
+		</ul>
+	)}
 </Layout>
 
 <style>

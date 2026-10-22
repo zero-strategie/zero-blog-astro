@@ -1,21 +1,22 @@
 ---
-import { Image } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
+import CmsImage from './CmsImage.astro';
+import ContentTypeBadge from './ContentTypeBadge.astro';
 import FormattedDate from './FormattedDate.astro';
 import Stamp from './Stamp.astro';
-import { FEATURED_LABEL } from '../consts';
-import type { CATEGORIES } from '../consts';
+import { type CategorySlug, FEATURED_LABEL } from '../consts';
+import type { ContentType, ImageRef } from '../types/domain';
 
 interface Props {
 	title: string;
-	description: string;
+	description?: string;
 	href: string;
 	pubDate: Date;
-	category: (typeof CATEGORIES)[number]['slug'];
-	heroImage?: ImageMetadata;
+	category?: CategorySlug;
+	contentType: ContentType;
+	cover?: ImageRef;
 }
 
-const { title, description, href, pubDate, category, heroImage } = Astro.props;
+const { title, description, href, pubDate, category, contentType, cover } = Astro.props;
 // Lien de couverture masqué aux lecteurs d'écran (le titre mène au même article) : l'image est décorative.
 const COVER_WIDTHS = [480, 800, 1200];
 const COVER_SIZES = '(min-width: 48rem) 48rem, 100vw';
@@ -23,26 +24,27 @@ const COVER_SIZES = '(min-width: 48rem) 48rem, 100vw';
 
 <article class="featured">
 	<p class="label">{FEATURED_LABEL}</p>
-	{
-		heroImage && (
-			<a class="cover riso" href={href} tabindex="-1" aria-hidden="true">
-				<Image
-					src={heroImage}
-					alt=""
-					widths={COVER_WIDTHS}
-					sizes={COVER_SIZES}
-					loading="eager"
-					fetchpriority="high"
-				/>
-			</a>
-		)
-	}
+	{cover && (
+		<a class="cover riso" href={href} tabindex="-1" aria-hidden="true">
+			<CmsImage
+				image={cover}
+				alt=""
+				widths={COVER_WIDTHS}
+				sizes={COVER_SIZES}
+				loading="eager"
+				fetchpriority="high"
+			/>
+		</a>
+	)}
 	<div class="meta">
-		<Stamp category={category} />
+		{category && <Stamp category={category} />}
+		<ContentTypeBadge type={contentType} />
 		<FormattedDate date={pubDate} />
 	</div>
-	<h2><a href={href}>{title}</a></h2>
-	<p class="description">{description}</p>
+	<h2>
+		<a href={href}>{title}</a>
+	</h2>
+	{description && <p class="description">{description}</p>}
 </article>
 
 <style>

@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { DIST_DIR, readDistHtml } from '../scripts/lib/dist.mjs';
+import { FIXTURE_ARTICLES, FIXTURE_CATEGORIES } from '../scripts/lib/fixtures.mjs';
 
 const SRC_DIR = new URL('../src/', import.meta.url).pathname;
 const pages = readDistHtml();
@@ -16,20 +17,22 @@ const sourceFiles = () =>
 		.filter((entry) => entry.isFile())
 		.map((entry) => join(entry.parentPath, entry.name));
 
-const EXPECTED_ARTICLES = {
-	projets: ['using-mdx', 'first-post'],
-	'open-source': ['second-post'],
-	ia: ['third-post'],
-	souverainete: ['markdown-style-guide'],
-	politique: [],
-};
+// Les rubriques sont les catégories Strapi ; politique reste vide dans les fixtures (état vide).
 const EXPECTED_H1 = {
-	projets: '§01 Projets',
-	'open-source': '§02 Open source',
-	ia: '§03 IA',
-	souverainete: '§04 Souveraineté',
-	politique: '§05 Politique',
+	'open-source': '§01 Open source',
+	ia: '§02 IA',
+	souverainete: '§03 Souveraineté',
+	politique: '§04 Politique',
+	geopolitique: '§05 Géopolitique',
 };
+const EXPECTED_ARTICLES = Object.fromEntries(
+	Object.keys(EXPECTED_H1).map((slug) => [
+		slug,
+		FIXTURE_ARTICLES.filter((article) => article.category?.slug === slug)
+			.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+			.map((article) => article.slug),
+	]),
+);
 
 test('dist/client/rubriques contient exactement les 5 dossiers de rubrique', () => {
 	const folders = readdirSync(join(DIST_DIR, 'rubriques'), { withFileTypes: true })
@@ -42,7 +45,10 @@ test('dist/client/rubriques contient exactement les 5 dossiers de rubrique', () 
 test('le H1 de chaque rubrique affiche « §0N Libellé »', () => {
 	for (const [slug, h1] of Object.entries(EXPECTED_H1)) {
 		const html = pageNamed(`rubriques/${slug}/index.html`);
-		const text = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1].replace(/<[^>]+>/g, '').trim();
+		const text = html
+			.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1]
+			.replace(/<[^>]+>/g, '')
+			.trim();
 		assert.equal(text, h1, slug);
 	}
 });
@@ -51,10 +57,16 @@ const mainOf = (html) => html.match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? '';
 
 test('chaque rubrique liste ses articles, du plus récent au plus ancien', () => {
 	for (const [slug, ids] of Object.entries(EXPECTED_ARTICLES)) {
-		const hrefs = [...mainOf(pageNamed(`rubriques/${slug}/index.html`)).matchAll(/href="(\/blog\/[^"]+)"/g)]
+		const hrefs = [
+			...mainOf(pageNamed(`rubriques/${slug}/index.html`)).matchAll(/href="(\/blog\/[^"]+)"/g),
+		]
 			.map(([, href]) => href)
 			.filter((href) => href !== '/blog/');
-		assert.deepEqual(hrefs, ids.map((id) => `/blog/${id}/`), slug);
+		assert.deepEqual(
+			hrefs,
+			ids.map((id) => `/blog/${id}/`),
+			slug,
+		);
 	}
 });
 
@@ -74,16 +86,19 @@ const navLinks = (html) =>
 	}));
 
 test('la navigation contient les 5 rubriques dans la seconde ligne, après les 3 liens principaux', () => {
-	assert.deepEqual(navLinks(pageNamed('client/index.html')).map(({ href }) => href), [
-		'/',
-		'/blog/',
-		'/about/',
-		'/rubriques/projets/',
-		'/rubriques/open-source/',
-		'/rubriques/ia/',
-		'/rubriques/souverainete/',
-		'/rubriques/politique/',
-	]);
+	assert.deepEqual(
+		navLinks(pageNamed('client/index.html')).map(({ href }) => href),
+		[
+			'/',
+			'/blog/',
+			'/about/',
+			'/rubriques/open-source/',
+			'/rubriques/ia/',
+			'/rubriques/souverainete/',
+			'/rubriques/politique/',
+			'/rubriques/geopolitique/',
+		],
+	);
 });
 
 test('sur /rubriques/ia/, seul le lien IA est en aria-current', () => {
@@ -100,17 +115,19 @@ test("les gabarits d'URL /blog/${…} et /rubriques/${…} n'existent que dans s
 	assert.deepEqual(offenders, []);
 });
 
-test('rss.xml.js construit ses liens avec src/lib/url', () => {
-	assert.match(readFileSync(join(SRC_DIR, 'pages/rss.xml.js'), 'utf8'), /lib\/url/);
+test('rss.xml.ts construit ses liens avec src/lib/url', () => {
+	assert.match(readFileSync(join(SRC_DIR, 'pages/rss.xml.ts'), 'utf8'), /lib\/url/);
 });
 
-test('le schéma exige une category tirée de CATEGORIES et les articles en ont une valide', () => {
-	assert.match(readFileSync(join(SRC_DIR, 'content.config.ts'), 'utf8'), /category:\s*z\.enum\(CATEGORY_SLUGS\)/);
-	const dir = join(SRC_DIR, 'content/blog');
-	for (const name of readdirSync(dir)) {
-		const category = readFileSync(join(dir, name), 'utf8').match(/^category:\s*'?([\w-]+)'?\s*$/m)?.[1];
-		assert.ok(Object.keys(EXPECTED_H1).includes(category), `${name} : ${category}`);
+test('les rubriques sont exactement les catégories Strapi, et chaque article en a une', () => {
+	assert.deepEqual(
+		FIXTURE_CATEGORIES.map(({ slug }) => slug).sort(),
+		Object.keys(EXPECTED_H1).sort(),
+	);
+	for (const { slug, category } of FIXTURE_ARTICLES) {
+		assert.ok(Object.keys(EXPECTED_H1).includes(category?.slug), `${slug} : ${category?.slug}`);
 	}
+	assert.ok(EXPECTED_ARTICLES.politique.length === 0 && EXPECTED_ARTICLES.ia.length > 0);
 });
 
 test("la page de rubrique tire ses textes et son lien d'archive de consts.ts et lib/url.ts", () => {

@@ -1,0 +1,16 @@
+---
+import type { Block } from '../types/domain';
+import { blockComponent } from './blocks';
+
+interface Props {
+	blocks: readonly Block[];
+}
+
+const { blocks } = Astro.props;
+---
+
+{blocks.map((block) => {
+	const Component = blockComponent(block);
+	// An unknown block degrades, never crashes.
+	return Component ? <Component {...block} /> : null;
+})}

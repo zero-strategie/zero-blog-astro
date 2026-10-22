@@ -1,0 +1,37 @@
+---
+import { ARTICLE_LABELS } from '../consts';
+import { tagUrl } from '../lib/url';
+import type { Tag } from '../types/domain';
+
+interface Props {
+	tags: readonly Tag[];
+}
+
+const { tags } = Astro.props;
+---
+
+{tags.length > 0 && (
+	<ul class="tags mono-label" aria-label={ARTICLE_LABELS.tags}>
+		{tags.map((tag) => (
+			<li>
+				<a href={tagUrl(tag.slug)}>#{tag.name}</a>
+			</li>
+		))}
+	</ul>
+)}
+
+<style>
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 1rem;
+		margin: 2rem 0 0;
+		padding: 0.75rem 0 0;
+		border-top: 4px double var(--ink);
+		list-style: none;
+	}
+	a {
+		display: inline-block;
+		padding: 0.25rem 0;
+	}
+</style>

@@ -21,19 +21,22 @@ const byteLength = (text) => Buffer.byteLength(text);
 const gzipLength = (text) => gzipSync(text).length;
 
 function linkedStylesheets(html) {
-	return [...html.matchAll(STYLESHEET_LINK)]
-		.map(([tag]) => tag.match(HREF)?.[1])
-		.filter(Boolean);
+	return [...html.matchAll(STYLESHEET_LINK)].map(([tag]) => tag.match(HREF)?.[1]).filter(Boolean);
 }
 
 /** Poids de l'accueil hors images : HTML (CSS inline comprise), feuilles liées et fontes qu'elles chargent. */
 function homeContent(html, distDir) {
-	const stylesheets = linkedStylesheets(html).map((href) => readFileSync(join(distDir, href), 'utf8'));
+	const stylesheets = linkedStylesheets(html).map((href) =>
+		readFileSync(join(distDir, href), 'utf8'),
+	);
 	const fontPaths = new Set(
 		[html, ...stylesheets].flatMap((css) => [...css.matchAll(FONT_URL)].map(([, path]) => path)),
 	);
 	const fonts = [...fontPaths].map((path) => readFileSync(join(distDir, path)));
-	return { text: [html, ...stylesheets].join(''), binaryBytes: fonts.reduce((sum, f) => sum + f.length, 0) };
+	return {
+		text: [html, ...stylesheets].join(''),
+		binaryBytes: fonts.reduce((sum, f) => sum + f.length, 0),
+	};
 }
 
 function analyzePage({ file, html }, distDir) {
@@ -59,12 +62,18 @@ function fontViolations(distDir, files) {
 	const fonts = files.filter((file) => FONT_EXTENSIONS.includes(extname(file)));
 	const violations = [];
 	if (fonts.length > BUDGETS.fontCount) {
-		violations.push({ rule: 'une-webfont', detail: `${fonts.length} fontes : ${fonts.map((f) => relative(distDir, f)).join(', ')}` });
+		violations.push({
+			rule: 'une-webfont',
+			detail: `${fonts.length} fontes : ${fonts.map((f) => relative(distDir, f)).join(', ')}`,
+		});
 	}
 	for (const font of fonts) {
 		const size = readFileSync(font).length;
 		if (size > BUDGETS.fontBytes) {
-			violations.push({ rule: 'font-50kb', detail: `${relative(distDir, font)} : ${size} octets, budget ${BUDGETS.fontBytes}` });
+			violations.push({
+				rule: 'font-50kb',
+				detail: `${relative(distDir, font)} : ${size} octets, budget ${BUDGETS.fontBytes}`,
+			});
 		}
 	}
 	return violations;
@@ -72,7 +81,10 @@ function fontViolations(distDir, files) {
 
 function scriptViolations(distDir, pages, files) {
 	const inHtml = pages.flatMap((page) =>
-		findZeroJsViolations(page.html).map((detail) => ({ rule: 'zero-js', detail: `${page.path} : ${detail}` })),
+		findZeroJsViolations(page.html).map((detail) => ({
+			rule: 'zero-js',
+			detail: `${page.path} : ${detail}`,
+		})),
 	);
 	const scriptFiles = files
 		.filter((file) => SCRIPT_EXTENSIONS.includes(extname(file)))
@@ -89,7 +101,12 @@ export function checkWeight(distDir) {
 	const violations = [
 		...cssViolations(pages),
 		...(home && home.totalBytes > BUDGETS.homeBytes
-			? [{ rule: 'home-100kb', detail: `accueil : ${home.totalBytes} octets hors images, budget ${BUDGETS.homeBytes}` }]
+			? [
+					{
+						rule: 'home-100kb',
+						detail: `accueil : ${home.totalBytes} octets hors images, budget ${BUDGETS.homeBytes}`,
+					},
+				]
 			: []),
 		...fontViolations(distDir, files),
 		...scriptViolations(distDir, pages, files),

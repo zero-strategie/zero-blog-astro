@@ -7,12 +7,16 @@ export const DIST_DIR = fileURLToPath(new URL('../../dist/client', import.meta.u
 const OPENING_TAG = /<[a-zA-Z](?:[^>"']|"[^"]*"|'[^']*')*>/g;
 const QUOTED_VALUE = /"[^"]*"|'[^']*'/g;
 const EVENT_HANDLER_ATTRIBUTE = /\s(on[a-z]+)\s*=/i;
-const SCRIPT_TAG = /<script/i;
+const SCRIPT_TAG = /<script\b[^>]*>?/gi;
+// Seule exception : un bloc de données JSON-LD, que le navigateur n'exécute jamais.
+const DATA_BLOCK = /^<script\s+type="application\/ld\+json"\s*>$/i;
 const JAVASCRIPT_URL = /javascript:/i;
 
 export function findZeroJsViolations(html) {
 	const violations = [];
-	if (SCRIPT_TAG.test(html)) violations.push('balise <script');
+	for (const [tag] of html.matchAll(SCRIPT_TAG)) {
+		if (!DATA_BLOCK.test(tag)) violations.push('balise <script');
+	}
 	if (JAVASCRIPT_URL.test(html)) violations.push('URL javascript:');
 	for (const [tag] of html.matchAll(OPENING_TAG)) {
 		const handler = tag.replace(QUOTED_VALUE, '""').match(EVENT_HANDLER_ATTRIBUTE);

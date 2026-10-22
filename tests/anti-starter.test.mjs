@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { extname } from 'node:path';
 import { test } from 'node:test';
 import { listDistFiles } from '../scripts/lib/dist.mjs';
+import { FIXTURE_ARTICLES } from '../scripts/lib/fixtures.mjs';
 
 const TEXT_EXTENSIONS = ['.html', '.xml', '.css', '.svg', '.txt'];
 const STARTER_TEXT = /Astro Blog|Hello, Astronaut|withastro|Atkinson/i;
 const ARTICLE_PAGE = /[\\/]blog[\\/][^\\/]+[\\/]index\.html$/;
-const ARTICLE_BODY = /<div class="content"[^>]*>[\s\S]*?<\/div>\s*<\/article>/;
 
 const textFiles = listDistFiles()
 	.filter((file) => TEXT_EXTENSIONS.includes(extname(file)))
@@ -19,14 +19,20 @@ test('aucun texte du gabarit Astro ne subsiste dans dist/client', () => {
 	assert.deepEqual(offenders, []);
 });
 
-test('« Lorem » reste dans le corps des articles de démo, jamais dans meta, og, twitter ni rss.xml', () => {
+// Le contenu de démo (Markdown local et Lorem) a disparu avec l'intégration Strapi : plus aucune
+// exception n'est tolérée, ni dans les corps d'article ni dans meta, og, twitter ou rss.xml.
+test('« Lorem » n’apparaît plus nulle part dans dist/client, articles compris', () => {
 	const articles = textFiles.filter(({ file }) => ARTICLE_PAGE.test(file));
-	assert.ok(articles.length >= 5, `${articles.length} articles`);
-	let loremInBodies = 0;
-	for (const { file, text } of textFiles) {
-		const body = ARTICLE_PAGE.test(file) ? text.match(ARTICLE_BODY)?.[0] ?? '' : '';
-		if (/Lorem/i.test(body)) loremInBodies += 1;
-		assert.doesNotMatch(text.replace(body, ''), /Lorem/i, file);
+	assert.equal(articles.length, FIXTURE_ARTICLES.length, 'une page par article des fixtures');
+	assert.ok(
+		textFiles.some(({ file }) => file.endsWith('rss.xml')),
+		'rss.xml absent : le test passerait à vide',
+	);
+	for (const { file, text } of textFiles) assert.doesNotMatch(text, /Lorem/i, file);
+});
+
+test('aucun contenu local ne subsiste : ni src/content/, ni content.config.ts', () => {
+	for (const path of ['../src/content/', '../src/content.config.ts']) {
+		assert.equal(existsSync(new URL(path, import.meta.url)), false, path);
 	}
-	assert.ok(loremInBodies > 0, 'aucun corps ne contient Lorem : le test passerait à vide');
 });

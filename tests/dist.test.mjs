@@ -15,6 +15,25 @@ test('signale une balise script', () => {
 	assert.ok(findZeroJsViolations('<script>1</script>').length > 0);
 });
 
+test('accepte un bloc de données JSON-LD, qui ne s’exécute pas', () => {
+	assert.deepEqual(
+		findZeroJsViolations('<script type="application/ld+json">{"@type":"Article"}</script>'),
+		[],
+	);
+});
+
+test('signale tout autre script, même voisin d’un JSON-LD ou typé module', () => {
+	assert.ok(findZeroJsViolations('<script type="module">1</script>').length > 0);
+	assert.ok(
+		findZeroJsViolations('<script type="application/ld+json" src="/x.js"></script>').length > 0,
+	);
+	assert.ok(findZeroJsViolations('<script type="text/javascript">1</script>').length > 0);
+	assert.ok(
+		findZeroJsViolations('<script type="application/ld+json">{}</script><script>1</script>')
+			.length > 0,
+	);
+});
+
 test('signale un lien javascript:', () => {
 	assert.ok(findZeroJsViolations('<a href="javascript:void(0)">x</a>').length > 0);
 });

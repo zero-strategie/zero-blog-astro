@@ -1,0 +1,40 @@
+---
+import { ARTICLE_LABELS } from '../consts';
+import type { FaqItem } from '../types/domain';
+
+interface Props {
+	items: readonly FaqItem[];
+}
+
+const { items } = Astro.props;
+---
+
+{items.length > 0 && (
+	<section class="faq" aria-labelledby="faq-titre">
+		<h2 id="faq-titre">{ARTICLE_LABELS.faq}</h2>
+		{items.map((item) => (
+			<div class="faq-item">
+				<h3>{item.question}</h3>
+				<div set:html={item.answer} />
+			</div>
+		))}
+	</section>
+)}
+
+<style>
+	.faq {
+		margin-top: 3rem;
+	}
+	h2 {
+		padding-top: 0.5rem;
+		border-top: 4px double var(--ink);
+		font-size: 1.6rem;
+	}
+	h3 {
+		margin-top: 1.25rem;
+		font-size: 1.15rem;
+	}
+	.faq-item :global(p) {
+		margin-bottom: 0.75em;
+	}
+</style>

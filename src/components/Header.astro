@@ -1,24 +1,32 @@
 ---
-import { CATEGORIES, CATEGORIES_NAV_LABEL, NAV_LABEL, NAV_LINKS, SITE_TAGLINE, SITE_TITLE } from '../consts';
+import {
+	CATEGORIES,
+	CATEGORIES_NAV_LABEL,
+	NAV_LABEL,
+	NAV_LINKS,
+	SITE_TAGLINE,
+	SITE_TITLE,
+} from '../consts';
 import { categoryUrl } from '../lib/url';
 import HeaderLink from './HeaderLink.astro';
-
 ---
 
 <header>
-	<p class="masthead"><a href="/">{SITE_TITLE}</a></p>
+	<p class="masthead">
+		<a href="/">{SITE_TITLE}</a>
+	</p>
 	<p class="tagline">{SITE_TAGLINE}</p>
 	<nav aria-label={NAV_LABEL}>
-		{NAV_LINKS.map(({ href, label }) => <HeaderLink href={href}>{label}</HeaderLink>)}
+		{NAV_LINKS.map(({ href, label }) => (
+			<HeaderLink href={href}>{label}</HeaderLink>
+		))}
 	</nav>
 	<nav class="rubriques" aria-label={CATEGORIES_NAV_LABEL}>
-		{
-			CATEGORIES.map(({ slug, number, label }) => (
-				<HeaderLink href={categoryUrl(slug)}>
-					<span class="number">§{number}</span> {label}
-				</HeaderLink>
-			))
-		}
+		{CATEGORIES.map(({ slug, number, label }) => (
+			<HeaderLink href={categoryUrl(slug)}>
+				<span class="number">§{number}</span> {label}
+			</HeaderLink>
+		))}
 	</nav>
 </header>
 

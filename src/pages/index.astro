@@ -1,5 +1,4 @@
 ---
-import { getCollection } from 'astro:content';
 import ArticleRow from '../components/ArticleRow.astro';
 import FeaturedArticle from '../components/FeaturedArticle.astro';
 import Layout from '../layouts/Layout.astro';
@@ -9,51 +8,57 @@ import {
 	SITE_DESCRIPTION,
 	SITE_TITLE,
 	SUMMARY_LABEL,
+	rubriqueOf,
 } from '../consts';
 import { splitFeatured } from '../lib/featured.mjs';
+import { getArticles } from '../lib/strapi/article';
 import { articleUrl } from '../lib/url';
 
-const { featured, summary } = splitFeatured(await getCollection('blog'));
+const { featured, summary } = splitFeatured(await getArticles());
 ---
 
 <Layout title={SITE_TITLE} description={SITE_DESCRIPTION}>
 	<section class="manifesto">
 		<p class="kicker">{MANIFESTO.kicker}</p>
 		<h1>{MANIFESTO.title}</h1>
-		{MANIFESTO.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+		{MANIFESTO.paragraphs.map((paragraph) => (
+			<p>{paragraph}</p>
+		))}
 	</section>
-	{
-		featured ? (
-			<>
-				<FeaturedArticle
-					title={featured.data.title}
-					description={featured.data.description}
-					href={articleUrl(featured.id)}
-					pubDate={featured.data.pubDate}
-					category={featured.data.category}
-					heroImage={featured.data.heroImage}
-				/>
-				{summary.length > 0 && (
-					<section class="summary" aria-labelledby="sommaire">
-						<h2 id="sommaire" class="summary-title">{SUMMARY_LABEL}</h2>
-						<ul>
-							{summary.map((post) => (
-								<ArticleRow
-									title={post.data.title}
-									href={articleUrl(post.id)}
-									pubDate={post.data.pubDate}
-									category={post.data.category}
-									headingLevel={3}
-								/>
-							))}
-						</ul>
-					</section>
-				)}
-			</>
-		) : (
-			<p class="empty">{EMPTY_HOME_MESSAGE}</p>
-		)
-	}
+	{featured ? (
+		<>
+			<FeaturedArticle
+				title={featured.title}
+				description={featured.description}
+				href={articleUrl(featured.slug)}
+				pubDate={featured.publishedAt}
+				category={rubriqueOf(featured.category)}
+				contentType={featured.contentType}
+				cover={featured.cover}
+			/>
+			{summary.length > 0 && (
+				<section class="summary" aria-labelledby="sommaire">
+					<h2 id="sommaire" class="summary-title">
+						{SUMMARY_LABEL}
+					</h2>
+					<ul>
+						{summary.map((post) => (
+							<ArticleRow
+								title={post.title}
+								href={articleUrl(post.slug)}
+								pubDate={post.publishedAt}
+								category={rubriqueOf(post.category)}
+								contentType={post.contentType}
+								headingLevel={3}
+							/>
+						))}
+					</ul>
+				</section>
+			)}
+		</>
+	) : (
+		<p class="empty">{EMPTY_HOME_MESSAGE}</p>
+	)}
 </Layout>
 
 <style>

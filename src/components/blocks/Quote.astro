@@ -1,0 +1,57 @@
+---
+import { ARTICLE_LABELS } from '../../consts';
+import type { QuoteBlock } from '../../types/domain';
+
+type Props = QuoteBlock;
+
+const { title, html, isOpinion } = Astro.props;
+---
+
+{isOpinion ? (
+	<aside class="point-de-vue" aria-label={title}>
+		<p class="point-de-vue-titre mono-label">{title}</p>
+		<p class="point-de-vue-avertissement">{ARTICLE_LABELS.opinionQuoteNotice}</p>
+		<div class="point-de-vue-corps" set:html={html} />
+	</aside>
+) : (
+	<figure class="quote">
+		<blockquote set:html={html} />
+		{title && <figcaption>— {title}</figcaption>}
+	</figure>
+)}
+
+<style>
+	.quote {
+		margin: 1.5em 0;
+	}
+	.quote blockquote {
+		margin: 0;
+	}
+	figcaption {
+		margin-top: 0.5rem;
+		color: var(--ink-soft);
+	}
+	/* « Point de vue » : un tract dans le tract, aplat rouge en tête pour qu'aucune opinion ne passe pour un constat. */
+	.point-de-vue {
+		margin: 2rem 0;
+		border: 2px solid var(--ink);
+		border-top: 0.6rem solid var(--ink-red);
+	}
+	.point-de-vue > * {
+		margin: 0;
+		padding: 0 1.2rem;
+	}
+	.point-de-vue-titre {
+		padding-top: 0.5rem;
+		color: var(--ink-red-text);
+	}
+	.point-de-vue-avertissement {
+		padding-bottom: 0.5rem;
+		color: var(--ink-soft);
+		font-size: 0.8rem;
+	}
+	.point-de-vue-corps {
+		font-size: 1.15em;
+		font-style: italic;
+	}
+</style>
