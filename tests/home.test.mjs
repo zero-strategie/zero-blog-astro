@@ -51,6 +51,13 @@ test('les titres du sommaire sont des h3 sous le h2 « Sommaire »', () => {
 	assert.doesNotMatch(rows().join(''), /<h2\b/);
 });
 
+test('la colonne du tampon fait au moins 11rem et le tampon ne passe pas à la ligne', () => {
+	const css = pageCss(home).replace(/\s+/g, '');
+	const width = Number(css.match(/--stamp-column:([\d.]+)rem/)?.[1]);
+	assert.ok(width >= 11, `colonne de ${width}rem`);
+	assert.match(css, /\.stamp\[[^\]]*\]\{[^}]*white-space:nowrap/);
+});
+
 test('les colonnes des lignes ont des largeurs fixes pour aligner les titres', () => {
 	const css = pageCss(home).replace(/\s+/g, '');
 	const desktopColumns = css.match(/@media\(min-width:48rem\)\{\.article-row[^{]*\{[^}]*grid-template-columns:([^;}]+)/)?.[1] ?? '';
