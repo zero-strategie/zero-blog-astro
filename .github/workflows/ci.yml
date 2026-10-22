@@ -105,6 +105,7 @@ jobs:
           push: true
           build-args: |
             STRAPI_URL=${{ vars.STRAPI_URL }}
+            CONTENT_REVISION=${{ github.run_id }}-${{ github.run_attempt }}
           # A BuildKit secret, not a build-arg: the token must not end up in a
           # layer or in `docker history`.
           secrets: |
