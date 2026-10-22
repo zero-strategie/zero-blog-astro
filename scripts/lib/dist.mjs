@@ -34,3 +34,21 @@ export function readDistHtml(distDir = DIST_DIR) {
 		.filter((file) => file.endsWith('.html'))
 		.map((file) => ({ file, html: readFileSync(file, 'utf8') }));
 }
+
+const STYLESHEET_LINK = /<link\b[^>]*\brel="stylesheet"[^>]*>/g;
+const HREF = /\bhref="([^"]+)"/;
+const INLINE_STYLE = /<style[^>]*>([\s\S]*?)<\/style>/g;
+
+function readLocalStylesheet(href) {
+	return readFileSync(join(DIST_DIR, href), 'utf8');
+}
+
+/** CSS qui pèse sur une page : feuilles liées, puis blocs `<style>` inline. */
+export function pageCss(html, readStylesheet = readLocalStylesheet) {
+	const linked = [...html.matchAll(STYLESHEET_LINK)]
+		.map(([tag]) => tag.match(HREF)?.[1])
+		.filter((href) => href?.startsWith('/'))
+		.map(readStylesheet);
+	const inline = [...html.matchAll(INLINE_STYLE)].map(([, css]) => css);
+	return [...linked, ...inline].join('');
+}
