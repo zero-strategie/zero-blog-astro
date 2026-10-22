@@ -74,15 +74,12 @@ jobs:
       - name: Compute the image tag
         id: meta
         # The commit SHA is what makes rollback possible: `latest` alone gives
-        # you nothing to roll back to. Anything that is not a push runs on a
-        # commit already built, so it gets a run suffix — otherwise two
-        # different images would share a tag and rolling one back would be a
-        # no-op. Tested for `!= push` rather than for the one event we send
-        # today, so adding schedule: or workflow_dispatch: later cannot
-        # silently overwrite an existing image.
+        # you nothing to roll back to. A content rebuild runs on the same
+        # commit, so it gets a run suffix — otherwise two different images
+        # would share a tag and rolling one back would be a no-op.
         run: |
           tag="${GITHUB_SHA::12}"
-          if [ "${{ github.event_name }}" != "push" ]; then
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
             tag="${tag}-r${GITHUB_RUN_NUMBER}"
           fi
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
