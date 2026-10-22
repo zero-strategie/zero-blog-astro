@@ -56,3 +56,7 @@ export const MANIFESTO = {
 export const FEATURED_LABEL = 'À la une';
 export const SUMMARY_LABEL = 'Sommaire';
 export const EMPTY_HOME_MESSAGE = "Rien d'imprimé pour l'instant. Revenez au prochain tirage.";
+
+export const ARCHIVE_TITLE = 'Archive';
+export const ARCHIVE_DESCRIPTION = 'Tous les articles publiés, du plus récent au plus ancien.';
+export const EMPTY_ARCHIVE_MESSAGE = "Rien d'imprimé pour l'instant. Revenez au prochain tirage.";
