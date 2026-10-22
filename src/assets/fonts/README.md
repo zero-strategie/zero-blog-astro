@@ -15,12 +15,12 @@ curl -A "Mozilla/5.0 Chrome/130.0" \
 # 3. Réduire la plage de l'axe opsz et retirer les caractères inutiles
 python -m venv /tmp/fonttools && /tmp/fonttools/bin/pip install fonttools brotli
 /tmp/fonttools/bin/python -m fontTools.varLib.instancer fraunces-latin.woff2 \
-  wght=400:900 opsz=9:30 -o instance.ttf
+  wght=400:400:900 opsz=9:30 -o instance.ttf
 /tmp/fonttools/bin/python -m fontTools.subset instance.ttf \
   --unicodes="U+0020-007E,U+00A0-00FF,U+0152-0153,U+2013-2014,U+2018-201A,U+201C-201E,U+2022,U+2026,U+2039-203A,U+20AC,U+2192,U+2212" \
   --layout-features="kern,liga,ccmp,locl,mark,mkmk,calt" \
   --flavor=woff2 --output-file=fraunces.woff2
 ```
 
-Résultat : environ 49 KB. Le budget est de 50 KB : `opsz=9:36` donne 51 KB, d'où le plafond à 30.
+Résultat : environ 49 KB. `wght=400:400:900` (min:défaut:max) fixe 400 comme instance par défaut : Astro calcule `size-adjust` de la fonte de secours sur cette instance (environ 115 %), et non sur le Black. Le budget est de 50 KB : `opsz=9:36` donne 51 KB, d'où le plafond à 30.
 `OFL.txt` vient de https://github.com/undercasetype/Fraunces (fichier `OFL.txt`).
