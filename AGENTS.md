@@ -37,8 +37,8 @@ from local Markdown/MDX in `src/content/blog/` via the `glob()` loader, and
 What has been built is the **delivery pipeline**, not the application: a real `site`, the
 `@astrojs/node` adapter (10.x — the line that matches Astro 6), the `astro:env` schema, a
 `/health` endpoint, a Dockerfile, a `.env.example` and a GitHub Actions workflow that builds,
-pushes to GHCR and deploys. There are still no `devDependencies` — no TypeScript, no linter,
-no tests.
+pushes to GHCR and deploys. There are still no `devDependencies` — no TypeScript, no linter.
+Tests exist: `node:test` files in `tests/` that assert on the built `dist/client/` (§7).
 
 Do not read the existing files as project conventions — they are template output.
 §4 and §5 below define the target architecture. Building the Strapi integration means
@@ -100,6 +100,8 @@ pnpm install
 | `pnpm dev` | Dev server on `http://localhost:4321` |
 | `pnpm build` then `node ./dist/server/entry.mjs` | Run the standalone server the container runs |
 | `pnpm build` | Production build to `./dist/` |
+| `pnpm test` | `pnpm build`, then `node --test "tests/*.test.mjs"` on `dist/client/` |
+| `pnpm check:weight` | Budgets on `dist/client/` (see §7); exit code 1 on any overrun |
 | `pnpm preview` | Serve the build locally |
 | `pnpm astro ...` | Astro CLI passthrough |
 
@@ -136,16 +138,21 @@ zero-blog-astro/
 ├── Dockerfile                Multi-stage build; the prerender happens here
 ├── .env.example              Every variable the astro:env schema declares
 ├── tsconfig.json             extends astro/tsconfigs/strict
-├── public/                   Served verbatim: favicons, (target: robots.txt)
+├── public/                   Served verbatim: favicon, og-default.png (target: robots.txt)
+├── scripts/                  Out-of-build tooling: check-weight.mjs, lib/ (dist, tokens, contrast,
+│                             weight), og-default generator (see scripts/README.md)
+├── tests/                    node:test files (*.test.mjs) asserting on dist/client/
 └── src/
-    ├── assets/               Images + Atkinson Hyperlegible woff fonts
+    ├── assets/               Images + the single Fraunces woff2 (src/assets/fonts/)
     ├── components/           .astro presentational components
     ├── layouts/              Page shells
     ├── pages/                File-based routes
     ├── content/blog/         Local Markdown/MDX (legacy — superseded by Strapi)
     ├── content.config.ts     Content collection schemas
     ├── consts.ts             SITE_TITLE, SITE_DESCRIPTION (placeholders)
-    └── styles/global.css     Global stylesheet + CSS custom-property tokens
+    └── styles/
+        ├── tokens.css        The only file with literal colors: palette, dark mode, font stack
+        └── global.css        Global stylesheet, system fallback @font-face, built on the tokens
 ```
 
 ### Current routes
@@ -501,8 +508,26 @@ A change is done when all of the following pass.
 **Available today:**
 
 ```bash
-pnpm build
+pnpm test             # pnpm build + node --test "tests/*.test.mjs"
+pnpm check:weight     # budgets on dist/client/
 ```
+
+Tests are plain `node:test` files in `tests/` (`.mjs`, JSDoc for types), written TDD
+(red test seen before the code). Prefer assertions on `dist/client/` through
+`scripts/lib/dist.mjs`. **No test imports a `.ts` file**: Node < 22.18 cannot load them, so
+logic under test lives in `.mjs` modules (enforced by `tests/no-ts-import.test.mjs`).
+Do not add another test framework.
+
+Budgets enforced by `pnpm check:weight` (1 KB = 1 024 bytes):
+
+| Budget | Limit |
+|---|---|
+| CSS (linked + inline) per page | ≤ 15 KB |
+| Home page, images excluded | ≤ 100 KB |
+| Webfonts | one only (Fraunces woff2), ≤ 50 KB |
+| Client JavaScript | none: no `<script`, no `on…=` attribute, no `javascript:`, no `.js`/`.mjs` file |
+
+Literal colors only in `src/styles/tokens.css`.
 
 **To be set up (currently missing — there are no `devDependencies` at all; treat as required
 work, not optional):**
@@ -512,11 +537,10 @@ work, not optional):**
 | Type check | `pnpm add -D typescript @astrojs/check` | `pnpm check` → `astro check` |
 | Lint | `pnpm add -D eslint eslint-plugin-astro typescript-eslint` | `pnpm lint` |
 | Format | `pnpm add -D prettier prettier-plugin-astro` | `pnpm format` — settles the tabs/spaces inconsistency |
-| Unit tests | `pnpm add -D vitest` | `pnpm test` — cover `src/lib/` (client, query builder, mappers) |
 | E2E (optional) | `pnpm add -D @playwright/test` | Critical routes: `/`, `/blog`, an article page |
 
-Until those exist, `pnpm build` plus a manual check in the browser is the only real
-verification. Say so explicitly rather than claiming a change is "tested".
+Until those exist, `pnpm test` plus a manual check in the browser is the verification.
+Say so explicitly rather than claiming something is tested when only the build ran.
 
 ---
 
@@ -529,8 +553,8 @@ Facts about the current repository. These are **not** conventions to imitate.
    start, since the CMS has i18n enabled (see §1).
 2. ~~`site: 'https://example.com'`~~ — **fixed**, now `https://zero-strategie.dev`.
 3. **No `devDependencies`** — TypeScript is not installed, so `astro check` cannot run.
-   No linter, no formatter, no tests. CI, Docker and the adapter now exist; the CI's only
-   gate is `pnpm build`, which is exactly as weak as that sounds.
+   No linter, no formatter. CI, Docker and the adapter now exist; the CI's only
+   gate is `pnpm build` (it does not run `pnpm test` nor `pnpm check:weight` yet).
 4. ~~`package.json` has an empty `"name"`~~ — **fixed**, and `packageManager` is now pinned so
    corepack resolves the same pnpm locally, in CI and in the image.
 5. **`tsconfig.json` sets `strictNullChecks: true`** redundantly — the `astro/tsconfigs/strict`
