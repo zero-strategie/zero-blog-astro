@@ -70,8 +70,8 @@ test("l'alt de la couverture vaut heroAlt, non vide", () => {
 
 test("la couverture est bichrome comme à l'accueil : niveaux de gris multipliés sur l'aplat rouge", () => {
 	const stylesheet = css('first-post');
-	assert.match(stylesheet, /\.hero-image[^{]*\{[^}]*background:\s*var\(--ink-red\)/);
-	assert.match(stylesheet, /\.hero-image[^{]*img[^{]*\{[^}]*filter:\s*grayscale\(1\)[^}]*mix-blend-mode:\s*multiply/);
+	assert.match(stylesheet, /\.riso[^{]*\{[^}]*background:\s*var\(--ink-red\)/);
+	assert.match(stylesheet, /\.riso[^{]*img[^{]*\{[^}]*filter:\s*grayscale\(1\)[^}]*mix-blend-mode:\s*multiply/);
 });
 
 test('la colonne de lecture est limitée par var(--measure)', () => {
@@ -91,14 +91,14 @@ test("initial-letter n'apparaît que sous @supports", () => {
 	assert.doesNotMatch(withoutSupportsBlocks(stylesheet), /initial-letter/);
 });
 
-test('les citations sont des tracts : bloc encadré, filet rouge épais, guillemets français, texte en encre', () => {
+test('les citations sont des tracts : bloc encadré, filet rouge épais, texte en encre, sans guillemets générés', () => {
 	const rule = css('markdown-style-guide').match(/(?:^|[}\s])blockquote\s*\{([^}]*)\}/)?.[1] ?? '';
 	assert.match(rule, /border:\s*2px solid var\(--ink\)/);
 	assert.match(rule, /border-left:\s*[\d.]+rem solid var\(--ink-red\)/);
 	assert.match(rule, /color:\s*var\(--ink\)/);
-	assert.match(rule, /quotes:\s*["']«[^"']*["']\s*["'][^"']*»["']/);
+	assert.doesNotMatch(rule, /quotes:/);
 	assert.doesNotMatch(rule, /color:\s*var\(--ink-red/);
-	assert.match(css('markdown-style-guide'), /blockquote[^{]*::?before\s*\{[^}]*content:\s*open-quote/);
+	assert.doesNotMatch(css('markdown-style-guide'), /open-quote|close-quote/);
 });
 
 test('« Last updated on » est traduit via consts.ts', () => {
@@ -107,4 +107,16 @@ test('« Last updated on » est traduit via consts.ts', () => {
 	assert.doesNotMatch(layout, /Last updated/);
 	assert.match(layout, /UPDATED_ON_LABEL/);
 	assert.match(consts, /export const UPDATED_ON_LABEL = ['"]Mis à jour le['"]/);
+});
+
+test('le traitement bichrome de la couverture est une classe commune .riso, partagée par l’accueil et l’article', () => {
+	const stylesheet = css('first-post');
+	assert.match(stylesheet, /\.riso\s*\{[^}]*background:\s*var\(--ink-red\)/);
+	assert.match(stylesheet, /\.riso img\s*\{[^}]*filter:\s*grayscale\(1\)[^}]*mix-blend-mode:\s*multiply/);
+	assert.match(articleHtml('first-post'), /class="hero-image riso/);
+	const home = readDistHtml().find(({ file }) => file.endsWith('client/index.html')).html;
+	assert.match(home, /class="cover riso/);
+	for (const component of ['layouts/BlogPost.astro', 'components/FeaturedArticle.astro']) {
+		assert.doesNotMatch(readFileSync(new URL(`../src/${component}`, import.meta.url), 'utf8'), /mix-blend-mode/, component);
+	}
 });

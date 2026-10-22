@@ -146,9 +146,8 @@ pre > code {
 	font-size: inherit;
 }
 
-/* Citation façon tract : bloc encadré, filet rouge épais, texte en encre. */
+/* Citation façon tract : bloc encadré, filet rouge épais, texte en encre. Pas de guillemets générés : une attribution dans le même paragraphe les ferait tomber après elle. */
 blockquote {
-	quotes: '« ' ' »';
 	margin: 1.5em 0;
 	padding: 0.5rem 1.2rem;
 	border: 2px solid var(--ink);
@@ -158,16 +157,23 @@ blockquote {
 	font-style: italic;
 }
 
-blockquote > :first-child::before {
-	content: open-quote;
-}
-
-blockquote > :last-child::after {
-	content: close-quote;
-}
-
 blockquote > :last-child {
 	margin-bottom: 0;
+}
+
+/* Bichromie riso : l'image passe en niveaux de gris, puis multiplie l'aplat rouge. */
+.riso {
+	isolation: isolate;
+	background: var(--ink-red);
+	border: 2px solid var(--ink);
+}
+
+.riso img {
+	width: 100%;
+	aspect-ratio: 2 / 1;
+	object-fit: cover;
+	filter: grayscale(1) contrast(1.15);
+	mix-blend-mode: multiply;
 }
 
 hr {

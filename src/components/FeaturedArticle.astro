@@ -25,7 +25,7 @@ const COVER_SIZES = '(min-width: 48rem) 48rem, 100vw';
 	<p class="label">{FEATURED_LABEL}</p>
 	{
 		heroImage && (
-			<a class="cover" href={href} tabindex="-1" aria-hidden="true">
+			<a class="cover riso" href={href} tabindex="-1" aria-hidden="true">
 				<Image
 					src={heroImage}
 					alt={heroAlt ?? ''}
@@ -60,19 +60,8 @@ const COVER_SIZES = '(min-width: 48rem) 48rem, 100vw';
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
 	}
-	/* Bichromie riso : l'image passe en niveaux de gris, puis multiplie l'aplat rouge. */
 	.cover {
 		display: block;
-		isolation: isolate;
-		background: var(--ink-red);
-		border: 2px solid var(--ink);
-	}
-	.cover img {
-		width: 100%;
-		aspect-ratio: 2 / 1;
-		object-fit: cover;
-		filter: grayscale(1) contrast(1.15);
-		mix-blend-mode: multiply;
 	}
 	.meta {
 		display: flex;

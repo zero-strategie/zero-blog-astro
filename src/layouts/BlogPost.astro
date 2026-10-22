@@ -19,20 +19,9 @@ const { title, description, pubDate, updatedDate, category, heroImage, heroAlt, 
 			max-width: 100%;
 			margin: 0;
 		}
-		/* Bichromie riso, comme à l'accueil : l'image passe en niveaux de gris, puis multiplie l'aplat rouge. */
 		.hero-image {
 			width: min(100% - 2rem, 64rem);
 			margin: 0 auto;
-			isolation: isolate;
-			background: var(--ink-red);
-			border: 2px solid var(--ink);
-		}
-		.hero-image img {
-			width: 100%;
-			aspect-ratio: 2 / 1;
-			object-fit: cover;
-			filter: grayscale(1) contrast(1.15);
-			mix-blend-mode: multiply;
 		}
 		.prose {
 			width: min(100% - 2rem, var(--measure));
@@ -155,7 +144,7 @@ const { title, description, pubDate, updatedDate, category, heroImage, heroAlt, 
 	<article>
 		{
 			heroImage && (
-				<div class="hero-image">
+				<div class="hero-image riso">
 					<Image width={1020} height={510} src={heroImage} alt={heroAlt ?? ''} />
 				</div>
 			)
