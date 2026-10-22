@@ -1,0 +1,105 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import FormattedDate from './FormattedDate.astro';
+import Stamp from './Stamp.astro';
+import { FEATURED_LABEL } from '../consts';
+import type { CATEGORIES } from '../consts';
+
+interface Props {
+	title: string;
+	description: string;
+	href: string;
+	pubDate: Date;
+	category: (typeof CATEGORIES)[number]['slug'];
+	heroImage?: ImageMetadata;
+	heroAlt?: string;
+}
+
+const { title, description, href, pubDate, category, heroImage, heroAlt } = Astro.props;
+const COVER_WIDTHS = [480, 800, 1200];
+const COVER_SIZES = '(min-width: 48rem) 48rem, 100vw';
+---
+
+<article class="featured">
+	<p class="label">{FEATURED_LABEL}</p>
+	{
+		heroImage && (
+			<a class="cover" href={href} tabindex="-1" aria-hidden="true">
+				<Image
+					src={heroImage}
+					alt={heroAlt ?? ''}
+					widths={COVER_WIDTHS}
+					sizes={COVER_SIZES}
+					loading="eager"
+					fetchpriority="high"
+				/>
+			</a>
+		)
+	}
+	<div class="meta">
+		<Stamp category={category} />
+		<FormattedDate date={pubDate} />
+	</div>
+	<h2><a href={href}>{title}</a></h2>
+	<p class="description">{description}</p>
+</article>
+
+<style>
+	.featured {
+		margin: 0 0 3rem;
+	}
+	.label {
+		display: inline-block;
+		margin: 0 0 0.75rem;
+		padding: 0.1em 0.6em;
+		background: var(--ink);
+		color: var(--paper);
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+	/* Bichromie riso : l'image passe en niveaux de gris, puis multiplie l'aplat rouge. */
+	.cover {
+		display: block;
+		isolation: isolate;
+		background: var(--ink-red);
+		border: 2px solid var(--ink);
+	}
+	.cover img {
+		width: 100%;
+		aspect-ratio: 2 / 1;
+		object-fit: cover;
+		filter: grayscale(1) contrast(1.15);
+		mix-blend-mode: multiply;
+	}
+	.meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem 1.25rem;
+		margin: 1.25rem 0 0.75rem;
+		color: var(--ink-soft);
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
+	}
+	h2 {
+		margin: 0 0 0.5rem;
+		font-size: clamp(2rem, 7vw, 3.2rem);
+		font-weight: 900;
+		letter-spacing: -0.02em;
+		line-height: 1.02;
+	}
+	h2 a {
+		text-decoration: none;
+	}
+	h2 a:hover {
+		color: var(--ink-red-text);
+	}
+	.description {
+		max-width: var(--measure);
+		margin: 0;
+		color: var(--ink-soft);
+	}
+</style>

@@ -41,3 +41,16 @@ export const FOOTER_LINKS = [
 	{ href: RSS_PATH, label: 'RSS' },
 	{ href: SOURCE_URL, label: 'GitHub' },
 ] as const;
+
+// Manifeste provisoire (Q2), à faire confirmer par le client.
+export const MANIFESTO = {
+	kicker: 'Manifeste',
+	title: 'Publier soi-même, ça reste un acte politique.',
+	paragraphs: [
+		"Ce carnet est imprimé à la main, sur un serveur qui nous appartient. Pas de plateforme entre vous et nous, pas de pistage, pas de script : du texte, de l'encre, une adresse.",
+		"On y parle d'open source, d'intelligence artificielle et de souveraineté numérique, avec une conviction : ce qu'on ne peut pas lire, copier et réparer ne nous appartient pas.",
+	],
+} as const;
+export const FEATURED_LABEL = 'À la une';
+export const SUMMARY_LABEL = 'Sommaire';
+export const EMPTY_HOME_MESSAGE = "Rien d'imprimé pour l'instant. Revenez au prochain tirage.";
