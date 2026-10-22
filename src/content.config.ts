@@ -16,6 +16,10 @@ const blog = defineCollection({
 			updatedDate: z.coerce.date().optional(),
 			category: z.enum(CATEGORY_SLUGS),
 			heroImage: z.optional(image()),
+			heroAlt: z.string().min(1).optional(),
+		}).refine(({ heroImage, heroAlt }) => !heroImage || heroAlt, {
+			message: 'heroAlt est obligatoire dès qu’il y a un heroImage',
+			path: ['heroAlt'],
 		}),
 });
 
