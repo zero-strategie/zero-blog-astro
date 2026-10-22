@@ -19,3 +19,18 @@ export const LICENSE = {
 	url: 'https://creativecommons.org/licenses/by-sa/4.0/deed.fr',
 } as const;
 export const SKIP_LINK_LABEL = 'Aller au contenu';
+
+export const CATEGORIES = [
+	{ slug: 'projets', number: '01', label: 'Projets' },
+	{ slug: 'open-source', number: '02', label: 'Open source' },
+	{ slug: 'ia', number: '03', label: 'IA' },
+	{ slug: 'souverainete', number: '04', label: 'Souveraineté' },
+	{ slug: 'politique', number: '05', label: 'Politique' },
+] as const;
+
+export const CATEGORY_SLUGS = CATEGORIES.map(({ slug }) => slug) as [
+	(typeof CATEGORIES)[number]['slug'],
+	...(typeof CATEGORIES)[number]['slug'][],
+];
+
+export const EMPTY_CATEGORY_MESSAGE = "Rien d'imprimé ici pour l'instant";
