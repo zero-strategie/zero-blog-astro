@@ -10,7 +10,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check:weight": "node scripts/check-weight.mjs",
+    "test": "pnpm build && node --test \"tests/*.test.mjs\""
   },
   "dependencies": {
     "@astrojs/mdx": "^6.0.3",

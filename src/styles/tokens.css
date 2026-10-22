@@ -1,0 +1,78 @@
+/*
+  Jetons du design « Samizdat » : seul fichier de src/ autorisé à contenir
+  des couleurs littérales. Le rouge #e3412b est réservé aux aplats, filets,
+  calage et gros titres ; tout texte rouge en petit corps prend --ink-red-text.
+*/
+:root {
+	color-scheme: light dark;
+
+	--paper: #f3eee3;
+	--ink: #17161a;
+	--ink-soft: #4a463f;
+	--ink-red: #e3412b;
+	--ink-red-text: #c0341f;
+
+	--font-text:
+		var(--font-fraunces), 'Fraunces fallback Times', 'Fraunces fallback Noto',
+		'Fraunces fallback DejaVu', Georgia, serif;
+	--font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+	--measure: 41em;
+	--halftone-size: 5px;
+
+	/* Thème Shiki « css-variables » : encre, rouge, gris. Le fond est un cran plus sombre que le papier. */
+	--astro-code-background: #ebe5d6;
+	--astro-code-foreground: #17161a;
+	--astro-code-token-comment: #5c574d;
+	--astro-code-token-keyword: #b02f1b;
+	--astro-code-token-string: #6e2a1e;
+	--astro-code-token-string-expression: #6e2a1e;
+	--astro-code-token-constant: #8c2514;
+	--astro-code-token-function: #17161a;
+	--astro-code-token-parameter: #4a463f;
+	--astro-code-token-punctuation: #4a463f;
+	--astro-code-token-link: #b02f1b;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--paper: #131210;
+		--ink: #ebe5d7;
+		--ink-soft: #b8b1a1;
+		--ink-red: #ff6b55;
+		--ink-red-text: #ff6b55;
+		--astro-code-background: #1d1b18;
+		--astro-code-foreground: #ebe5d7;
+		--astro-code-token-comment: #a39c8c;
+		--astro-code-token-keyword: #ff6b55;
+		--astro-code-token-string: #f2c4b8;
+		--astro-code-token-string-expression: #f2c4b8;
+		--astro-code-token-constant: #ff8f7d;
+		--astro-code-token-function: #ebe5d7;
+		--astro-code-token-parameter: #b8b1a1;
+		--astro-code-token-punctuation: #b8b1a1;
+		--astro-code-token-link: #ff6b55;
+	}
+}
+
+/* Impression : papier blanc, encre noire, plus de rouge ni de gris. */
+@media print {
+	:root {
+		color-scheme: light;
+		--paper: #fff;
+		--ink: #000;
+		--ink-soft: #000;
+		--ink-red: #000;
+		--ink-red-text: #000;
+		--astro-code-background: #fff;
+		--astro-code-foreground: #000;
+		--astro-code-token-comment: #000;
+		--astro-code-token-keyword: #000;
+		--astro-code-token-string: #000;
+		--astro-code-token-string-expression: #000;
+		--astro-code-token-constant: #000;
+		--astro-code-token-function: #000;
+		--astro-code-token-parameter: #000;
+		--astro-code-token-punctuation: #000;
+		--astro-code-token-link: #000;
+	}
+}

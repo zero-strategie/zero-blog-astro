@@ -1,0 +1,273 @@
+[
+  {
+    "id": "S01",
+    "titre": "Mettre en place le harnais node:test sur dist/client",
+    "lot": "Lot 1 – Fondations (tests, tokens, fonte)",
+    "priorite": "P0",
+    "estimationJours": 0.5,
+    "description": "En tant que développeur du blog, je veux une commande `pnpm test` qui construit le site puis vérifie le HTML produit dans dist/client/, afin de prouver en TDD chaque règle du design Samizdat (0 JS, langue, budgets) sans ajouter de dépendance.\n\nContexte : aucun test n'existe aujourd'hui. AGENTS.md §7 prévoit vitest, mais le plan impose node:test sans dépendance (le plan prime). La CI (.github/workflows/ci.yml) n'est pas modifiée : ces tests ne tournent qu'en local pendant cette mission. Décision D2 : 0 script client, y compris les attributs on* ; le onclick de using-mdx.mdx doit disparaître.",
+    "criteres": [
+      "Étant donné le dépôt, quand je lance `pnpm test`, alors `pnpm build` s'exécute puis `node --test` exécute les fichiers de tests/, et la commande sort en code 0.",
+      "Étant donné que dist/client/ n'existe pas, quand un test appelle le helper de lecture du build, alors il échoue avec un message qui contient « pnpm build » (et non une exception ENOENT brute).",
+      "Étant donné le build, quand le test « zéro JS » parcourt tous les fichiers .html de dist/client/, alors aucun ne contient de balise `<script`, d'attribut d'événement `on…=` dans une balise, ni d'URL `javascript:`.",
+      "Étant donné le build, quand le test liste les fichiers de dist/client/, alors aucun fichier .js ni .mjs n'y figure.",
+      "Étant donné un fragment HTML de test contenant un lien avec un attribut onclick, quand la fonction de détection l'analyse, alors elle signale une violation ; étant donné un paragraphe dont le texte contient « on=1 » hors de toute balise, alors elle ne signale rien.",
+      "Étant donné src/content/blog/using-mdx.mdx, quand je cherche `onclick`, alors il n'apparaît plus (l'exemple HeaderLink est réécrit sans gestionnaire d'événement).",
+      "Étant donné package.json, quand je compare dependencies et devDependencies avant et après la story, alors aucune entrée n'a été ajoutée ; seuls les scripts changent."
+    ],
+    "dependances": [],
+    "notesTechniques": "Projet existant : pas de story d'initialisation ; ce harnais est le préalable du Lot 1 (cadrage §7, ligne 0).\n- package.json : script `test` = `pnpm build && node --test tests/`. Piège : selon la version de Node 22, un répertoire passé à `node --test` peut ne pas être résolu ; dans ce cas utiliser un glob explicite et quoté (`node --test 'tests/**/*.test.mjs'`). À vérifier au premier lancement.\n- Module partagé `scripts/lib/dist.mjs` (ESM + JSDoc, aucune dépendance) : constante `DIST_CLIENT`, `listFiles(ext)`, `readPage(route)` (`/` donne index.html, `/blog/x/` donne blog/x/index.html), `findClientJsViolations(html)`. Il est placé hors de tests/ car `pnpm check:weight` (S14) le réutilise.\n- Détection des attributs on* : extraire d'abord les balises ouvrantes, puis tester leurs attributs, pour ne pas confondre avec du texte.\n- Confirmer au premier build que l'adapter node standalone écrit bien les pages prérendues dans dist/client/ (cadrage §3).\n- Fichiers de test : `tests/no-client-js.test.mjs`, `tests/dist-helpers.test.mjs`. Tout en .mjs : Node 22.12 n'exécute pas le TypeScript sans option.\n- Indentation par tabulations dans src/ (AGENTS.md §4.8)."
+  },
+  {
+    "id": "S02",
+    "titre": "Poser les tokens Samizdat, le nouveau global.css et le mode sombre",
+    "lot": "Lot 1 – Fondations (tests, tokens, fonte)",
+    "priorite": "P0",
+    "estimationJours": 1,
+    "description": "En tant que lecteur, je veux une page aux couleurs papier, encre et rouge riso, lisible en clair comme en sombre, afin de reconnaître l'identité Samizdat et de lire confortablement quel que soit le réglage de mon système.\n\nContexte : remplace la feuille Bear Blog du starter (accent #2337ff, triplets RGB, largeurs 720px en dur). Décision D1 : liens en encre soulignés rouge ; token `--ink-red-text` (#c0341f, au moins 4,5:1 sur papier) pour tout texte rouge en petit corps ; #e3412b réservé aux aplats, filets, calage et gros titres. Mode sombre automatique via prefers-color-scheme, sans sélecteur manuel (hors périmètre).",
+    "criteres": [
+      "Étant donné src/styles/tokens.css, quand je le lis, alors il déclare papier #f3eee3, encre #17161a, rouge #e3412b, rouge texte #c0341f, et sous `prefers-color-scheme: dark` nuit #131210, texte #ebe5d7, rouge #ff6b55 (le rouge texte du mode sombre vaut #ff6b55 ou une teinte qui passe le test de contraste).",
+      "Étant donné la table des couples texte/fond déclarés (encre sur papier, rouge texte sur papier, rouge sur papier comme composant graphique), en clair et en sombre, quand le test de contraste WCAG s'exécute, alors le texte courant atteint au moins 4,5:1 et les composants graphiques ou grands textes au moins 3:1.",
+      "Étant donné le couple #e3412b sur #f3eee3 déclaré comme texte courant dans un cas de test, quand la fonction de contraste l'évalue, alors elle renvoie une valeur inférieure à 4,5 et le cas est classé en échec (preuve que le test sait échouer).",
+      "Étant donné tous les fichiers .css de src/ sauf tokens.css, et tous les blocs `<style>` des fichiers .astro, quand le test cherche des couleurs littérales (hexadécimal, `rgb(`, `hsl(`) dans les valeurs de propriétés, alors il n'en trouve aucune.",
+      "Étant donné le build, quand je lis la CSS d'une page de dist/client/, alors elle contient `prefers-color-scheme: dark`, et la règle des liens de contenu applique une couleur d'encre avec un `text-decoration-color` rouge (aucun lien n'a pour couleur de texte var(--ink-red)).",
+      "Étant donné le build, quand je mesure pour chaque page la CSS liée plus la CSS inline (brut minifié), alors le total reste inférieur ou égal à 15 KB (15 360 octets).",
+      "Étant donné la CSS produite, quand je lis le bloc `prefers-reduced-motion: reduce`, alors il ramène animations et transitions à une durée nulle ou à none.",
+      "Étant donné global.css, quand je le lis, alors la trame en radial-gradient n'utilise jamais `background-attachment: fixed` et le calage rouge (text-shadow) ne s'applique qu'aux h1.",
+      "Manuel : dans le navigateur intégré, l'accueil en clair puis en émulation sombre montre papier et encre inversés, aucun texte illisible, et un H1 avec un léger décalage rouge."
+    ],
+    "dependances": ["S01"],
+    "notesTechniques": "- Nouveau `src/styles/tokens.css`, seule source de couleurs littérales. Noms suggérés : `--paper`, `--ink`, `--ink-muted`, `--ink-red`, `--ink-red-text`, `--measure: 66ch`, `--wide`, espacements, `--font-text`, `--font-mono` (pile `ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, 'Liberation Mono', monospace`, R6). Tout token de texte ajouté (ex. --ink-muted) entre dans la table de contraste.\n- `src/styles/global.css` réécrit : reset, typo de base, liens (D1), trame sur surfaces bornées, calage H1 décalé de 1 à 2 px exprimé en em (R13), bloc reduced-motion. Il importe tokens.css. Plus aucune largeur 720px ou 960px en dur : passer par des tokens (dette n°11).\n- La fonte reste Atkinson jusqu'à S03 : référencer `--font-text`, que S03 branchera sur Fraunces.\n- Contraste : `scripts/lib/contrast.mjs` (luminance relative WCAG 2.x, fonction pure) et `tests/contrast.test.mjs`, qui lit tokens.css et en extrait les valeurs. Modèle : zero-audit/web/src/styles/contrast.ts. Encre sur aplat rouge vaut environ 4,3:1 : autorisé uniquement en grand texte (au moins 24 px, ou 18,66 px en gras).\n- Test des couleurs littérales (`tests/no-literal-colors.test.mjs`). Piège : un sélecteur d'id comme `#add` ressemble à un hexadécimal ; ne chercher les hexadécimaux que dans les valeurs (entre `:` et `;`).\n- Mesure CSS par page : ajouter `pageCssBytes(route)` à scripts/lib/dist.mjs, qui additionne les fichiers des `<link rel=stylesheet>` et les `<style>` inline (Astro inline les feuilles de moins de 4 KB, cadrage §3).\n- Header.astro, BlogPost.astro et blog/index.astro contiennent des couleurs littérales ou `rgb(var(...))` : les passer en tokens dans cette story, sinon le critère 4 échoue. Corriger au passage `color: var(--black)` (dette n°10)."
+  },
+  {
+    "id": "S03",
+    "titre": "Installer Fraunces woff2 et sa fonte de secours à métriques ajustées",
+    "lot": "Lot 1 – Fondations (tests, tokens, fonte)",
+    "priorite": "P0",
+    "estimationJours": 1,
+    "description": "En tant que lecteur, je veux que titres et texte soient composés en Fraunces sans saut de mise en page au chargement, afin de retrouver la typographie Samizdat sans payer plus d'une webfont.\n\nContexte : décision D5. Un seul fichier woff2 Fraunces, romain, axes opsz et wght, sous-ensemble latin (accents français, « », —, ’, §), commité avec OFL.txt et déclaré via fontProviders.local(). L'italique est synthétisé (A11). Les métadonnées utilisent la pile système mono, 0 KB.",
+    "criteres": [
+      "Étant donné src/assets/fonts/, quand je le liste, alors il contient un unique fichier fraunces*.woff2, OFL.txt et un README.md de reproduction, et plus aucun fichier atkinson*.",
+      "Étant donné le build, quand je liste les fichiers de fonte (.woff2, .woff, .ttf, .otf) de dist/client/, alors il y en a exactement un, et c'est un .woff2.",
+      "Étant donné ce fichier woff2, quand je mesure sa taille, alors elle est inférieure ou égale à 50 KB (51 200 octets).",
+      "Étant donné le build, quand je cherche « atkinson » (sans tenir compte de la casse) dans les HTML et CSS de dist/client/, alors je ne trouve rien.",
+      "Étant donné la CSS produite, quand je lis les @font-face, alors il en existe un de secours qui porte `size-adjust` (généré par Astro, ou écrit à la main sur local('Georgia') / local('Times New Roman')).",
+      "Étant donné la page d'accueil buildée, quand je lis son <head>, alors il contient un `<link rel=preload>` vers le fichier woff2 de Fraunces.",
+      "Étant donné la CSS produite, quand je lis les règles des éléments time et des métadonnées, alors elles utilisent var(--font-mono) et aucune autre famille téléchargée.",
+      "Manuel : dans le navigateur intégré, onglet réseau, au chargement de l'accueil, une seule requête de fonte (woff2) ; les caractères é, à, ç, «, », —, ’ et § s'affichent en Fraunces et non en fonte de secours."
+    ],
+    "dependances": ["S02"],
+    "notesTechniques": "- astro.config.mjs : remplacer l'entrée Atkinson par Fraunces, `fontProviders.local()`, une variante `weight: '400 900'` (plage variable), `style: 'normal'`, `display: 'swap'`, cssVariable `--font-fraunces`, `fallbacks: ['Georgia', 'serif']`. Vérifier dans dist/ que `optimizedFallbacks` produit bien un `size-adjust` avec le fournisseur local (R15) ; sinon, écrire le @font-face de secours dans global.css avec des métriques calculées une fois (modèle zero-audit/web/src/styles/fonts.css:21-38).\n- Production du fichier (D5, option a) : télécharger une fois le woff2 latin servi par l'API CSS2 de Google Fonts en ne demandant que opsz et wght sur une plage réduite. Option c en secours si le fichier dépasse 50 KB : fonttools (pyftsubset, varLib.instancer) lancé hors projet. Consigner la commande exacte dans src/assets/fonts/README.md. Rien dans package.json.\n- Vérifier dans OFL.txt qu'aucun nom réservé n'interdit de garder « Fraunces » (R3).\n- BaseHead : `<Font cssVariable='--font-fraunces' preload />` remplace le preload d'Atkinson. Supprimer les deux woff Atkinson.\n- `--font-text` (S02) pointe sur var(--font-fraunces) ; `font-optical-sizing: auto` pour exploiter l'axe opsz.\n- Test : `tests/font.test.mjs`. Le seuil de 50 KB vient du cadrage (D5) ; le budget global de 100 KB de l'accueil est vérifié en S14."
+  },
+  {
+    "id": "S04",
+    "titre": "Extraire Layout.astro et passer la tête du document en français",
+    "lot": "Lot 2 – Coque du site",
+    "priorite": "P0",
+    "estimationJours": 1,
+    "description": "En tant que lecteur francophone (et moteur de recherche), je veux que chaque page déclare le français, porte le favicon zero-stratégie et une image de partage Samizdat, afin que le site soit correctement lu, indexé et partagé.\n\nContexte : le squelette du document est dupliqué dans 3 fichiers et BlogPost.astro n'a pas de doctype (dette n°8) ; BaseHead importe global.css en effet de bord (AGENTS.md §4.2). Décision D6 : suppression de favicon.ico, nouveau favicon.svg « 0 barré rouge », image OG statique 1200×630 générée une fois, sans dépendance au runtime. Transitions de page en CSS uniquement (@view-transition), jamais ClientRouter.",
+    "criteres": [
+      "Étant donné le build, quand je parcours tous les HTML de dist/client/, alors chacun commence par `<!DOCTYPE html>` et son élément html porte l'attribut lang avec la valeur fr.",
+      "Étant donné src/pages/ et src/layouts/, quand je cherche la balise `<html`, alors seul src/layouts/Layout.astro la contient.",
+      "Étant donné le build, quand je lis le <head> de n'importe quelle page, alors il référence /favicon.svg avec le type image/svg+xml et ne référence pas favicon.ico ; dist/client/favicon.ico n'existe pas.",
+      "Étant donné dist/client/og-default.png, quand le test lit l'en-tête PNG (bloc IHDR), alors la largeur vaut 1200 et la hauteur 630.",
+      "Étant donné l'accueil, quand je lis ses balises meta, alors og:image et twitter:image valent https://zero-strategie.dev/og-default.png et og:locale vaut fr_FR ; étant donné un article avec couverture, alors og:image pointe sur sa couverture.",
+      "Étant donné le build, quand je cherche « blog-placeholder-1 » dans les balises meta de l'accueil, de /about/ et de /blog/, alors je ne le trouve pas.",
+      "Étant donné la CSS produite, quand je la lis, alors elle contient `@view-transition` avec `navigation: auto` et, sous `prefers-reduced-motion: reduce`, les pseudo-éléments ::view-transition ont une durée d'animation nulle ; aucun fichier de src/ n'importe ClientRouter.",
+      "Étant donné l'accueil buildé, quand je lis le <body>, alors son premier lien est « Aller au contenu » et pointe vers l'id porté par le <main>.",
+      "Manuel : en Chrome, la navigation de l'accueil vers un article montre un fondu ; en Firefox, la navigation est normale et la page complète ; la navigation clavier fait apparaître le lien d'évitement au premier Tab."
+    ],
+    "dependances": ["S02"],
+    "notesTechniques": "- Nouveau `src/layouts/Layout.astro` (Props typées : title, description, image?) : doctype, html avec lang issu de consts (`SITE_LANG = 'fr'`), BaseHead, lien d'évitement, Header, `<main id=contenu>`, slot, Footer. C'est lui qui importe global.css (on le retire de BaseHead).\n- Migrer index.astro, blog/index.astro et BlogPost.astro (donc aussi about.astro, qui l'utilise encore) vers Layout. BlogPost devient un layout imbriqué qui enveloppe Layout.\n- BaseHead : og:locale fr_FR ; image par défaut `/og-default.png` (public/) ; supprimer le link vers /favicon.ico et le fichier public/favicon.ico.\n- public/favicon.svg : un « 0 » barré rouge, valeurs reprises des tokens (le SVG est hors de la règle des couleurs CSS) ; un `@media (prefers-color-scheme: dark)` interne au SVG est facultatif.\n- og-default.png : produite une fois (SVG vers PNG avec sharp, déjà présent, dans un script jetable non branché au build, ou outil externe), puis commitée dans public/. Rien n'est ajouté à package.json.\n- Test des dimensions : lire les octets 16 à 23 du PNG (largeur puis hauteur en big-endian), sans dépendance.\n- `@view-transition { navigation: auto; }` dans global.css ; neutralisation reduced-motion sur `::view-transition-group(*)`, `::view-transition-old(*)`, `::view-transition-new(*)` (modèle zero-audit/web/src/styles/motion.css:110-133). Vérifier sur MDN le support Firefox (point ouvert du cadrage).\n- Ordre conseillé : cette story touche BaseHead comme S03, d'où l'exécution séquentielle.\n- Test : `tests/document-shell.test.mjs`."
+  },
+  {
+    "id": "S05",
+    "titre": "Refaire le masthead, la navigation et le pied de page en français",
+    "lot": "Lot 2 – Coque du site",
+    "priorite": "P0",
+    "estimationJours": 1,
+    "description": "En tant que lecteur, je veux un en-tête « zero-stratégie » façon journal, une navigation en français et un pied de page qui indique licence, flux RSS et source, afin de savoir où je suis, qui publie et sous quelles conditions.\n\nContexte : Header et Footer reprennent les liens et SVG sociaux d'Astro (dupliqués, dette n°9), « Your name here », et `color: var(--black)` invalide. Valeurs provisoires retenues : licence du contenu CC BY-SA 4.0 (Q1), lien source vers github.com/zero-strategie/zero-blog-astro (Q3), liens sociaux GitHub et RSS uniquement (Q7), dates longues en français, ex. « 22 octobre 2026 », rendues au build (Q8).",
+    "criteres": [
+      "Étant donné le build, quand je lis le <header> de l'accueil, alors il contient « zero-stratégie » et le sous-titre « carnet indépendant — open source, IA, souveraineté ».",
+      "Étant donné le build, quand je lis la navigation, alors c'est un <nav> avec un aria-label en français qui contient les liens Accueil (/), Archive (/blog/) et À propos (/about/) ; sur /blog/, le lien Archive porte aria-current=page et c'est le seul.",
+      "Étant donné le build, quand je lis le <footer>, alors il contient un lien vers https://creativecommons.org/licenses/by-sa/4.0/deed.fr libellé « CC BY-SA 4.0 », un lien vers /rss.xml et un lien vers https://github.com/zero-strategie/zero-blog-astro.",
+      "Étant donné le build, quand je cherche dans les HTML de dist/client/ « Astro Blog », « Your name here », « Welcome to my website », « withastro » et « astrodotbuild », alors je ne trouve rien.",
+      "Étant donné le build, quand je cherche les liens avec target=_blank, alors chacun porte rel=noopener noreferrer, ou il n'y en a aucun.",
+      "Étant donné l'article first-post, quand je lis sa date de publication, alors elle s'affiche « 8 juillet 2022 » dans un <time> dont l'attribut datetime commence par 2022-07-08.",
+      "Étant donné un build lancé avec TZ=Europe/Paris puis avec TZ=UTC, quand je lis la date de first-post, alors elle vaut « 8 juillet 2022 » dans les deux cas (vérification manuelle en ligne de commande).",
+      "Étant donné src/components/Header.astro et Footer.astro, quand je les lis, alors ils ne contiennent plus les SVG sociaux d'Astro ni d'URL ou de texte visible en dur : ces valeurs viennent de src/consts.ts.",
+      "Manuel : à 375 px, le masthead ne déborde pas horizontalement, et la navigation est utilisable au clavier avec un focus visible, en clair et en sombre."
+    ],
+    "dependances": ["S04"],
+    "notesTechniques": "- consts.ts : `SITE_TITLE = 'zero-stratégie'`, `SITE_TAGLINE`, `SITE_DESCRIPTION` (FR, provisoire), `SITE_LANG`, `LICENSE` { label, url }, `SOURCE_URL`, `GITHUB_URL` (organisation github.com/zero-strategie), `NAV`. Aucun texte visible en dur dans les composants (AGENTS.md §4.8).\n- Header.astro réécrit : masthead en Fraunces très gras (wght 800 à 900, opsz élevé), sous-titre en mono. HeaderLink : ajouter aria-current=page sur le lien actif.\n- Footer.astro : licence, RSS, source, GitHub. Pas de target=_blank (plus simple que de gérer rel).\n- FormattedDate.astro : `Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })`. Piège : une date comme 'Jul 08 2022' est lue en heure locale ; avec timeZone UTC, un build à Paris afficherait le 7 juillet. Convertir dans cette story les pubDate et updatedDate des 5 articles au format ISO (2022-07-08), lu en UTC.\n- BlogPost.astro : « Last updated on » devient « Mis à jour le ».\n- La navigation par rubriques arrive en S06, quand les pages /rubriques/ existent.\n- Test : `tests/shell-content.test.mjs`."
+  },
+  {
+    "id": "S06",
+    "titre": "Classer les articles en 5 rubriques et publier les pages de rubrique",
+    "lot": "Lot 3 – Rubriques",
+    "priorite": "P0",
+    "estimationJours": 1,
+    "description": "En tant que lecteur, je veux parcourir les articles par rubrique (§01 Projets à §05 Politique) depuis la navigation, afin de ne lire que le thème qui m'intéresse.\n\nContexte : décision D3, `category` obligatoire (enum projets, open-source, ia, souverainete, politique), slugs ASCII (A10). Q4 : les 5 articles du starter sont conservés comme jeu d'essai et reçoivent leur rubrique dans cette même story, sinon le build casse (R4).",
+    "criteres": [
+      "Étant donné src/content.config.ts, quand je retire temporairement category d'un article ou que je lui donne une valeur hors enum, alors `pnpm build` échoue avec une erreur de schéma qui nomme le champ category (vérification manuelle, puis remise en état).",
+      "Étant donné les 5 articles de src/content/blog/, quand je lis leur frontmatter, alors chacun a une category valide.",
+      "Étant donné le build, quand je liste dist/client/rubriques/, alors il contient exactement les 5 dossiers projets, open-source, ia, souverainete et politique, chacun avec un index.html.",
+      "Étant donné la page d'une rubrique non vide, quand je la lis, alors son <h1> contient le numéro et le libellé (ex. « §03 IA ») et elle liste exactement les articles de cette rubrique, du plus récent au plus ancien, chaque titre pointant vers /blog/<id>/.",
+      "Étant donné une rubrique sans article (politique dans le jeu d'essai), quand j'ouvre sa page, alors elle affiche « Rien d'imprimé ici pour l'instant » et un lien vers l'archive, sans liste vide.",
+      "Étant donné le build, quand je lis la navigation de n'importe quelle page, alors elle contient les 5 rubriques avec leurs liens /rubriques/<slug>/ ; sur /rubriques/ia/, seul le lien IA porte aria-current=page.",
+      "Étant donné src/pages/ et src/components/, quand je cherche les gabarits d'URL `/blog/${` et `/rubriques/${`, alors je ne les trouve pas : ils n'existent que dans src/lib/url.ts (articleHref, categoryHref), que rss.xml.js utilise aussi.",
+      "Manuel : à 375 px, les 8 liens de navigation restent accessibles sans débordement de la page (retour à la ligne ou défilement horizontal du seul <nav>)."
+    ],
+    "dependances": ["S05"],
+    "notesTechniques": "- consts.ts : `CATEGORIES`, tableau ordonné de { slug, number: '§01', label } ; `CATEGORY_SLUGS` en est dérivé et alimente `z.enum(CATEGORY_SLUGS)` dans content.config.ts (une seule source). Les slugs doivent être identiques à ceux de la future collection Strapi category (R16).\n- Répartition proposée du jeu d'essai : first-post projets, second-post open-source, third-post ia, markdown-style-guide souverainete, using-mdx projets ; politique reste vide exprès pour tester l'état vide.\n- `src/lib/url.ts` : `articleHref(id)` renvoie `/blog/<id>/`, `categoryHref(slug)` renvoie `/rubriques/<slug>/`, `categoryBySlug(slug)` lève une erreur si le slug est inconnu. Remplacer les gabarits de blog/index.astro et rss.xml.js (AGENTS.md §4.5).\n- `src/pages/rubriques/[slug].astro` : getStaticPaths sur CATEGORIES, filtre de getCollection('blog') par category, tri par pubDate décroissante, page prérendue.\n- Piège HeaderLink : l'état actif est calculé sur le premier segment de l'URL, donc les 5 liens /rubriques/* seraient tous actifs ; comparer le chemin complet pour ces liens.\n- Pas de page /rubriques/ (index des rubriques) : non demandée, voir Écarts.\n- rss.xml.js : ajout facultatif de `categories: [label]` sur chaque item (confort, cadrage §3).\n- Test : `tests/rubriques.test.mjs`."
+  },
+  {
+    "id": "S07",
+    "titre": "Afficher le tampon de rubrique sur chaque article",
+    "lot": "Lot 3 – Rubriques",
+    "priorite": "P1",
+    "estimationJours": 0.5,
+    "description": "En tant que lecteur, je veux voir la rubrique de chaque article sous la forme d'un tampon incliné « §0N Libellé » cliquable, afin d'identifier le thème d'un coup d'œil et de rejoindre sa rubrique.\n\nContexte : signature « rubriques tamponnées » du plan (tampon incliné, bordure irrégulière en clip-path). Risque R10 : un clip-path posé sur le lien rognerait le contour de focus. Le composant est réutilisé par l'accueil (S08) et l'archive (S09).",
+    "criteres": [
+      "Étant donné le build, quand j'ouvre chacune des 5 pages d'article, alors elle contient exactement un tampon : un lien vers /rubriques/<slug>/ dont le texte est le numéro et le libellé de sa rubrique (ex. « §02 Open source »).",
+      "Étant donné le style du composant Stamp, quand je le lis, alors le clip-path est posé sur un pseudo-élément (::before ou ::after) et non sur le lien, et une règle :focus-visible est définie.",
+      "Étant donné le style du composant Stamp, quand je lis sa propriété color, alors elle référence var(--ink-red-text) ou var(--ink), jamais var(--ink-red) (D1).",
+      "Étant donné la CSS produite, quand je la lis, alors le tampon n'a pas d'animation, ou son animation est neutralisée sous prefers-reduced-motion.",
+      "Manuel : au clavier, le contour de focus du tampon est entièrement visible, non rogné, en clair et en sombre."
+    ],
+    "dependances": ["S06"],
+    "notesTechniques": "- `src/components/Stamp.astro`, Props typées { slug: CategorySlug } (ISP, AGENTS.md §4.4 : pas l'article entier). Numéro et libellé via categoryBySlug, lien via categoryHref.\n- Inclinaison légère par `transform: rotate(-2deg)` ; bordure irrégulière par clip-path polygon sur le pseudo-élément de fond (R10) ; numéro en mono.\n- Couleur du texte : --ink-red-text en petit corps (D1). Si le tampon dépasse 18,66 px en gras, --ink-red est admis, mais le couple doit alors être ajouté au test de contraste.\n- Insertion dans BlogPost.astro, près du titre ; la page reçoit la category par les props.\n- Test : `tests/stamp.test.mjs`."
+  },
+  {
+    "id": "S08",
+    "titre": "Composer l'accueil : manifeste, article à la une et sommaire",
+    "lot": "Lot 4 – Accueil et archive",
+    "priorite": "P0",
+    "estimationJours": 1,
+    "description": "En tant que lecteur qui arrive sur le blog, je veux lire en quelques lignes ce que défend le carnet, voir le dernier article mis en avant et parcourir les suivants en liste dense, afin de décider vite quoi lire.\n\nContexte : remplace le texte du starter (« Hello, Astronaut »). Q2 : manifeste provisoire en français, centralisé dans consts.ts. A3 : l'article à la une est le plus récent, sans nouveau champ featured. A4 : l'accueil liste au plus les 20 articles suivants, /blog reste l'archive complète. Couverture bichrome : grayscale et mix-blend-mode multiply sur fond rouge (R11). Les textes alternatifs des couvertures (dette n°12) sont introduits ici, première page qui en affiche une.",
+    "criteres": [
+      "Étant donné le build, quand je lis dist/client/index.html, alors il contient le manifeste défini dans consts.ts et ne contient ni « Hello, Astronaut » ni « Lorem ».",
+      "Étant donné le build, quand je lis le bloc « à la une », alors il présente un seul article avec titre, date, tampon, description et lien, et son attribut datetime est supérieur ou égal à celui de chaque ligne du sommaire.",
+      "Étant donné le sommaire, quand je le lis, alors il contient tous les autres articles (20 au plus), triés par date décroissante, sans répéter l'article à la une ; chaque ligne a un <time>, un tampon et un titre lié vers /blog/<id>/.",
+      "Étant donné que l'article à la une a une couverture, quand je lis son <img>, alors il a un alt non vide égal au heroAlt de l'article, loading=eager, fetchpriority=high, et des attributs srcset et sizes.",
+      "Étant donné un article qui a un heroImage sans heroAlt, quand je lance `pnpm build`, alors il échoue avec une erreur de schéma qui nomme heroAlt (vérification manuelle, puis remise en état).",
+      "Étant donné la CSS de l'accueil, quand je la lis, alors la couverture à la une applique filter grayscale et mix-blend-mode multiply sur un conteneur dont le fond est un token rouge.",
+      "Étant donné une collection vide (simulation manuelle en déplaçant temporairement les articles), quand j'ouvre l'accueil, alors il affiche le manifeste et « Rien d'imprimé ici pour l'instant » au lieu d'un bloc vide.",
+      "Manuel : à 375 px et en desktop, en clair et en sombre, la couverture bichrome reste lisible ; Lighthouse ne signale pas l'image LCP comme chargée en différé."
+    ],
+    "dependances": ["S07"],
+    "notesTechniques": "- consts.ts : `MANIFESTO` (3 à 5 lignes en français, provisoire, à signaler au client), `HOME_LIST_LIMIT = 20`, `EMPTY_STATE`.\n- content.config.ts : ajouter `heroAlt` (string), obligatoire dès que heroImage est présent (superRefine). Renseigner un heroAlt descriptif provisoire en français dans les 5 articles.\n- Composants à Props étroites (AGENTS.md §4.4) : `FeaturedArticle.astro` (title, description, href, pubDate, category, cover?, coverAlt?) et `ArticleRow.astro` (date, category, title, href), réutilisé en S09. Le sommaire est un <ol>.\n- Sélection : petite fonction pure `splitFeatured(posts, limit)` dans src/lib/ (en .mjs si on veut la tester avec node:test) ; la page ne fait que l'appeler (AGENTS.md §4.2).\n- Image : `<Image>` d'astro:assets avec widths et sizes, loading eager, fetchpriority high (R11). Les images restent hors du budget de 100 KB mais comptent pour Lighthouse.\n- Bichromie : conteneur à fond var(--ink-red), image en filter grayscale(1), mix-blend-mode multiply ; en sombre, fond et opacité réglés par un token dédié dans tokens.css.\n- Test : `tests/home.test.mjs`."
+  },
+  {
+    "id": "S09",
+    "titre": "Restyler l'archive /blog en sommaire de journal",
+    "lot": "Lot 4 – Accueil et archive",
+    "priorite": "P1",
+    "estimationJours": 0.5,
+    "description": "En tant que lecteur, je veux retrouver tous les articles publiés dans une archive au même style que le sommaire de l'accueil, afin de remonter dans le temps sans changer de repères.\n\nContexte : src/pages/blog/index.astro garde la grille de cartes du starter (960px en dur, images à alt vide). L'archive liste tous les articles, sans limite (A4).",
+    "criteres": [
+      "Étant donné le build, quand je lis dist/client/blog/index.html, alors il liste tous les articles de la collection (5 dans le jeu d'essai), du plus récent au plus ancien.",
+      "Étant donné chaque ligne de l'archive, quand je la lis, alors elle contient la date française longue dans un <time>, le tampon de la rubrique et le titre lié vers /blog/<id>/.",
+      "Étant donné la page, quand je lis son <title> et son <h1>, alors ils sont en français et contiennent « Archive ».",
+      "Étant donné src/pages/blog/index.astro, quand je le lis, alors il ne contient ni largeur en pixels en dur ni image sans texte alternatif.",
+      "Étant donné une collection vide (simulation manuelle), quand j'ouvre /blog/, alors l'archive affiche l'état vide « Rien d'imprimé ici pour l'instant ».",
+      "Manuel : à 375 px, chaque ligne reste lisible sans défilement horizontal, en clair et en sombre."
+    ],
+    "dependances": ["S08"],
+    "notesTechniques": "- Réutiliser ArticleRow.astro (S08), pas de nouvelle mise en page de liste.\n- Choix proposé : pas de vignettes dans l'archive (densité de sommaire, poids). Si on les garde, alt = heroAlt.\n- Groupement par année (h2 « 2024 ») facultatif.\n- Piège : la route reste /blog/ (liens RSS et sitemap existants) ; seul le libellé de navigation devient « Archive ».\n- Test : `tests/archive.test.mjs`."
+  },
+  {
+    "id": "S10",
+    "titre": "Composer l'article : lettrine, citations tract, temps de lecture",
+    "lot": "Lot 5 – Article",
+    "priorite": "P0",
+    "estimationJours": 1,
+    "description": "En tant que lecteur d'un article, je veux une colonne de lecture confortable de 66ch, une lettrine, des citations façon tract et le temps de lecture estimé, afin de lire un texte long comme un tract imprimé et de savoir combien de temps il me prendra.\n\nContexte : A6, lettrine en float avec initial-letter en amélioration progressive. A8, citations par le style CSS de blockquote, sans composant. Le temps de lecture est calculé au build par une fonction pure testée.",
+    "criteres": [
+      "Étant donné readingTime(texte), quand le texte est vide, alors elle renvoie 1 ; avec 220 mots, 1 ; avec 221 mots, 2 ; et les mots situés dans des blocs de code délimités ne sont pas comptés.",
+      "Étant donné le build, quand j'ouvre la page de markdown-style-guide, alors l'en-tête affiche « N min de lecture », où N est égal à readingTime appliqué au corps du fichier source.",
+      "Étant donné la CSS de l'article, quand je la lis, alors la colonne de texte est bornée par var(--measure) (66ch), la lettrine est définie sur ::first-letter du premier paragraphe, et initial-letter n'apparaît que dans un bloc @supports.",
+      "Étant donné une page d'article avec couverture, quand je lis son <img>, alors son alt est égal au heroAlt de l'article et n'est pas vide.",
+      "Étant donné la CSS, quand je lis le style de blockquote, alors le filet ou l'aplat utilise var(--ink-red) et le texte var(--ink) (pas de texte en rouge vif en petit corps).",
+      "Étant donné le build, quand je lis l'en-tête d'un article, alors on y trouve dans cet ordre le tampon, le H1, la date et le temps de lecture, ces deux derniers en police mono.",
+      "Manuel : en Firefox (sans initial-letter), la lettrine s'affiche en float sur environ 3 lignes sans chevaucher le texte ; à 375 px la colonne n'a pas de défilement horizontal ; en sombre, la citation reste lisible."
+    ],
+    "dependances": ["S07"],
+    "notesTechniques": "- `src/lib/reading-time.mjs` (ESM + JSDoc, importable par Astro et par node:test sans transpilation) : retire le code délimité et le balisage Markdown/MDX courant, compte les mots, 220 mots par minute, arrondi supérieur, minimum 1. Test `tests/reading-time.test.mjs`.\n- `src/pages/blog/[...slug].astro` calcule `readingTime(post.body)` et le passe en prop au layout ; BlogPost ne lit pas la collection (AGENTS.md §4.2).\n- BlogPost.astro : en-tête (tampon, H1 avec calage, date, temps de lecture), couverture bichrome qui reprend le style de S08, corps dans un conteneur `.prose`.\n- Lettrine : `.prose > p:first-of-type::first-letter` en float, taille en em ; `@supports (initial-letter: 3)` pour la version native. Piège : si l'article commence par une image ou un titre, :first-of-type vise tout de même le premier <p>, ce qui est voulu.\n- Citation tract : blockquote avec filet épais rouge ou trame, cite en mono.\n- Test dist : `tests/article.test.mjs`."
+  },
+  {
+    "id": "S11",
+    "titre": "Transformer les notes de bas de page en notes en marge",
+    "lot": "Lot 5 – Article",
+    "priorite": "P1",
+    "estimationJours": 1,
+    "description": "En tant que lecteur sur grand écran, je veux lire chaque note à côté de son appel, dans la marge, et retrouver les notes classiques en fin d'article sur mobile, afin de ne pas perdre le fil du texte.\n\nContexte : décision D4. Saisie standard GFM `[^1]`, transformée au build par un petit plugin rehype écrit dans le dépôt, sans dépendance nouvelle ni JS client. Repli : notes de bas de page classiques sur mobile. Jeu d'essai : markdown-style-guide.md (lignes 68 à 76, une même note appelée deux fois).",
+    "criteres": [
+      "Étant donné un arbre hast de test contenant un appel de note et la section de notes, quand le plugin s'exécute, alors un élément de classe sidenote contenant le texte de la note est inséré juste après l'appel, sans le lien de retour.",
+      "Étant donné une note appelée deux fois, quand le plugin s'exécute, alors une seule note en marge est insérée, au premier appel.",
+      "Étant donné un arbre sans note, quand le plugin s'exécute, alors l'arbre est strictement identique (comparaison profonde).",
+      "Étant donné une note dont le contenu est un paragraphe avec un lien, quand elle est copiée en marge, alors la copie ne contient aucun élément de bloc (p, div) et conserve le lien.",
+      "Étant donné le build, quand j'ouvre la page de markdown-style-guide, alors elle contient une note en marge avec « Rob Pike » et conserve la section de notes de fin, dont le titre est « Notes » et dont les liens de retour ont un libellé en français.",
+      "Étant donné la CSS, quand je la lis, alors au-delà du point de rupture desktop la section de notes de fin est en display none et les notes en marge visibles, et en dessous c'est l'inverse (pas de double lecture par les lecteurs d'écran).",
+      "Étant donné le build de using-mdx, quand j'y ajoute temporairement une note `[^1]`, alors la note en marge est aussi générée pour le MDX (vérification manuelle, puis retrait).",
+      "Manuel : en desktop, la note s'aligne dans la marge droite à hauteur de son appel sans chevaucher le texte ; à 375 px les notes apparaissent en fin d'article et les liens aller et retour fonctionnent au clavier."
+    ],
+    "dependances": ["S10"],
+    "notesTechniques": "- `src/lib/rehype-sidenotes.mjs` : ESM, parcours manuel de l'arbre hast, aucun import de unist-util-visit ni d'un autre paquet non déclaré dans package.json. Repères GFM : appel `sup > a[data-footnote-ref]` dont le href vise #user-content-fn-<id> ; section `section[data-footnotes]`, items `li#user-content-fn-<id>` ; lien retour `a[data-footnote-backref]` à retirer de la copie.\n- Copie : transformer les p en span, garder liens et emphase ; élément `span.sidenote` avec role=note (un span, car l'appel est dans un paragraphe).\n- astro.config.mjs : `markdown.rehypePlugins: [rehypeSidenotes]` et `markdown.remarkRehype: { footnoteLabel: 'Notes', footnoteBackLabel: 'Retour au texte' }`. MDX hérite de la config markdown (extendMarkdownConfig par défaut).\n- Piège : dans le jeu d'essai, l'appel est dans un cite, lui-même dans un blockquote ; la note flottante doit sortir de la colonne (float à droite et marge négative calculée depuis var(--measure)) : vérifier en desktop.\n- Point de rupture exprimé en token (largeur de colonne plus marge), sans valeur en px répétée.\n- Tests : `tests/rehype-sidenotes.test.mjs` (unitaires sur arbres construits à la main) et assertions sur dist dans `tests/article.test.mjs`."
+  },
+  {
+    "id": "S12",
+    "titre": "Ajouter la barre de lecture, le thème de code et l'impression",
+    "lot": "Lot 5 – Article",
+    "priorite": "P1",
+    "estimationJours": 1,
+    "description": "En tant que lecteur d'un article, je veux voir ma progression, lire des blocs de code aux couleurs du blog en clair comme en sombre, et imprimer l'article proprement, afin de lire et de conserver le texte confortablement.\n\nContexte : barre de lecture en animation-timeline: scroll() sans JS (R7, absente de Firefox). Shiki colore par défaut le code en couleurs littérales inline avec un thème sombre fixe (R9) : on le branche sur les tokens. Q6 : une feuille @media print minimale est retenue (valeur provisoire).",
+    "criteres": [
+      "Étant donné la CSS de l'article, quand je la lis, alors la barre de lecture n'est visible que dans un bloc `@supports (animation-timeline: scroll())` ; en dehors, elle est en display none (ni figée à 0 %, ni à 100 %).",
+      "Étant donné `prefers-reduced-motion: reduce`, quand je lis la CSS, alors la barre de lecture y est masquée.",
+      "Étant donné le build, quand je lis les blocs de code des pages markdown-style-guide et using-mdx, alors aucun style inline n'y contient de couleur littérale et les couleurs passent par des variables --astro-code-*.",
+      "Étant donné tokens.css, quand je le lis, alors il définit les variables --astro-code-* en clair et en sombre, et le test de contraste couvre le couple texte de code sur fond de code dans les deux modes (au moins 4,5:1).",
+      "Étant donné la CSS produite, quand je la lis, alors elle contient un bloc @media print qui masque la navigation, le lien d'évitement et la barre de lecture, retire la trame, et laisse la licence visible.",
+      "Étant donné le build, quand je mesure la CSS liée plus inline de chaque page, alors elle reste inférieure ou égale à 15 KB.",
+      "Manuel : en Chrome, la barre avance au défilement ; en Firefox, aucune barre n'apparaît ; l'aperçu d'impression d'un article est en encre sombre sur fond blanc, avec la licence."
+    ],
+    "dependances": ["S10"],
+    "notesTechniques": "- BlogPost.astro : élément décoratif `div.reading-progress` avec aria-hidden=true ; CSS `animation-timeline: scroll(root)` sur un scaleX, le tout sous @supports.\n- astro.config.mjs : `markdown.shikiConfig.theme: 'css-variables'`. Vérifier dans la doc Astro 6 et Shiki que ce nom de thème est toujours accepté ; sinon, `createCssVariablesTheme` de Shiki. Shiki est une dépendance transitive d'Astro : ne pas l'ajouter à package.json ; si l'import direct n'est pas possible proprement, le signaler au lieu d'ajouter la dépendance.\n- Palette de code réduite : encre, rouge texte, gris (`--astro-code-foreground`, `--astro-code-background`, `--astro-code-token-*`).\n- Impression : couleurs d'impression déclarées dans tokens.css ; notes en marge ramenées en notes de fin ; pas d'URL forcée après les liens.\n- Test : `tests/article-extras.test.mjs`."
+  },
+  {
+    "id": "S13",
+    "titre": "Restyler la page À propos et créer la page 404",
+    "lot": "Lot 6 – Pages annexes et budgets",
+    "priorite": "P0",
+    "estimationJours": 0.75,
+    "description": "En tant que lecteur, je veux une page À propos qui présente le carnet et, si je suis une adresse erronée, une page 404 en français qui me ramène vers le contenu, afin de ne jamais tomber sur une page vide ou en anglais.\n\nContexte : about.astro utilise le layout BlogPost avec une fausse pubDate et du Lorem ; src/pages/404.astro n'existe pas (dette n°13). Q2 : texte À propos provisoire en français, centralisé dans consts.ts.",
+    "criteres": [
+      "Étant donné le build, quand je lis dist/client/about/index.html, alors il a un h1 « À propos », contient le texte défini dans consts.ts, et ne contient ni « Lorem » ni élément <time>.",
+      "Étant donné src/pages/about.astro, quand je le lis, alors il utilise Layout.astro, n'importe plus BlogPost et ne passe aucune date.",
+      "Étant donné le build, quand je liste dist/client/, alors 404.html existe, déclare la langue fr, a un h1 en français et contient des liens vers l'accueil, l'archive et les 5 rubriques.",
+      "Étant donné le serveur standalone lancé (`node dist/server/entry.mjs`), quand je demande /page-inexistante avec `curl -i`, alors la réponse a le statut 404 et le corps de la page 404 Samizdat (vérification manuelle).",
+      "Manuel : les deux pages s'affichent correctement en clair et en sombre, à 375 px et en desktop."
+    ],
+    "dependances": ["S06"],
+    "notesTechniques": "- consts.ts : `ABOUT` (titre et paragraphes en français, provisoires, à signaler au client), `NOT_FOUND` (titre, message).\n- about.astro : Layout direct ; réutiliser le style `.prose` de S10 s'il est livré, sinon les styles de global.css. Retirer blog-placeholder-about.jpg, ou lui donner un alt en français si on le garde.\n- 404.astro : prérendue, ton Samizdat (« Cette page n'a jamais été imprimée »), H1 avec calage.\n- Piège : vérifier que l'adapter node en mode standalone sert bien dist/client/404.html avec le statut 404 pour les routes inconnues.\n- Test : `tests/pages-annexes.test.mjs`."
+  },
+  {
+    "id": "S14",
+    "titre": "Créer pnpm check:weight et vérifier les budgets sur dist/client",
+    "lot": "Lot 6 – Pages annexes et budgets",
+    "priorite": "P0",
+    "estimationJours": 1,
+    "description": "En tant que mainteneur du blog, je veux une commande qui échoue dès qu'un budget de poids ou de JS est dépassé, afin de garder le site léger à chaque évolution sans relire le build à la main.\n\nContexte : décision D2. Mesures en brut minifié sur dist/client/ : CSS liée et inline additionnées par page, au plus 15 KB ; accueil hors images au plus 100 KB (HTML, CSS, woff2, favicon) ; une seule webfont ; 0 script client, attributs on* compris. Le gzip est affiché à titre indicatif (node:zlib). Cette story de clôture porte aussi la recette manuelle globale (Lighthouse, captures), non automatisable sans dépendance (R14).",
+    "criteres": [
+      "Étant donné un build conforme, quand je lance `pnpm check:weight`, alors la commande affiche le poids CSS de chaque page et le poids total de l'accueil, en brut et en gzip, puis sort en code 0.",
+      "Étant donné un répertoire de fixture où une page dépasse 15 KB de CSS (liée plus inline), quand le script le vérifie, alors il sort en code 1 en nommant la page et le dépassement.",
+      "Étant donné une fixture dont l'accueil dépasse 100 KB hors images, quand le script la vérifie, alors il sort en code 1 avec le détail par ressource.",
+      "Étant donné une fixture contenant deux fichiers de fonte, ou une balise script, ou un attribut onclick, quand le script la vérifie, alors il sort en code 1 en nommant la règle violée.",
+      "Étant donné que dist/client/ n'existe pas, quand je lance la commande, alors elle sort en code 1 avec un message qui invite à lancer `pnpm build`.",
+      "Étant donné le build final, quand le test anti-starter parcourt les HTML et CSS de dist/client/, alors il ne trouve ni « Astro Blog », ni « Hello, Astronaut », ni « withastro », ni « Atkinson », et ne trouve « Lorem » sur aucune page hors des 5 articles du jeu d'essai.",
+      "Manuel (recette globale) : dans le navigateur intégré, accueil, une rubrique et un article, en clair et en sombre, à 375 px et en desktop : captures jointes, console sans erreur, 0 requête JS dans l'onglet réseau, Lighthouse perf et a11y à 100 sur l'accueil et un article ; avec prefers-reduced-motion, rien ne bouge ; en Firefox, pages complètes et utilisables."
+    ],
+    "dependances": ["S09", "S11", "S12", "S13"],
+    "notesTechniques": "- `scripts/check-weight.mjs` (Node, aucune dépendance) réutilise scripts/lib/dist.mjs (S01). Il accepte un répertoire en argument (dist/client par défaut) pour être testable sur des fixtures. package.json : `check:weight` = `node scripts/check-weight.mjs` ; la commande suppose le build fait et ne le relance pas.\n- 1 KB = 1 024 octets. Ressources comptées pour l'accueil : le HTML, les CSS liées, les woff2 référencées (preload ou @font-face) et favicon.svg ; images exclues (jpg, jpeg, png, webp, avif, gif).\n- Fixtures minimales dans `tests/fixtures/weight/<cas>/` ; `tests/check-weight.test.mjs` lance le script avec child_process et vérifie le code de sortie et le message.\n- Test anti-starter `tests/no-starter.test.mjs` : le corps des articles du starter reste en Lorem (Q4), donc « Lorem » est vérifié sur l'accueil, /about/, /blog/, les rubriques et 404.html seulement.\n- Recette : ajouter l'entrée zero-blog (port 4321, `pnpm --dir blog/zero-blog-astro dev`) dans .claude/launch.json du dépôt parent zero-strategie, comme le prévoit le plan ; ce fichier est hors du dépôt du blog.\n- Ne pas brancher ces commandes dans .github/workflows/ci.yml (hors mission, fichier modifié non commité) ; à proposer pour une mission ultérieure."
+  }
+]

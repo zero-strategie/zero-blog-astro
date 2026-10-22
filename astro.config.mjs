@@ -4,6 +4,7 @@ import mdx from '@astrojs/mdx';
 import node from '@astrojs/node';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig, envField, fontProviders } from 'astro/config';
+import rehypeSidenotes from './src/lib/rehype-sidenotes.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -30,24 +31,31 @@ export default defineConfig({
 		},
 	},
 
+	// Notes `[^1]` : copiées en marge (desktop) par rehypeSidenotes, section de fin conservée (mobile).
+	markdown: {
+		rehypePlugins: [rehypeSidenotes],
+		// Couleurs de syntaxe via --astro-code-* (tokens.css) : aucune couleur inline, thème clair/sombre natif.
+		shikiConfig: { theme: 'css-variables' },
+		remarkRehype: {
+			footnoteLabel: 'Notes',
+			footnoteBackLabel: 'Retour au texte',
+			// Par défaut le titre est sr-only ; on le veut visible.
+			footnoteLabelProperties: {},
+		},
+	},
+
 	integrations: [mdx(), sitemap()],
 	fonts: [
 		{
 			provider: fontProviders.local(),
-			name: 'Atkinson',
-			cssVariable: '--font-atkinson',
-			fallbacks: ['sans-serif'],
+			name: 'Fraunces',
+			cssVariable: '--font-fraunces',
+			fallbacks: [],
 			options: {
 				variants: [
 					{
-						src: ['./src/assets/fonts/atkinson-regular.woff'],
-						weight: 400,
-						style: 'normal',
-						display: 'swap',
-					},
-					{
-						src: ['./src/assets/fonts/atkinson-bold.woff'],
-						weight: 700,
+						src: ['./src/assets/fonts/fraunces.woff2'],
+						weight: '400 900',
 						style: 'normal',
 						display: 'swap',
 					},

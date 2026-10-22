@@ -1,86 +1,186 @@
 ---
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import Header from '../components/Header.astro';
+import Stamp from '../components/Stamp.astro';
+import { readingTimeLabel, UPDATED_ON_LABEL } from '../consts';
+import Layout from './Layout.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = Omit<CollectionEntry<'blog'>['data'], 'category'> &
+	Partial<Pick<CollectionEntry<'blog'>['data'], 'category'>> & { readingMinutes: number };
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, category, heroImage, heroAlt, readingMinutes } = Astro.props;
 ---
 
-<html lang="en">
-	<head>
-		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
+<Layout title={title} description={description} image={heroImage}>
+	<style>
+		:global(main) {
+			width: 100%;
+			max-width: 100%;
+			margin: 0;
+		}
+		.hero-image {
+			width: min(100% - 2rem, 64rem);
+			margin: 0 auto;
+		}
+		.prose {
+			width: min(100% - 2rem, var(--measure));
+			margin: auto;
+			padding: 1rem;
+		}
+		.title {
+			margin-bottom: 1rem;
+			padding: 1rem 0;
+		}
+		.title h1 {
+			margin: 0 0 0.5em;
+		}
+		.date {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.25rem 1.25rem;
+			margin: 0 0 0.5rem;
+			color: var(--ink-soft);
+			font-family: var(--font-mono);
+			font-size: 0.9rem;
+		}
+		.updated-on {
+			font-style: italic;
+		}
+		/* Notes de fin : toujours affichées, ce sont elles que l'appel cible (clavier, lecteur d'écran). */
+		.content :global([data-footnotes]) {
+			margin-top: 2rem;
+			color: var(--ink-soft);
+			font-family: var(--font-mono);
+			font-size: 0.85rem;
+		}
+		.content :global([data-footnotes] h2) {
+			margin: 0 0 0.75rem;
+			padding-top: 0.5rem;
+			border-top: 1px solid var(--ink);
+			font-family: var(--font-mono);
+			font-size: 0.8rem;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+		}
+		/* Copies en marge : décoratives (aria-hidden), absentes sous le point de rupture. */
+		.content :global(.sidenote) {
+			display: none;
+		}
+		/* Modèle Tufte : la note flotte à droite avec une marge négative, démarre sur la ligne de l'appel
+		   et s'empile sous la précédente. Rupture : colonne (--measure : 41em, soit environ 66 caractères de Fraunces ; environ 51rem à 20 px de corps) + 2 × (14rem + 1.5rem)
+		   de marge = environ 82rem, arrondi à 85rem pour ne jamais déclencher de défilement horizontal. */
+		@media (min-width: 85rem) {
+			.content :global(.sidenote) {
+				float: right;
+				clear: right;
 				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
+				width: 14rem;
+				margin-right: calc(-15.5rem);
+				margin-bottom: 0.75rem;
+				padding-left: 0.75rem;
+				border-left: 1px solid var(--ink);
+				color: var(--ink-soft);
+				font-family: var(--font-mono);
+				font-size: 0.8rem;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 1.4;
 			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
+			/* Le blockquote ajoute 1.2rem de retrait et 2px de bordure à droite. */
+			.content :global(blockquote .sidenote) {
+				margin-right: calc(-15.5rem - 1.2rem - 2px);
 			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
+		}
+		.content :global(.sidenote-number) {
+			margin-right: 0.4em;
+			color: var(--ink-red-text);
+			font-weight: 700;
+		}
+		/* Lettrine : float partout, initial-letter là où le navigateur le sait (Firefox reste en float). */
+		.content > :global(p:first-of-type)::first-letter {
+			float: left;
+			padding-right: 0.08em;
+			color: var(--ink-red);
+			font-family: var(--font-text);
+			font-size: 4.2em;
+			font-weight: 900;
+			line-height: 0.8;
+		}
+		@supports (initial-letter: 3) {
+			.content > :global(p:first-of-type)::first-letter {
+				float: none;
+				padding-right: 0.1em;
+				font-size: inherit;
+				line-height: inherit;
+				initial-letter: 3;
 			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
+		}
+		/* Barre de lecture : CSS pur, liée au défilement de la page. Sans support, elle reste masquée. */
+		.reading-progress {
+			display: none;
+		}
+		@supports (animation-timeline: scroll()) {
+			.reading-progress {
+				position: fixed;
+				top: 0;
+				left: 0;
+				z-index: 10;
+				display: block;
+				width: 100%;
+				height: 3px;
+				background: var(--ink-red);
+				transform: scaleX(0);
+				transform-origin: left;
+				animation: reading-progress linear both;
+				animation-timeline: scroll(root block);
 			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
+		}
+		@keyframes reading-progress {
+			to {
+				transform: scaleX(1);
 			}
-			.last-updated-on {
-				font-style: italic;
+		}
+		@media (prefers-reduced-motion: reduce) {
+			.reading-progress {
+				display: none;
 			}
-		</style>
-	</head>
-
-	<body>
-		<Header />
-		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+		}
+		@media print {
+			.reading-progress {
+				display: none;
+			}
+		}
+	</style>
+	<div class="reading-progress" aria-hidden="true"></div>
+	<article>
+		{
+			heroImage && (
+				<div class="hero-image riso">
+					<Image width={1020} height={510} src={heroImage} alt={heroAlt ?? ''} />
 				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
-					</div>
-					<slot />
-				</div>
-			</article>
-		</main>
-		<Footer />
-	</body>
-</html>
+			)
+		}
+		<div class="prose">
+			<header class="title">
+				{category && <Stamp category={category} />}
+				<h1>{title}</h1>
+				<p class="date">
+					<FormattedDate date={pubDate} />
+					<span>{readingTimeLabel(readingMinutes)}</span>
+					{
+						updatedDate && (
+							<span class="updated-on">
+								{UPDATED_ON_LABEL} <FormattedDate date={updatedDate} />
+							</span>
+						)
+					}
+				</p>
+				<hr />
+			</header>
+			<div class="content">
+				<slot />
+			</div>
+		</div>
+	</article>
+</Layout>
