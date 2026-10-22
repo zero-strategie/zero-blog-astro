@@ -4,14 +4,13 @@ interface Props {
 }
 
 const { date } = Astro.props;
+// UTC : la date éditoriale ne doit pas reculer d'un jour selon le fuseau du build.
+const formatter = new Intl.DateTimeFormat('fr-FR', {
+	day: 'numeric',
+	month: 'long',
+	year: 'numeric',
+	timeZone: 'UTC',
+});
 ---
 
-<time datetime={date.toISOString()}>
-	{
-		date.toLocaleDateString('en-us', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		})
-	}
-</time>
+<time datetime={date.toISOString()}>{formatter.format(date)}</time>

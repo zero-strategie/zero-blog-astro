@@ -79,3 +79,11 @@ test('tout lien target="_blank" porte rel="noopener noreferrer"', () => {
 		}
 	}
 });
+
+test('first-post affiche « 8 juillet 2022 » avec un datetime du 2022-07-08', () => {
+	const html = pageNamed('blog/first-post/index.html');
+	const time = html.match(/<time datetime="([^"]*)"[^>]*>\s*([^<]*?)\s*<\/time>/);
+	assert.ok(time, '<time> introuvable');
+	assert.match(time[1], /^2022-07-08/);
+	assert.equal(time[2], '8 juillet 2022');
+});
