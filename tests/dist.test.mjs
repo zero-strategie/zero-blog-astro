@@ -10,3 +10,11 @@ test('signale un attribut onclick dans une balise', () => {
 test('ne signale pas on=1 dans le texte', () => {
 	assert.deepEqual(findZeroJsViolations('<p>on=1 et onclick=2</p>'), []);
 });
+
+test('signale une balise script', () => {
+	assert.ok(findZeroJsViolations('<script>1</script>').length > 0);
+});
+
+test('signale un lien javascript:', () => {
+	assert.ok(findZeroJsViolations('<a href="javascript:void(0)">x</a>').length > 0);
+});
