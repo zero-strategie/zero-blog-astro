@@ -13,10 +13,10 @@ interface Props {
 	pubDate: Date;
 	category: (typeof CATEGORIES)[number]['slug'];
 	heroImage?: ImageMetadata;
-	heroAlt?: string;
 }
 
-const { title, description, href, pubDate, category, heroImage, heroAlt } = Astro.props;
+const { title, description, href, pubDate, category, heroImage } = Astro.props;
+// Lien de couverture masqué aux lecteurs d'écran (le titre mène au même article) : l'image est décorative.
 const COVER_WIDTHS = [480, 800, 1200];
 const COVER_SIZES = '(min-width: 48rem) 48rem, 100vw';
 ---
@@ -28,7 +28,7 @@ const COVER_SIZES = '(min-width: 48rem) 48rem, 100vw';
 			<a class="cover riso" href={href} tabindex="-1" aria-hidden="true">
 				<Image
 					src={heroImage}
-					alt={heroAlt ?? ''}
+					alt=""
 					widths={COVER_WIDTHS}
 					sizes={COVER_SIZES}
 					loading="eager"

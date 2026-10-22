@@ -58,13 +58,20 @@ test('les colonnes des lignes ont des largeurs fixes pour aligner les titres', (
 	assert.doesNotMatch(desktopColumns, /auto/);
 });
 
-test('la couverture à la une est prioritaire, responsive et décrite par heroAlt', () => {
+test('la couverture à la une est prioritaire et responsive', () => {
 	const cover = section('featured').match(/<img\b[^>]*>/)?.[0] ?? '';
-	assert.match(attr(cover, 'alt') ?? '', /^Illustration provisoire/);
 	assert.equal(attr(cover, 'loading'), 'eager');
 	assert.equal(attr(cover, 'fetchpriority'), 'high');
 	assert.ok(attr(cover, 'srcset'));
 	assert.ok(attr(cover, 'sizes'));
+});
+
+test('le lien de couverture masqué a une image décorative (alt vide), sans doublon de lien lu', () => {
+	const link = section('featured').match(/<a\b[^>]*class="[^"]*\bcover\b[^"]*"[^>]*>[\s\S]*?<\/a>/)?.[0] ?? '';
+	assert.match(link, /aria-hidden="true"/);
+	assert.match(link, /tabindex="-1"/);
+	// Astro sérialise alt="" en attribut nu `alt`.
+	assert.match(link.match(/<img\b[^>]*>/)?.[0] ?? '', /\salt(?:="")?(?=\s|\/?>)/);
 });
 
 test('la CSS applique la bichromie sur un aplat rouge défini par token', () => {

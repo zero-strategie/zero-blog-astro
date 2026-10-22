@@ -32,7 +32,6 @@ const { featured, summary } = splitFeatured(await getCollection('blog'));
 					pubDate={featured.data.pubDate}
 					category={featured.data.category}
 					heroImage={featured.data.heroImage}
-					heroAlt={featured.data.heroAlt}
 				/>
 				{summary.length > 0 && (
 					<section class="summary" aria-labelledby="sommaire">
