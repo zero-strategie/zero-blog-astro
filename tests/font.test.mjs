@@ -65,17 +65,38 @@ const SYSTEM_FALLBACKS = [
 	{ family: 'Fraunces fallback DejaVu', local: 'DejaVu Serif' },
 ];
 
-test('chaque fonte de secours système a ses métriques ajustées (size-adjust, ascent, descent)', () => {
+function fontFaces(css, family) {
+	const blocks = css.matchAll(/@font-face\s*{[^}]*}/g);
+	return [...blocks]
+		.map(([face]) => face)
+		.filter((face) => new RegExp(`font-family:\\s*["']?${family}["']?;`).test(face));
+}
+
+const weightRange = (face) => face.match(/font-weight:\s*(\d+)\s+(\d+)/)?.slice(1).map(Number);
+
+test('chaque famille de secours a une face Regular (400-500) et une face Bold (600-900), aux métriques ajustées', () => {
 	const css = pageCss(home.html).replace(/\s+/g, ' ');
 	for (const { family, local } of SYSTEM_FALLBACKS) {
-		const face = css.match(new RegExp(`@font-face\\s*{[^}]*font-family:\\s*["']?${family}["']?;[^}]*}`))?.[0];
-		assert.ok(face, `@font-face ${family} absent`);
-		assert.ok(face.includes(`local('${local}')`) || face.includes(`local("${local}")`), `${family} : local(${local}) absent`);
-		const sizeAdjust = Number(face.match(/size-adjust:\s*([\d.]+)%/)?.[1]);
-		assert.ok(sizeAdjust >= 90 && sizeAdjust <= 120, `${family} : size-adjust = ${sizeAdjust}`);
-		assert.match(face, /ascent-override:\s*[\d.]+%/);
-		assert.match(face, /descent-override:\s*[\d.]+%/);
-		assert.match(face, /line-gap-override:\s*0%/);
+		const faces = fontFaces(css, family);
+		assert.equal(faces.length, 2, `${family} : ${faces.length} face(s)`);
+		const regular = faces.find((face) => weightRange(face)?.[0] === 400);
+		const bold = faces.find((face) => weightRange(face)?.[0] >= 600);
+		assert.ok(regular && weightRange(regular)[1] <= 500, `${family} : face Regular 400-500 absente`);
+		assert.ok(bold && weightRange(bold)[1] === 900, `${family} : face Bold 600-900 absente`);
+		assert.ok(regular.includes(`local('${local}')`) || regular.includes(`local("${local}")`), `${family} : local(${local})`);
+		assert.match(bold, /local\(["'][^"']*Bold["']\)/, `${family} : source local(... Bold) absente`);
+		for (const face of faces) {
+			const sizeAdjust = Number(face.match(/size-adjust:\s*([\d.]+)%/)?.[1]);
+			assert.ok(sizeAdjust >= 90 && sizeAdjust <= 125, `${family} : size-adjust = ${sizeAdjust}`);
+			assert.match(face, /ascent-override:\s*[\d.]+%/);
+			assert.match(face, /descent-override:\s*[\d.]+%/);
+			assert.match(face, /line-gap-override:\s*0%/);
+		}
+		assert.notEqual(
+			regular.match(/size-adjust:[^;]+/)[0],
+			bold.match(/size-adjust:[^;]+/)[0],
+			`${family} : la face Bold doit avoir ses propres métriques`,
+		);
 	}
 });
 
