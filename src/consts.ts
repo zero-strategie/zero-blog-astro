@@ -86,9 +86,11 @@ export const ABOUT = {
 		'Le site est volontairement léger : pas de pistage, pas de script, pas de régie publicitaire. Les articles sont publiés sous licence libre, et le code du carnet est ouvert.',
 		"Une remarque, une correction, une idée d'article ? Le dépôt source est le meilleur endroit pour écrire.",
 	],
+	contact: { label: 'Écrire via le dépôt source', href: SOURCE_URL },
 } as const;
 
 export const NOT_FOUND = {
+	kicker: '404',
 	title: 'Page introuvable',
 	description: "Cette adresse n'existe pas ou plus.",
 	message: "Cette page n'a pas été imprimée, ou elle a été retirée du tirage. Reprenez par l'un des points d'entrée ci-dessous.",

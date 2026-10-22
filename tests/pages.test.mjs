@@ -43,3 +43,15 @@ test('la 404 lie l’accueil, l’archive et les 5 rubriques depuis son contenu'
 		assert.ok(hrefs.includes(href), href);
 	}
 });
+
+test('/about/ lie le dépôt source depuis consts.ts', () => {
+	assert.match(mainOf(about), /<a\b[^>]*href="https:\/\/github\.com\/zero-strategie\/zero-blog-astro"/);
+	assert.match(source('../src/consts.ts'), /contact:/);
+});
+
+test('la 404 est noindex, sans canonical ni og:url, et son « 404 » vient de consts.ts', () => {
+	assert.match(notFound, /<meta name="robots" content="noindex"/);
+	assert.doesNotMatch(notFound, /rel="canonical"|property="og:url"|property="twitter:url"/);
+	assert.match(about, /rel="canonical"/);
+	assert.doesNotMatch(source('../src/pages/404.astro'), />\s*404\s*</);
+});

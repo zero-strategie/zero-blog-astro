@@ -6,6 +6,7 @@ import { ABOUT, SITE_TITLE } from '../consts';
 <Layout title={`${ABOUT.title} — ${SITE_TITLE}`} description={ABOUT.description}>
 	<h1>{ABOUT.title}</h1>
 	{ABOUT.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+	<p><a href={ABOUT.contact.href}>{ABOUT.contact.label}</a></p>
 </Layout>
 
 <style>

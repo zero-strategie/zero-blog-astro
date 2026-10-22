@@ -4,8 +4,8 @@ import { ARCHIVE_LINK_LABEL, CATEGORIES, NOT_FOUND, SITE_TITLE, categoryHeading 
 import { archiveUrl, categoryUrl } from '../lib/url';
 ---
 
-<Layout title={`${NOT_FOUND.title} — ${SITE_TITLE}`} description={NOT_FOUND.description}>
-	<p class="kicker">404</p>
+<Layout title={`${NOT_FOUND.title} — ${SITE_TITLE}`} description={NOT_FOUND.description} noindex>
+	<p class="kicker">{NOT_FOUND.kicker}</p>
 	<h1>{NOT_FOUND.title}</h1>
 	<p class="message">{NOT_FOUND.message}</p>
 	<p class="exits">
