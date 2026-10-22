@@ -1,0 +1,66 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { ARCHIVE_LINK_LABEL, CATEGORIES, NOT_FOUND, SITE_TITLE, categoryHeading } from '../consts';
+import { archiveUrl, categoryUrl } from '../lib/url';
+---
+
+<Layout title={`${NOT_FOUND.title} — ${SITE_TITLE}`} description={NOT_FOUND.description}>
+	<p class="kicker">404</p>
+	<h1>{NOT_FOUND.title}</h1>
+	<p class="message">{NOT_FOUND.message}</p>
+	<p class="exits">
+		<a href="/">{NOT_FOUND.homeLabel}</a>
+		<a href={archiveUrl()}>{ARCHIVE_LINK_LABEL}</a>
+	</p>
+	<p class="categories-label">{NOT_FOUND.categoriesLabel}</p>
+	<ul>
+		{
+			CATEGORIES.map(({ slug }) => (
+				<li>
+					<a href={categoryUrl(slug)}>{categoryHeading(slug)}</a>
+				</li>
+			))
+		}
+	</ul>
+</Layout>
+
+<style>
+	.kicker {
+		margin: 0 0 0.5rem;
+		color: var(--ink-red-text);
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	.message {
+		max-width: var(--measure);
+	}
+	.exits {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1.5rem;
+		margin: 1.5rem 0 2rem;
+		padding: 1rem 0;
+		border-top: 4px double var(--ink);
+		border-bottom: 4px double var(--ink);
+		font-weight: 700;
+	}
+	.categories-label {
+		margin: 0 0 0.5rem;
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	li {
+		padding: 0.5rem 0;
+		border-bottom: 1px solid var(--ink-soft);
+	}
+</style>

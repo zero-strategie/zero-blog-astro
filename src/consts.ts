@@ -76,3 +76,22 @@ export const readingTimeLabel = (minutes: number): string => `${minutes} min de 
 export const ARCHIVE_TITLE = 'Archive';
 export const ARCHIVE_DESCRIPTION = 'Tous les articles publiés, du plus récent au plus ancien.';
 export const EMPTY_ARCHIVE_MESSAGE = "Rien d'imprimé pour l'instant. Revenez au prochain tirage.";
+
+// Texte À propos provisoire (Q2), à faire confirmer par le client.
+export const ABOUT = {
+	title: 'À propos',
+	description: 'Qui écrit ce carnet, et pourquoi il est imprimé sur un serveur à soi.',
+	paragraphs: [
+		"zero-stratégie est un carnet indépendant tenu par un développeur freelance. Il rassemble des notes sur l'open source, l'intelligence artificielle et la souveraineté numérique, écrites pour être lues, discutées et réutilisées.",
+		'Le site est volontairement léger : pas de pistage, pas de script, pas de régie publicitaire. Les articles sont publiés sous licence libre, et le code du carnet est ouvert.',
+		"Une remarque, une correction, une idée d'article ? Le dépôt source est le meilleur endroit pour écrire.",
+	],
+} as const;
+
+export const NOT_FOUND = {
+	title: 'Page introuvable',
+	description: "Cette adresse n'existe pas ou plus.",
+	message: "Cette page n'a pas été imprimée, ou elle a été retirée du tirage. Reprenez par l'un des points d'entrée ci-dessous.",
+	homeLabel: "Retour à l'accueil",
+	categoriesLabel: 'Ou feuilletez une rubrique',
+} as const;
