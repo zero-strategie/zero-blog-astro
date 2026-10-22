@@ -45,15 +45,16 @@ import HeaderLink from './HeaderLink.astro';
 <style>
 	header {
 		margin: 0;
-		padding: 0 1em;
-		background: white;
-		box-shadow: 0 2px 8px rgba(var(--black), 5%);
+		padding: 0 1rem;
+		border-bottom: 4px double var(--ink);
+		background: var(--paper);
 	}
 	h2 {
 		margin: 0;
-		font-size: 1em;
+		font-size: 1.5rem;
+		font-weight: 900;
+		letter-spacing: -0.02em;
 	}
-
 	h2 a,
 	h2 a.active {
 		text-decoration: none;
@@ -62,16 +63,24 @@ import HeaderLink from './HeaderLink.astro';
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: 1rem;
+	}
+	.internal-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0 0.75rem;
 	}
 	nav a {
-		padding: 1em 0.5em;
-		color: var(--black);
+		padding: 1rem 0.25rem;
 		border-bottom: 4px solid transparent;
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		letter-spacing: 0.04em;
 		text-decoration: none;
+		text-transform: uppercase;
 	}
 	nav a.active {
-		text-decoration: none;
-		border-bottom-color: var(--accent);
+		border-bottom-color: var(--ink-red);
 	}
 	.social-links,
 	.social-links a {
