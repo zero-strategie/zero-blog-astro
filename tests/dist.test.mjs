@@ -22,3 +22,12 @@ test('signale un lien javascript:', () => {
 test('le helper de lecture échoue en mentionnant pnpm build si dist/client est absent', () => {
 	assert.throws(() => listDistFiles('/chemin/inexistant/dist/client'), /pnpm build/);
 });
+
+test('signale un onclick après un > placé dans une valeur entre guillemets', () => {
+	const violations = findZeroJsViolations('<a data-x="a>b" onclick=1>x</a>');
+	assert.ok(violations.some((violation) => violation.includes('onclick')));
+});
+
+test('ne signale pas un onclick contenu dans une valeur entre guillemets', () => {
+	assert.deepEqual(findZeroJsViolations('<a title=" onclick=1 ">x</a>'), []);
+});
