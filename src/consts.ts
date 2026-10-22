@@ -34,6 +34,8 @@ export const CATEGORY_SLUGS = CATEGORIES.map(({ slug }) => slug) as [
 ];
 
 export const EMPTY_CATEGORY_MESSAGE = "Rien d'imprimé ici pour l'instant";
+export const ARCHIVE_LINK_LABEL = "Parcourir l'archive";
+export const categoryDescription = (label: string): string => `Les articles de la rubrique ${label}.`;
 
 export const NAV_LABEL = 'Navigation principale';
 export const LICENSE_PREFIX = 'contenu sous licence';

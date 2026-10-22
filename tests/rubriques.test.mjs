@@ -112,3 +112,10 @@ test('le schéma exige une category tirée de CATEGORIES et les articles en ont 
 		assert.ok(Object.keys(EXPECTED_H1).includes(category), `${name} : ${category}`);
 	}
 });
+
+test("la page de rubrique tire ses textes et son lien d'archive de consts.ts et lib/url.ts", () => {
+	const page = readFileSync(join(SRC_DIR, 'pages/rubriques/[slug].astro'), 'utf8');
+	assert.doesNotMatch(page, /Parcourir l'archive/);
+	assert.doesNotMatch(page, /Les articles de la rubrique/);
+	assert.doesNotMatch(page, /href="\/blog\/"/);
+});
