@@ -10,17 +10,15 @@ interface Props {
 const { tags } = Astro.props;
 ---
 
-{
-	tags.length > 0 && (
-		<ul class="tags mono-label" aria-label={ARTICLE_LABELS.tags}>
-			{tags.map((tag) => (
-				<li>
-					<a href={tagUrl(tag.slug)}>#{tag.name}</a>
-				</li>
-			))}
-		</ul>
-	)
-}
+{tags.length > 0 && (
+	<ul class="tags mono-label" aria-label={ARTICLE_LABELS.tags}>
+		{tags.map((tag) => (
+			<li>
+				<a href={tagUrl(tag.slug)}>#{tag.name}</a>
+			</li>
+		))}
+	</ul>
+)}
 
 <style>
 	.tags {

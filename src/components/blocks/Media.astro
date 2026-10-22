@@ -9,14 +9,12 @@ const WIDTHS = [480, 800, 1200];
 const SIZES = '(min-width: 48rem) 41em, 100vw';
 ---
 
-{
-	image && (
-		<figure class="media">
-			<CmsImage image={image} widths={WIDTHS} sizes={SIZES} loading="lazy" />
-			{caption && <figcaption>{caption}</figcaption>}
-		</figure>
-	)
-}
+{image && (
+	<figure class="media">
+		<CmsImage image={image} widths={WIDTHS} sizes={SIZES} loading="lazy" />
+		{caption && <figcaption>{caption}</figcaption>}
+	</figure>
+)}
 
 <style>
 	.media {

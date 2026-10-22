@@ -3,7 +3,12 @@ import { test } from 'node:test';
 import { markdownToText, renderMarkdown } from '../src/lib/markdown.mjs';
 
 const sources = [
-	{ index: 1, title: 'H.R.4943 — CLOUD Act', url: 'https://www.congress.gov/x', publisher: 'Congrès' },
+	{
+		index: 1,
+		title: 'H.R.4943 — CLOUD Act',
+		url: 'https://www.congress.gov/x',
+		publisher: 'Congrès',
+	},
 	{ index: 2, title: 'Analyse de la Commission' },
 ];
 
@@ -12,7 +17,9 @@ test('rend le Markdown en HTML', () => {
 });
 
 test('écarte le HTML brut au lieu de l’injecter', () => {
-	const html = renderMarkdown('Avant\n\n<script>alert(1)</script>\n\n<img src=x onerror="alert(1)">');
+	const html = renderMarkdown(
+		'Avant\n\n<script>alert(1)</script>\n\n<img src=x onerror="alert(1)">',
+	);
 	assert.doesNotMatch(html, /<script|onerror|<img/);
 });
 
@@ -21,7 +28,11 @@ test('retire les liens javascript:', () => {
 });
 
 test('garde les liens externes ordinaires', () => {
-	assert.ok(renderMarkdown('[texte](https://example.org/a)').includes('<a href="https://example.org/a">texte</a>'));
+	assert.ok(
+		renderMarkdown('[texte](https://example.org/a)').includes(
+			'<a href="https://example.org/a">texte</a>',
+		),
+	);
 });
 
 test('un appel [[n]](#source-n) devient un exposant lié à la source numérotée', () => {
@@ -43,8 +54,13 @@ test('plusieurs appels dans un paragraphe', () => {
 
 test('un appel vers une source absente est signalé, sans lien mort', () => {
 	const missing = [];
-	const html = renderMarkdown('Fait [[4]](#source-4).', { sources, onMissingSource: (n) => missing.push(n) });
-	assert.ok(html.includes('<sup class="citation citation--missing" title="Source 4 introuvable">[4]</sup>'));
+	const html = renderMarkdown('Fait [[4]](#source-4).', {
+		sources,
+		onMissingSource: (n) => missing.push(n),
+	});
+	assert.ok(
+		html.includes('<sup class="citation citation--missing" title="Source 4 introuvable">[4]</sup>'),
+	);
 	assert.doesNotMatch(html, /href="#source-4"/);
 	assert.deepEqual(missing, [4]);
 });
@@ -60,7 +76,10 @@ test('sans ensemble de notes en marge, aucun appel n’ajoute de copie (rectific
 test('avec un ensemble partagé, chaque source a une copie en marge, après son premier appel seulement', () => {
 	const sidenotes = new Set();
 	const first = renderMarkdown('A [[1]](#source-1) puis [[1]](#source-1).', { sources, sidenotes });
-	const second = renderMarkdown('Encore [[1]](#source-1) et [[2]](#source-2).', { sources, sidenotes });
+	const second = renderMarkdown('Encore [[1]](#source-1) et [[2]](#source-2).', {
+		sources,
+		sidenotes,
+	});
 	assert.equal(first.match(/class="sidenote"/g)?.length, 1);
 	assert.ok(first.indexOf('class="sidenote"') > first.indexOf('href="#source-1"'));
 	assert.ok(first.indexOf('class="sidenote"') < first.lastIndexOf('href="#source-1"'));
@@ -70,9 +89,15 @@ test('avec un ensemble partagé, chaque source a une copie en marge, après son 
 
 test('la copie en marge est décorative : aria-hidden, lien hors tabulation, sans id', () => {
 	const html = renderMarkdown('Fait [[1]](#source-1).', { sources, sidenotes: new Set() });
-	const sidenote = html.slice(html.indexOf('<span class="sidenote"'), html.indexOf(', Congrès</span>'));
+	const sidenote = html.slice(
+		html.indexOf('<span class="sidenote"'),
+		html.indexOf(', Congrès</span>'),
+	);
 	assert.match(sidenote, /^<span class="sidenote" aria-hidden="true">/);
-	assert.match(sidenote, /<a href="https:\/\/www\.congress\.gov\/x" tabindex="-1">H\.R\.4943 — CLOUD Act<\/a>/);
+	assert.match(
+		sidenote,
+		/<a href="https:\/\/www\.congress\.gov\/x" tabindex="-1">H\.R\.4943 — CLOUD Act<\/a>/,
+	);
 	assert.doesNotMatch(sidenote, /\sid=/);
 });
 
@@ -81,7 +106,10 @@ test('une note GFM [^1] garde sa section « Notes » et reçoit sa copie en marg
 	assert.match(html, /<section data-footnotes[^>]*>\s*<h2 id="footnote-label">Notes<\/h2>/);
 	assert.match(html, /href="#user-content-fn-1" id="user-content-fnref-1"/);
 	assert.match(html, /<li id="user-content-fn-1">/);
-	assert.match(html, /<span class="sidenote" aria-hidden="true"><span class="sidenote-number">1<\/span>[^<]*Une note/);
+	assert.match(
+		html,
+		/<span class="sidenote" aria-hidden="true"><span class="sidenote-number">1<\/span>[^<]*Une note/,
+	);
 });
 
 test('le code délimité est coloré en css-variables, sans couleur littérale', () => {

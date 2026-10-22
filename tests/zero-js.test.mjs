@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { extname, join, relative } from 'node:path';
 import { test } from 'node:test';
-import { DIST_DIR, findZeroJsViolations, listDistFiles, readDistHtml } from '../scripts/lib/dist.mjs';
+import {
+	DIST_DIR,
+	findZeroJsViolations,
+	listDistFiles,
+	readDistHtml,
+} from '../scripts/lib/dist.mjs';
 import { FIXTURE_ARTICLES } from '../scripts/lib/fixtures.mjs';
 
 test('aucun HTML de dist/client ne contient de JavaScript', () => {
@@ -15,7 +20,10 @@ test('aucun HTML de dist/client ne contient de JavaScript', () => {
 
 test('dist/client ne contient aucun fichier .js ni .mjs', () => {
 	const scripts = listDistFiles().filter((file) => ['.js', '.mjs'].includes(extname(file)));
-	assert.deepEqual(scripts.map((file) => relative(DIST_DIR, file)), []);
+	assert.deepEqual(
+		scripts.map((file) => relative(DIST_DIR, file)),
+		[],
+	);
 });
 
 test('le Markdown piégé des fixtures (<script>, javascript:) n’atteint pas la page', () => {

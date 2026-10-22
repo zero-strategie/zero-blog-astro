@@ -7,17 +7,15 @@ type Props = SliderBlock;
 const { images } = Astro.props;
 ---
 
-{
-	images.length > 0 && (
-		<ul class="slider" role="list">
-			{images.map((image) => (
-				<li>
-					<CmsImage image={image} loading="lazy" />
-				</li>
-			))}
-		</ul>
-	)
-}
+{images.length > 0 && (
+	<ul class="slider" role="list">
+		{images.map((image) => (
+			<li>
+				<CmsImage image={image} loading="lazy" />
+			</li>
+		))}
+	</ul>
+)}
 
 <style>
 	/* Bande qui défile horizontalement : aucun JavaScript (AGENTS.md 4.7). */

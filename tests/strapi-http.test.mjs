@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { collectPages, contractError, createTransport, StrapiError } from '../src/lib/strapi/http.mjs';
+import {
+	collectPages,
+	contractError,
+	createTransport,
+	StrapiError,
+} from '../src/lib/strapi/http.mjs';
 
 const json = (body, status = 200) =>
 	new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
@@ -44,16 +49,23 @@ test('collectPages parcourt toutes les pages', async () => {
 
 test('un CMS injoignable donne une erreur explicite plutôt qu’un échec cryptique', async () => {
 	const { fetch } = fakeFetch(new TypeError('fetch failed'));
-	await assert.rejects(createTransport({ baseUrl: 'http://cms.test', fetch }).request('/api/articles', {}), (error) => {
-		assert.ok(error instanceof StrapiError);
-		assert.match(error.message, /Strapi injoignable.*http:\/\/cms\.test.*STRAPI_URL/s);
-		return true;
-	});
+	await assert.rejects(
+		createTransport({ baseUrl: 'http://cms.test', fetch }).request('/api/articles', {}),
+		(error) => {
+			assert.ok(error instanceof StrapiError);
+			assert.match(error.message, /Strapi injoignable.*http:\/\/cms\.test.*STRAPI_URL/s);
+			return true;
+		},
+	);
 });
 
 test('remonte le code système qu’undici enfouit dans sa cause', async () => {
-	const refused = Object.assign(new Error('connect ECONNREFUSED ::1:1337'), { code: 'ECONNREFUSED' });
-	const { fetch } = fakeFetch(new TypeError('fetch failed', { cause: new AggregateError([refused]) }));
+	const refused = Object.assign(new Error('connect ECONNREFUSED ::1:1337'), {
+		code: 'ECONNREFUSED',
+	});
+	const { fetch } = fakeFetch(
+		new TypeError('fetch failed', { cause: new AggregateError([refused]) }),
+	);
 	await assert.rejects(
 		createTransport({ baseUrl: 'http://cms.test', fetch }).request('/api/articles', {}),
 		{ message: /^Strapi injoignable \(GET http:\/\/cms\.test\/api\/articles\) : ECONNREFUSED\./ },
@@ -64,13 +76,18 @@ test('rapporte le statut HTTP et le message d’erreur Strapi, avec un indice po
 	const { fetch } = fakeFetch(() =>
 		json({ data: null, error: { status: 403, name: 'ForbiddenError', message: 'Forbidden' } }, 403),
 	);
-	await assert.rejects(createTransport({ baseUrl: 'http://cms.test', fetch }).request('/api/articles', {}), {
-		message: /403.*Forbidden.*STRAPI_API_TOKEN/s,
-	});
+	await assert.rejects(
+		createTransport({ baseUrl: 'http://cms.test', fetch }).request('/api/articles', {}),
+		{
+			message: /403.*Forbidden.*STRAPI_API_TOKEN/s,
+		},
+	);
 });
 
 test('une réponse hors contrat nomme le champ fautif', () => {
-	const error = contractError('/api/articles', [{ path: ['data', 0, 'slug'], message: 'Expected string' }]);
+	const error = contractError('/api/articles', [
+		{ path: ['data', 0, 'slug'], message: 'Expected string' },
+	]);
 	assert.ok(error instanceof StrapiError);
 	assert.match(error.message, /contrat.*data\.0\.slug : Expected string/s);
 });

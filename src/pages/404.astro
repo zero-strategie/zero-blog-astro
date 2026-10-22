@@ -14,13 +14,11 @@ import { archiveUrl, categoryUrl } from '../lib/url';
 	</p>
 	<p class="categories-label">{NOT_FOUND.categoriesLabel}</p>
 	<ul>
-		{
-			CATEGORIES.map(({ slug }) => (
-				<li>
-					<a href={categoryUrl(slug)}>{categoryHeading(slug)}</a>
-				</li>
-			))
-		}
+		{CATEGORIES.map(({ slug }) => (
+			<li>
+				<a href={categoryUrl(slug)}>{categoryHeading(slug)}</a>
+			</li>
+		))}
 	</ul>
 </Layout>
 

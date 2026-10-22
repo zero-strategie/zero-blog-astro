@@ -200,7 +200,10 @@ function rehypeHighlight() {
 				transformers: [
 					{
 						pre(pre) {
-							pre.properties.class = String(pre.properties.class ?? '').replace(/shiki/g, 'astro-code');
+							pre.properties.class = String(pre.properties.class ?? '').replace(
+								/shiki/g,
+								'astro-code',
+							);
 							pre.properties.dataLanguage = lang;
 						},
 					},

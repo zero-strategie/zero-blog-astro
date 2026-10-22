@@ -39,11 +39,9 @@ const ld = articleJsonLd(article, url, shareImage && new URL(shareImage.src, Ast
 <BlogPost article={article} shareImage={shareImage}>
 	<Fragment slot="head">
 		<meta property="article:published_time" content={article.publishedAt.toISOString()} />
-		{
-			article.updatedAt && (
-				<meta property="article:modified_time" content={article.updatedAt.toISOString()} />
-			)
-		}
+		{article.updatedAt && (
+			<meta property="article:modified_time" content={article.updatedAt.toISOString()} />
+		)}
 		<script is:inline type="application/ld+json" set:html={serializeJsonLd(ld)} />
 		{faqLd && <script is:inline type="application/ld+json" set:html={serializeJsonLd(faqLd)} />}
 	</Fragment>

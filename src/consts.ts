@@ -49,7 +49,8 @@ export const CATEGORY_BY_SLUG = Object.fromEntries(
 	CATEGORIES.map((category) => [category.slug, category]),
 ) as Record<CategorySlug, Category>;
 
-export const isCategorySlug = (slug: string): slug is CategorySlug => Object.hasOwn(CATEGORY_BY_SLUG, slug);
+export const isCategorySlug = (slug: string): slug is CategorySlug =>
+	Object.hasOwn(CATEGORY_BY_SLUG, slug);
 
 /** La rubrique d'une catégorie Strapi, si elle en est une. */
 export const rubriqueOf = (category?: { slug: string }): CategorySlug | undefined =>
@@ -62,7 +63,8 @@ export const categoryHeading = (slug: CategorySlug): string => {
 
 export const EMPTY_CATEGORY_MESSAGE = "Rien d'imprimé ici pour l'instant";
 export const ARCHIVE_LINK_LABEL = "Parcourir l'archive";
-export const categoryDescription = (label: string): string => `Les articles de la rubrique ${label}.`;
+export const categoryDescription = (label: string): string =>
+	`Les articles de la rubrique ${label}.`;
 
 export const NAV_LABEL = 'Navigation principale';
 export const CATEGORIES_NAV_LABEL = 'Rubriques';
@@ -108,7 +110,8 @@ export const NOT_FOUND = {
 	kicker: '404',
 	title: 'Page introuvable',
 	description: "Cette adresse n'existe pas ou plus.",
-	message: "Cette page n'a pas été imprimée, ou elle a été retirée du tirage. Reprenez par l'un des points d'entrée ci-dessous.",
+	message:
+		"Cette page n'a pas été imprimée, ou elle a été retirée du tirage. Reprenez par l'un des points d'entrée ci-dessous.",
 	homeLabel: "Retour à l'accueil",
 	categoriesLabel: 'Ou feuilletez une rubrique',
 } as const;

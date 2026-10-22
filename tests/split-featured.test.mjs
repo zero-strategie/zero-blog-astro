@@ -17,7 +17,10 @@ test('la une est le plus récent, le sommaire reprend les suivants du plus réce
 		post('milieu', '2026-02-01'),
 	]);
 	assert.equal(featured?.id, 'récent');
-	assert.deepEqual(summary.map(({ id }) => id), ['milieu', 'ancien']);
+	assert.deepEqual(
+		summary.map(({ id }) => id),
+		['milieu', 'ancien'],
+	);
 });
 
 test('le sommaire est tronqué à 20 articles, sans compter la une', () => {

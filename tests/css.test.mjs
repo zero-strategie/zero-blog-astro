@@ -35,7 +35,10 @@ for (const { file, html } of pages) {
 	test(`${file} : décalage du calage du h1 discret (1 à 2 px)`, () => {
 		const [, x, y] = css.match(/(?:^|[};,])h1\{[^}]*text-shadow:(-?[\d.]+)em(-?[\d.]+)em/) ?? [];
 		assert.ok(x, 'pas de calage en em sur le h1');
-		assert.ok(Math.abs(x) <= MAX_REGISTRATION_OFFSET_EM && Math.abs(y) <= MAX_REGISTRATION_OFFSET_EM, `${x}em ${y}em`);
+		assert.ok(
+			Math.abs(x) <= MAX_REGISTRATION_OFFSET_EM && Math.abs(y) <= MAX_REGISTRATION_OFFSET_EM,
+			`${x}em ${y}em`,
+		);
 	});
 
 	test(`${file} : liens en encre soulignés de rouge`, () => {
@@ -45,10 +48,13 @@ for (const { file, html } of pages) {
 
 	test(`${file} : trame non fixe et calage réservé aux h1`, () => {
 		assert.doesNotMatch(css, /background-attachment:fixed/);
-		const shadowed = [...css.matchAll(/([^{}]+)\{[^{}]*text-shadow:/g)].map(([, selector]) => selector);
+		const shadowed = [...css.matchAll(/([^{}]+)\{[^{}]*text-shadow:/g)].map(
+			([, selector]) => selector,
+		);
 		assert.ok(shadowed.length > 0, 'pas de calage');
 		for (const list of shadowed) {
-			for (const selector of list.split(',')) assert.match(selector, /^h1(\[|$)/, `${selector} (dans ${list})`);
+			for (const selector of list.split(','))
+				assert.match(selector, /^h1(\[|$)/, `${selector} (dans ${list})`);
 		}
 	});
 }

@@ -8,7 +8,9 @@ import { parseTokens } from '../scripts/lib/tokens.mjs';
 const tokens = parseTokens(
 	readFileSync(new URL('../src/styles/tokens.css', import.meta.url), 'utf8'),
 );
-const codeBlocks = readDistHtml().flatMap(({ html }) => html.match(/<pre class="astro-code[^>]*>[\s\S]*?<\/pre>/g) ?? []);
+const codeBlocks = readDistHtml().flatMap(
+	({ html }) => html.match(/<pre class="astro-code[^>]*>[\s\S]*?<\/pre>/g) ?? [],
+);
 const inlineStyles = (html) => [...html.matchAll(/style="([^"]*)"/g)].map(([, style]) => style);
 
 test('le jeu d’essai contient des blocs de code', () => {
@@ -43,7 +45,11 @@ for (const theme of ['light', 'dark']) {
 		assert.ok(resolved['--astro-code-background'], 'fond manquant');
 		for (const name of CODE_TOKENS) {
 			assert.ok(resolved[name], `${name} manquant`);
-			assert.equal(meetsWcag(resolved[name], resolved['--astro-code-background'], 'text'), true, name);
+			assert.equal(
+				meetsWcag(resolved[name], resolved['--astro-code-background'], 'text'),
+				true,
+				name,
+			);
 		}
 	});
 }

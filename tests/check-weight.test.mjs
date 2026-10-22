@@ -107,7 +107,9 @@ test('CLI : code 1 et nom de la règle sur un dist en dépassement', () => {
 });
 
 test('CLI : code 1 et invite à lancer pnpm build si le dist est absent', () => {
-	const run = spawnSync(process.execPath, [CLI, '/chemin/inexistant/dist/client'], { encoding: 'utf8' });
+	const run = spawnSync(process.execPath, [CLI, '/chemin/inexistant/dist/client'], {
+		encoding: 'utf8',
+	});
 	assert.equal(run.status, 1);
 	assert.match(run.stderr, /pnpm build/);
 });

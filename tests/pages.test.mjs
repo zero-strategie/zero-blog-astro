@@ -38,14 +38,27 @@ test('404.html existe, en français, avec un H1 « Page introuvable »', () => {
 });
 
 test('la 404 lie l’accueil, l’archive et les 5 rubriques depuis son contenu', () => {
-	const hrefs = [...mainOf(notFound).matchAll(/<a\b[^>]*\bhref="([^"]+)"/g)].map(([, href]) => href);
-	for (const href of ['/', '/blog/', '/rubriques/open-source/', '/rubriques/ia/', '/rubriques/souverainete/', '/rubriques/politique/', '/rubriques/geopolitique/']) {
+	const hrefs = [...mainOf(notFound).matchAll(/<a\b[^>]*\bhref="([^"]+)"/g)].map(
+		([, href]) => href,
+	);
+	for (const href of [
+		'/',
+		'/blog/',
+		'/rubriques/open-source/',
+		'/rubriques/ia/',
+		'/rubriques/souverainete/',
+		'/rubriques/politique/',
+		'/rubriques/geopolitique/',
+	]) {
 		assert.ok(hrefs.includes(href), href);
 	}
 });
 
 test('/about/ lie le dépôt source depuis consts.ts', () => {
-	assert.match(mainOf(about), /<a\b[^>]*href="https:\/\/github\.com\/zero-strategie\/zero-blog-astro"/);
+	assert.match(
+		mainOf(about),
+		/<a\b[^>]*href="https:\/\/github\.com\/zero-strategie\/zero-blog-astro"/,
+	);
 	assert.match(source('../src/consts.ts'), /contact:/);
 });
 

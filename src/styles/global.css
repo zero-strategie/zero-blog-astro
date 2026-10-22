@@ -32,7 +32,8 @@
 
 @font-face {
 	font-family: 'Fraunces fallback Times';
-	src: local('Times New Roman Bold'), local('TimesNewRomanPS-BoldMT'), local('Liberation Serif Bold');
+	src:
+		local('Times New Roman Bold'), local('TimesNewRomanPS-BoldMT'), local('Liberation Serif Bold');
 	font-weight: 600 900;
 	font-style: normal;
 	size-adjust: 119.7363%;

@@ -49,8 +49,14 @@ test('la liste peuple couverture, catégorie et mots-clés, jamais les blocs ni 
 
 test('la page article peuple les blocs par type, les sources, la FAQ et seo.shareImage', () => {
 	const query = decoded({ populate: ARTICLE_DETAIL_POPULATE });
-	assert.match(query, /populate\[blocks\]\[on\]\[shared\.media\]\[populate\]\[file\]\[fields\]\[0\]=url/);
-	assert.match(query, /populate\[blocks\]\[on\]\[shared\.slider\]\[populate\]\[files\]\[fields\]\[0\]=url/);
+	assert.match(
+		query,
+		/populate\[blocks\]\[on\]\[shared\.media\]\[populate\]\[file\]\[fields\]\[0\]=url/,
+	);
+	assert.match(
+		query,
+		/populate\[blocks\]\[on\]\[shared\.slider\]\[populate\]\[files\]\[fields\]\[0\]=url/,
+	);
 	assert.match(query, /populate\[sources\]=true/);
 	assert.match(query, /populate\[faq\]=true/);
 	assert.match(query, /populate\[seo\]\[populate\]\[shareImage\]\[fields\]\[0\]=url/);

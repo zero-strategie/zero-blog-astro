@@ -8,5 +8,7 @@ const OPINION_QUOTE_TITLE = 'point de vue';
  */
 export function isOpinionQuoteTitle(title) {
 	if (title === undefined) return false;
-	return title.trim().replace(/\s+/g, ' ').replace(/\s*:$/, '').toLowerCase() === OPINION_QUOTE_TITLE;
+	return (
+		title.trim().replace(/\s+/g, ' ').replace(/\s*:$/, '').toLowerCase() === OPINION_QUOTE_TITLE
+	);
 }

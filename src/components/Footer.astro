@@ -7,7 +7,11 @@ import { FOOTER_LINKS, LICENSE, LICENSE_PREFIX, SITE_TITLE } from '../consts';
 		{SITE_TITLE} — {LICENSE_PREFIX} <a href={LICENSE.url}>{LICENSE.name}</a>.
 	</p>
 	<ul class="footer-links">
-		{FOOTER_LINKS.map(({ href, label }) => <li><a href={href}>{label}</a></li>)}
+		{FOOTER_LINKS.map(({ href, label }) => (
+			<li>
+				<a href={href}>{label}</a>
+			</li>
+		))}
 	</ul>
 </footer>
 

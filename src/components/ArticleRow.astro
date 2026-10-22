@@ -25,7 +25,9 @@ const Heading = `h${headingLevel}` as const;
 		{contentType === 'opinion' && <ContentTypeBadge type={contentType} />}
 	</span>
 	{category ? <Stamp category={category} /> : <span />}
-	<Heading class="title"><a href={href}>{title}</a></Heading>
+	<Heading class="title">
+		<a href={href}>{title}</a>
+	</Heading>
 </li>
 
 <style>

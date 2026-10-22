@@ -41,7 +41,7 @@ const OG_DEFAULT_URL = 'https://zero-strategie.dev/og-default.png';
 const PNG_SIGNATURE = '89504e470d0a1a0a';
 
 function pngSize(buffer) {
-	assert.equal(buffer.subarray(0, 8).toString('hex'), PNG_SIGNATURE, "pas un PNG");
+	assert.equal(buffer.subarray(0, 8).toString('hex'), PNG_SIGNATURE, 'pas un PNG');
 	return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
 }
 

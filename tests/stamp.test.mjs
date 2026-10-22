@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { pageCss, readDistHtml } from '../scripts/lib/dist.mjs';
 import { FIXTURE_ARTICLES } from '../scripts/lib/fixtures.mjs';
@@ -13,7 +12,10 @@ const HEADINGS = {
 	geopolitique: '§05 Géopolitique',
 };
 const EXPECTED_STAMPS = Object.fromEntries(
-	FIXTURE_ARTICLES.map(({ slug, category }) => [slug, { slug: category.slug, text: HEADINGS[category.slug] }]),
+	FIXTURE_ARTICLES.map(({ slug, category }) => [
+		slug,
+		{ slug: category.slug, text: HEADINGS[category.slug] },
+	]),
 );
 const articleHtml = (id) => {
 	const page = pages.find(({ file }) => file.endsWith(`blog/${id}/index.html`));
@@ -21,10 +23,12 @@ const articleHtml = (id) => {
 	return page.html;
 };
 const stampsOf = (html) =>
-	[...html.matchAll(/<a\b([^>]*\bclass="[^"]*\bstamp\b[^"]*"[^>]*)>([\s\S]*?)<\/a>/g)].map(([, attributes, inner]) => ({
-		href: attributes.match(/href="([^"]*)"/)?.[1],
-		text: inner.replace(/<[^>]+>/g, '').trim(),
-	}));
+	[...html.matchAll(/<a\b([^>]*\bclass="[^"]*\bstamp\b[^"]*"[^>]*)>([\s\S]*?)<\/a>/g)].map(
+		([, attributes, inner]) => ({
+			href: attributes.match(/href="([^"]*)"/)?.[1],
+			text: inner.replace(/<[^>]+>/g, '').trim(),
+		}),
+	);
 
 test('chaque article contient exactement un tampon vers sa rubrique, avec numéro et libellé', () => {
 	for (const [id, { slug, text }] of Object.entries(EXPECTED_STAMPS)) {
@@ -36,7 +40,8 @@ const stampCss = () => {
 	const html = articleHtml('cloud-act-donnees-europeennes');
 	return pageCss(html).replace(/\s+/g, ' ');
 };
-const ruleBody = (css, selectorPattern) => css.match(new RegExp(`${selectorPattern}\\s*\\{([^}]*)\\}`))?.[1] ?? '';
+const ruleBody = (css, selectorPattern) =>
+	css.match(new RegExp(`${selectorPattern}\\s*\\{([^}]*)\\}`))?.[1] ?? '';
 
 test('le clip-path est sur le pseudo-élément du tampon, pas sur le lien', () => {
 	const css = stampCss();
@@ -66,7 +71,10 @@ const STAMP_RULE = '\\.stamp\\[data-astro-cid-[\\w]+\\]';
 const SIDE_INSET = /^(0|1px|100%|calc\(100% - 1px\))$/;
 
 test('les sommets latéraux du clip-path ne retirent que ~1px : les bords gauche et droit restent visibles', () => {
-	const polygon = ruleBody(stampCss(), '\\.stamp[^{,]*::?before').match(/clip-path:\s*polygon\((.*?)\)\s*(?:;|$)/)?.[1] ?? '';
+	const polygon =
+		ruleBody(stampCss(), '\\.stamp[^{,]*::?before').match(
+			/clip-path:\s*polygon\((.*?)\)\s*(?:;|$)/,
+		)?.[1] ?? '';
 	const points = polygon.split(/,(?![^(]*\))/).map((point) => point.trim().split(/\s+(?![^(]*\))/));
 	const side = points.filter(([, y]) => parseFloat(y) > 10 && parseFloat(y) < 90);
 	assert.ok(side.length >= 4, polygon);

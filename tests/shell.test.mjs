@@ -49,7 +49,10 @@ test('la seconde ligne « rubriques » est un <nav> distinct, labellisé autreme
 	assert.notEqual(labelOf(rubriquesNavOf(html)), labelOf(navOf(html)));
 	const entries = links(rubriquesNavOf(html)).map(([, attributes, text]) => [
 		attributes.match(/href="([^"]*)"/)?.[1],
-		text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(),
+		text
+			.replace(/<[^>]*>/g, '')
+			.replace(/\s+/g, ' ')
+			.trim(),
 	]);
 	assert.deepEqual(entries, [
 		['/rubriques/open-source/', '§01 Open source'],
@@ -72,7 +75,10 @@ test('les rubriques défilent horizontalement sur une ligne, avec snap et focus 
 
 test('la rubrique active est entièrement visible au chargement (scroll-initial-target)', () => {
 	const css = pageCss(pageNamed('client/index.html')).replace(/\s+/g, '');
-	assert.match(css, /nav\[[^\]]*\]\.rubriquesa\[aria-current=["']?page["']?\](?:\[[^\]]*\])?\{[^}]*scroll-initial-target:nearest/);
+	assert.match(
+		css,
+		/nav\[[^\]]*\]\.rubriquesa\[aria-current=["']?page["']?\](?:\[[^\]]*\])?\{[^}]*scroll-initial-target:nearest/,
+	);
 });
 
 test('les textes des deux navigations viennent de consts.ts', () => {
@@ -103,7 +109,9 @@ const footerOf = (html) => html.match(/<footer\b[\s\S]*?<\/footer>/)?.[0] ?? '';
 
 test('le pied de page lie la licence CC BY-SA 4.0, le flux RSS et le dépôt source', () => {
 	for (const { file, html } of pages.filter(({ file }) => file.endsWith('.html'))) {
-		const hrefs = links(footerOf(html)).map(([, attributes]) => attributes.match(/href="([^"]*)"/)?.[1]);
+		const hrefs = links(footerOf(html)).map(
+			([, attributes]) => attributes.match(/href="([^"]*)"/)?.[1],
+		);
 		assert.ok(hrefs.includes('https://creativecommons.org/licenses/by-sa/4.0/deed.fr'), file);
 		assert.ok(hrefs.includes('/rss.xml'), file);
 		assert.ok(hrefs.includes('https://github.com/zero-strategie/zero-blog-astro'), file);
@@ -120,7 +128,11 @@ test('aucune trace du gabarit Astro dans dist/client', () => {
 test('tout lien target="_blank" porte rel="noopener noreferrer"', () => {
 	for (const { file, html } of pages) {
 		for (const [tag] of html.matchAll(/<a\b[^>]*\btarget="_blank"[^>]*>/g)) {
-			assert.match(tag, /\brel="[^"]*\bnoopener\b[^"]*\bnoreferrer\b|\brel="[^"]*\bnoreferrer\b[^"]*\bnoopener\b/, `${file} : ${tag}`);
+			assert.match(
+				tag,
+				/\brel="[^"]*\bnoopener\b[^"]*\bnoreferrer\b|\brel="[^"]*\bnoreferrer\b[^"]*\bnoopener\b/,
+				`${file} : ${tag}`,
+			);
 		}
 	}
 });
@@ -146,7 +158,10 @@ test('les textes de la coque viennent de consts.ts, pas des composants', () => {
 });
 
 test("le lien d'évitement apparaît sur :focus et garde son anneau dans la fenêtre", () => {
-	const css = readFileSync(new URL('../src/styles/global.css', import.meta.url), 'utf8').replace(/\s+/g, '');
+	const css = readFileSync(new URL('../src/styles/global.css', import.meta.url), 'utf8').replace(
+		/\s+/g,
+		'',
+	);
 	const rule = css.match(/\.skip-link:focus\{([^}]*)\}/)?.[1] ?? '';
 	assert.match(rule, /transform:none/);
 	assert.match(rule, /outline-offset:-/);
@@ -159,7 +174,10 @@ test('masthead en Fraunces très gras, navigation en monospace capitales', () =>
 	assert.match(rule('\\.masthead'), /font-family:var\(--font-text\)/);
 	assert.match(rule('nav\\[[^\\]]*\\]a'), /font-family:var\(--font-mono\)/);
 	assert.match(rule('nav\\[[^\\]]*\\]a'), /text-transform:uppercase/);
-	assert.match(rule('nav\\[[^\\]]*\\]a\\[aria-current=page\\]'), /border-bottom-color:var\(--ink-red\)|text-decoration-color:var\(--ink-red\)/);
+	assert.match(
+		rule('nav\\[[^\\]]*\\]a\\[aria-current=page\\]'),
+		/border-bottom-color:var\(--ink-red\)|text-decoration-color:var\(--ink-red\)/,
+	);
 });
 
 test('le survol de la navigation ne retire pas le filet rouge du lien actif', () => {

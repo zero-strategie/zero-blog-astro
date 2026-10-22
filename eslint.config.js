@@ -11,6 +11,8 @@ export default defineConfig(
 		rules: {
 			// AGENTS.md 4.8: the repository keeps zero occurrences of `any`.
 			'@typescript-eslint/no-explicit-any': 'error',
+			// `const { html, ...rest } = page` is how main omits a key (weight.mjs, rehype-sidenotes.mjs).
+			'@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }],
 		},
 	},
 );

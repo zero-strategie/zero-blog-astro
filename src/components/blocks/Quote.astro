@@ -7,20 +7,18 @@ type Props = QuoteBlock;
 const { title, html, isOpinion } = Astro.props;
 ---
 
-{
-	isOpinion ? (
-		<aside class="point-de-vue" aria-label={title}>
-			<p class="point-de-vue-titre mono-label">{title}</p>
-			<p class="point-de-vue-avertissement">{ARTICLE_LABELS.opinionQuoteNotice}</p>
-			<div class="point-de-vue-corps" set:html={html} />
-		</aside>
-	) : (
-		<figure class="quote">
-			<blockquote set:html={html} />
-			{title && <figcaption>— {title}</figcaption>}
-		</figure>
-	)
-}
+{isOpinion ? (
+	<aside class="point-de-vue" aria-label={title}>
+		<p class="point-de-vue-titre mono-label">{title}</p>
+		<p class="point-de-vue-avertissement">{ARTICLE_LABELS.opinionQuoteNotice}</p>
+		<div class="point-de-vue-corps" set:html={html} />
+	</aside>
+) : (
+	<figure class="quote">
+		<blockquote set:html={html} />
+		{title && <figcaption>— {title}</figcaption>}
+	</figure>
+)}
 
 <style>
 	.quote {

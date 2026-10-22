@@ -24,26 +24,26 @@ const COVER_SIZES = '(min-width: 48rem) 48rem, 100vw';
 
 <article class="featured">
 	<p class="label">{FEATURED_LABEL}</p>
-	{
-		cover && (
-			<a class="cover riso" href={href} tabindex="-1" aria-hidden="true">
-				<CmsImage
-					image={cover}
-					alt=""
-					widths={COVER_WIDTHS}
-					sizes={COVER_SIZES}
-					loading="eager"
-					fetchpriority="high"
-				/>
-			</a>
-		)
-	}
+	{cover && (
+		<a class="cover riso" href={href} tabindex="-1" aria-hidden="true">
+			<CmsImage
+				image={cover}
+				alt=""
+				widths={COVER_WIDTHS}
+				sizes={COVER_SIZES}
+				loading="eager"
+				fetchpriority="high"
+			/>
+		</a>
+	)}
 	<div class="meta">
 		{category && <Stamp category={category} />}
 		<ContentTypeBadge type={contentType} />
 		<FormattedDate date={pubDate} />
 	</div>
-	<h2><a href={href}>{title}</a></h2>
+	<h2>
+		<a href={href}>{title}</a>
+	</h2>
 	{description && <p class="description">{description}</p>}
 </article>
 

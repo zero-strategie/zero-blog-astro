@@ -7,6 +7,8 @@ export const SUMMARY_LIMIT = 20;
  * @returns {{ featured: T | undefined, summary: T[] }}
  */
 export function splitFeatured(articles) {
-	const [featured, ...older] = [...articles].sort((a, b) => b.publishedAt.valueOf() - a.publishedAt.valueOf());
+	const [featured, ...older] = [...articles].sort(
+		(a, b) => b.publishedAt.valueOf() - a.publishedAt.valueOf(),
+	);
 	return { featured, summary: older.slice(0, SUMMARY_LIMIT) };
 }

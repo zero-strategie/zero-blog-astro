@@ -26,9 +26,18 @@ test('avec heroImage, un heroAlt vide ou blanc est refusé', () => {
 });
 
 test('chaque article des fixtures avec couverture a un texte alternatif non vide', () => {
-	assert.ok(FIXTURE_ARTICLES.some(({ cover }) => cover), 'aucune couverture : le test passerait à vide');
+	assert.ok(
+		FIXTURE_ARTICLES.some(({ cover }) => cover),
+		'aucune couverture : le test passerait à vide',
+	);
 	for (const { slug, cover } of FIXTURE_ARTICLES) {
-		assert.ok(isHeroAltValid({ heroImage: cover ?? undefined, heroAlt: cover?.alternativeText ?? undefined }), slug);
+		assert.ok(
+			isHeroAltValid({
+				heroImage: cover ?? undefined,
+				heroAlt: cover?.alternativeText ?? undefined,
+			}),
+			slug,
+		);
 	}
 });
 

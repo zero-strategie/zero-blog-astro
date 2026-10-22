@@ -4,9 +4,13 @@ import { test } from 'node:test';
 import { readDistHtml } from '../scripts/lib/dist.mjs';
 import { FIXTURE_ARTICLES } from '../scripts/lib/fixtures.mjs';
 
-const archive = readDistHtml().find(({ file }) => file.endsWith('/client/blog/index.html'))?.html ?? '';
+const archive =
+	readDistHtml().find(({ file }) => file.endsWith('/client/blog/index.html'))?.html ?? '';
 const main = archive.match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? '';
-const rows = () => [...main.matchAll(/<li\b[^>]*class="[^"]*\barticle-row\b[^"]*"[^>]*>([\s\S]*?)<\/li>/g)].map(([, inner]) => inner);
+const rows = () =>
+	[...main.matchAll(/<li\b[^>]*class="[^"]*\barticle-row\b[^"]*"[^>]*>([\s\S]*?)<\/li>/g)].map(
+		([, inner]) => inner,
+	);
 const datetimeOf = (html) => html.match(/<time\b[^>]*datetime="([^"]+)"/)?.[1];
 
 test("l'archive liste tous les articles des fixtures, du plus récent au plus ancien", () => {
@@ -38,5 +42,8 @@ test("l'archive n'a ni image sans alt ni largeur en px codée en dur", () => {
 test("l'état vide de l'archive vient de consts.ts", () => {
 	const source = readFileSync(new URL('../src/pages/blog/index.astro', import.meta.url), 'utf8');
 	assert.match(source, /EMPTY_ARCHIVE_MESSAGE/);
-	assert.match(readFileSync(new URL('../src/consts.ts', import.meta.url), 'utf8'), /export const EMPTY_ARCHIVE_MESSAGE/);
+	assert.match(
+		readFileSync(new URL('../src/consts.ts', import.meta.url), 'utf8'),
+		/export const EMPTY_ARCHIVE_MESSAGE/,
+	);
 });

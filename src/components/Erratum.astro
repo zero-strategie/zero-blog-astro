@@ -10,7 +10,9 @@ const { html } = Astro.props;
 ---
 
 <aside class="erratum" role="note" aria-labelledby="erratum-titre">
-	<p id="erratum-titre" class="erratum-titre mono-label">{ARTICLE_LABELS.erratum}</p>
+	<p id="erratum-titre" class="erratum-titre mono-label">
+		{ARTICLE_LABELS.erratum}
+	</p>
 	<div class="erratum-corps" set:html={html} />
 </aside>
 

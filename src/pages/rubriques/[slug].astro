@@ -28,22 +28,20 @@ const heading = categoryHeading(category.slug);
 
 <Layout title={`${heading} — ${SITE_TITLE}`} description={categoryDescription(category.label)}>
 	<h1>{heading}</h1>
-	{
-		posts.length === 0 ? (
-			<p>
-				{EMPTY_CATEGORY_MESSAGE}. <a href={archiveUrl()}>{ARCHIVE_LINK_LABEL}</a>
-			</p>
-		) : (
-			<ul>
-				{posts.map((post) => (
-					<li>
-						<a href={articleUrl(post.slug)}>{post.title}</a>
-						<FormattedDate date={post.publishedAt} />
-					</li>
-				))}
-			</ul>
-		)
-	}
+	{posts.length === 0 ? (
+		<p>
+			{EMPTY_CATEGORY_MESSAGE}. <a href={archiveUrl()}>{ARCHIVE_LINK_LABEL}</a>
+		</p>
+	) : (
+		<ul>
+			{posts.map((post) => (
+				<li>
+					<a href={articleUrl(post.slug)}>{post.title}</a>
+					<FormattedDate date={post.publishedAt} />
+				</li>
+			))}
+		</ul>
+	)}
 </Layout>
 
 <style>

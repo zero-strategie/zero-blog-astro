@@ -22,10 +22,8 @@ const { image, alt = image.alt, ...rest } = Astro.props;
 const { url, width, height } = image;
 ---
 
-{
-	width && height ? (
-		<Image src={url} width={width} height={height} alt={alt} {...rest} />
-	) : (
-		<Image src={url} inferSize alt={alt} {...rest} />
-	)
-}
+{width && height ? (
+	<Image src={url} width={width} height={height} alt={alt} {...rest} />
+) : (
+	<Image src={url} inferSize alt={alt} {...rest} />
+)}

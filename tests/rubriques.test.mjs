@@ -45,7 +45,10 @@ test('dist/client/rubriques contient exactement les 5 dossiers de rubrique', () 
 test('le H1 de chaque rubrique affiche « §0N Libellé »', () => {
 	for (const [slug, h1] of Object.entries(EXPECTED_H1)) {
 		const html = pageNamed(`rubriques/${slug}/index.html`);
-		const text = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1].replace(/<[^>]+>/g, '').trim();
+		const text = html
+			.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1]
+			.replace(/<[^>]+>/g, '')
+			.trim();
 		assert.equal(text, h1, slug);
 	}
 });
@@ -54,10 +57,16 @@ const mainOf = (html) => html.match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? '';
 
 test('chaque rubrique liste ses articles, du plus récent au plus ancien', () => {
 	for (const [slug, ids] of Object.entries(EXPECTED_ARTICLES)) {
-		const hrefs = [...mainOf(pageNamed(`rubriques/${slug}/index.html`)).matchAll(/href="(\/blog\/[^"]+)"/g)]
+		const hrefs = [
+			...mainOf(pageNamed(`rubriques/${slug}/index.html`)).matchAll(/href="(\/blog\/[^"]+)"/g),
+		]
 			.map(([, href]) => href)
 			.filter((href) => href !== '/blog/');
-		assert.deepEqual(hrefs, ids.map((id) => `/blog/${id}/`), slug);
+		assert.deepEqual(
+			hrefs,
+			ids.map((id) => `/blog/${id}/`),
+			slug,
+		);
 	}
 });
 
@@ -77,16 +86,19 @@ const navLinks = (html) =>
 	}));
 
 test('la navigation contient les 5 rubriques dans la seconde ligne, après les 3 liens principaux', () => {
-	assert.deepEqual(navLinks(pageNamed('client/index.html')).map(({ href }) => href), [
-		'/',
-		'/blog/',
-		'/about/',
-		'/rubriques/open-source/',
-		'/rubriques/ia/',
-		'/rubriques/souverainete/',
-		'/rubriques/politique/',
-		'/rubriques/geopolitique/',
-	]);
+	assert.deepEqual(
+		navLinks(pageNamed('client/index.html')).map(({ href }) => href),
+		[
+			'/',
+			'/blog/',
+			'/about/',
+			'/rubriques/open-source/',
+			'/rubriques/ia/',
+			'/rubriques/souverainete/',
+			'/rubriques/politique/',
+			'/rubriques/geopolitique/',
+		],
+	);
 });
 
 test('sur /rubriques/ia/, seul le lien IA est en aria-current', () => {
@@ -108,7 +120,10 @@ test('rss.xml.ts construit ses liens avec src/lib/url', () => {
 });
 
 test('les rubriques sont exactement les catégories Strapi, et chaque article en a une', () => {
-	assert.deepEqual(FIXTURE_CATEGORIES.map(({ slug }) => slug).sort(), Object.keys(EXPECTED_H1).sort());
+	assert.deepEqual(
+		FIXTURE_CATEGORIES.map(({ slug }) => slug).sort(),
+		Object.keys(EXPECTED_H1).sort(),
+	);
 	for (const { slug, category } of FIXTURE_ARTICLES) {
 		assert.ok(Object.keys(EXPECTED_H1).includes(category?.slug), `${slug} : ${category?.slug}`);
 	}

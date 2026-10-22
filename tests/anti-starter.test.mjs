@@ -24,7 +24,10 @@ test('aucun texte du gabarit Astro ne subsiste dans dist/client', () => {
 test('« Lorem » n’apparaît plus nulle part dans dist/client, articles compris', () => {
 	const articles = textFiles.filter(({ file }) => ARTICLE_PAGE.test(file));
 	assert.equal(articles.length, FIXTURE_ARTICLES.length, 'une page par article des fixtures');
-	assert.ok(textFiles.some(({ file }) => file.endsWith('rss.xml')), 'rss.xml absent : le test passerait à vide');
+	assert.ok(
+		textFiles.some(({ file }) => file.endsWith('rss.xml')),
+		'rss.xml absent : le test passerait à vide',
+	);
 	for (const { file, text } of textFiles) assert.doesNotMatch(text, /Lorem/i, file);
 });
 

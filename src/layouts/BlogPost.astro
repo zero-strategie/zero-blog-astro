@@ -26,16 +26,8 @@ interface Props {
 }
 
 const { article, shareImage } = Astro.props;
-const {
-	title,
-	contentType,
-	publishedAt,
-	updatedAt,
-	verifiedOn,
-	cover,
-	author,
-	readingMinutes,
-} = article;
+const { title, contentType, publishedAt, updatedAt, verifiedOn, cover, author, readingMinutes } =
+	article;
 const category = rubriqueOf(article.category);
 const isOpinion = contentType === 'opinion';
 const COVER_WIDTHS = [480, 800, 1200];
@@ -213,19 +205,17 @@ const COVER_SIZES = '(min-width: 64rem) 64rem, 100vw';
 	</style>
 	<div class="reading-progress" aria-hidden="true"></div>
 	<article class:list={{ 'article--opinion': isOpinion }}>
-		{
-			cover && (
-				<div class="hero-image riso">
-					<CmsImage
-						image={cover}
-						widths={COVER_WIDTHS}
-						sizes={COVER_SIZES}
-						loading="eager"
-						fetchpriority="high"
-					/>
-				</div>
-			)
-		}
+		{cover && (
+			<div class="hero-image riso">
+				<CmsImage
+					image={cover}
+					widths={COVER_WIDTHS}
+					sizes={COVER_SIZES}
+					loading="eager"
+					fetchpriority="high"
+				/>
+			</div>
+		)}
 		<div class="prose">
 			<header class="title">
 				<p class="kicker">
@@ -236,29 +226,28 @@ const COVER_SIZES = '(min-width: 64rem) 64rem, 100vw';
 				<p class="date">
 					<FormattedDate date={publishedAt} />
 					<span>{readingTimeLabel(readingMinutes)}</span>
-					{
-						updatedAt && (
-							<span class="updated-on">
-								{UPDATED_ON_LABEL} <FormattedDate date={updatedAt} />
-							</span>
-						)
-					}
-					{
-						verifiedOn && (
-							<span>
-								{ARTICLE_LABELS.verifiedOn} <FormattedDate date={verifiedOn} />
-							</span>
-						)
-					}
-					{author && <span>{ARTICLE_LABELS.by} {author.name}</span>}
+					{updatedAt && (
+						<span class="updated-on">
+							{UPDATED_ON_LABEL} <FormattedDate date={updatedAt} />
+						</span>
+					)}
+					{verifiedOn && (
+						<span>
+							{ARTICLE_LABELS.verifiedOn} <FormattedDate date={verifiedOn} />
+						</span>
+					)}
+					{author && (
+						<span>
+							{ARTICLE_LABELS.by} {author.name}
+						</span>
+					)}
 				</p>
-				{
-					isOpinion && (
-						<p class="opinion-notice" role="note">
-							<strong class="mono-label">{CONTENT_TYPE_LABELS.opinion}.</strong> {ARTICLE_LABELS.opinionNotice}
-						</p>
-					)
-				}
+				{isOpinion && (
+					<p class="opinion-notice" role="note">
+						<strong class="mono-label">{CONTENT_TYPE_LABELS.opinion}.</strong>{' '}
+						{ARTICLE_LABELS.opinionNotice}
+					</p>
+				)}
 				<hr />
 			</header>
 			{article.erratum && <Erratum html={article.erratum} />}

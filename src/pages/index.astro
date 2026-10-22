@@ -21,42 +21,44 @@ const { featured, summary } = splitFeatured(await getArticles());
 	<section class="manifesto">
 		<p class="kicker">{MANIFESTO.kicker}</p>
 		<h1>{MANIFESTO.title}</h1>
-		{MANIFESTO.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+		{MANIFESTO.paragraphs.map((paragraph) => (
+			<p>{paragraph}</p>
+		))}
 	</section>
-	{
-		featured ? (
-			<>
-				<FeaturedArticle
-					title={featured.title}
-					description={featured.description}
-					href={articleUrl(featured.slug)}
-					pubDate={featured.publishedAt}
-					category={rubriqueOf(featured.category)}
-					contentType={featured.contentType}
-					cover={featured.cover}
-				/>
-				{summary.length > 0 && (
-					<section class="summary" aria-labelledby="sommaire">
-						<h2 id="sommaire" class="summary-title">{SUMMARY_LABEL}</h2>
-						<ul>
-							{summary.map((post) => (
-								<ArticleRow
-									title={post.title}
-									href={articleUrl(post.slug)}
-									pubDate={post.publishedAt}
-									category={rubriqueOf(post.category)}
-									contentType={post.contentType}
-									headingLevel={3}
-								/>
-							))}
-						</ul>
-					</section>
-				)}
-			</>
-		) : (
-			<p class="empty">{EMPTY_HOME_MESSAGE}</p>
-		)
-	}
+	{featured ? (
+		<>
+			<FeaturedArticle
+				title={featured.title}
+				description={featured.description}
+				href={articleUrl(featured.slug)}
+				pubDate={featured.publishedAt}
+				category={rubriqueOf(featured.category)}
+				contentType={featured.contentType}
+				cover={featured.cover}
+			/>
+			{summary.length > 0 && (
+				<section class="summary" aria-labelledby="sommaire">
+					<h2 id="sommaire" class="summary-title">
+						{SUMMARY_LABEL}
+					</h2>
+					<ul>
+						{summary.map((post) => (
+							<ArticleRow
+								title={post.title}
+								href={articleUrl(post.slug)}
+								pubDate={post.publishedAt}
+								category={rubriqueOf(post.category)}
+								contentType={post.contentType}
+								headingLevel={3}
+							/>
+						))}
+					</ul>
+				</section>
+			)}
+		</>
+	) : (
+		<p class="empty">{EMPTY_HOME_MESSAGE}</p>
+	)}
 </Layout>
 
 <style>

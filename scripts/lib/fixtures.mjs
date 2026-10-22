@@ -6,7 +6,8 @@ import { readFileSync } from 'node:fs';
  * attentes au lieu de les recopier.
  */
 const load = (name) =>
-	JSON.parse(readFileSync(new URL(`../../test/fixtures/${name}.json`, import.meta.url), 'utf8')).data;
+	JSON.parse(readFileSync(new URL(`../../test/fixtures/${name}.json`, import.meta.url), 'utf8'))
+		.data;
 
 export const FIXTURE_ARTICLES = load('articles');
 export const FIXTURE_CATEGORIES = load('categories');

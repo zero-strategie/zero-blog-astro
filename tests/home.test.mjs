@@ -9,19 +9,31 @@ const consts = readFileSync(new URL('../src/consts.ts', import.meta.url), 'utf8'
 const manifestoBlock = consts.match(/export const MANIFESTO = \{([\s\S]*?)\} as const;/)?.[1] ?? '';
 const MANIFESTO = {
 	title: manifestoBlock.match(/title: '([^']+)'/)?.[1] ?? '',
-	paragraphs: [...(manifestoBlock.match(/paragraphs: \[([\s\S]*?)\],/)?.[1] ?? '').matchAll(/"([^"]+)"/g)].map(([, text]) => text),
+	paragraphs: [
+		...(manifestoBlock.match(/paragraphs: \[([\s\S]*?)\],/)?.[1] ?? '').matchAll(/"([^"]+)"/g),
+	].map(([, text]) => text),
 };
 
-const home = (readDistHtml().find(({ file }) => file.endsWith('/client/index.html'))?.html ?? '').replaceAll('&#39;', "'");
+const home = (
+	readDistHtml().find(({ file }) => file.endsWith('/client/index.html'))?.html ?? ''
+).replaceAll('&#39;', "'");
 const attr = (tag, name) => tag.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
 const section = (className) =>
-	home.match(new RegExp(`<(\\w+)\\b[^>]*class="[^"]*\\b${className}\\b[^"]*"[^>]*>([\\s\\S]*?)</\\1>`))?.[2] ?? '';
-const rows = () => [...home.matchAll(/<li\b[^>]*class="[^"]*\barticle-row\b[^"]*"[^>]*>([\s\S]*?)<\/li>/g)].map(([, inner]) => inner);
+	home.match(
+		new RegExp(`<(\\w+)\\b[^>]*class="[^"]*\\b${className}\\b[^"]*"[^>]*>([\\s\\S]*?)</\\1>`),
+	)?.[2] ?? '';
+const rows = () =>
+	[...home.matchAll(/<li\b[^>]*class="[^"]*\barticle-row\b[^"]*"[^>]*>([\s\S]*?)<\/li>/g)].map(
+		([, inner]) => inner,
+	);
 const datetimeOf = (html) => html.match(/<time\b[^>]*datetime="([^"]+)"/)?.[1];
 
 test("l'accueil affiche le manifeste et aucun reste du starter", () => {
 	assert.ok(home.length > 0);
-	assert.ok(MANIFESTO.title && MANIFESTO.paragraphs.length > 0, 'manifeste introuvable dans consts.ts');
+	assert.ok(
+		MANIFESTO.title && MANIFESTO.paragraphs.length > 0,
+		'manifeste introuvable dans consts.ts',
+	);
 	for (const paragraph of MANIFESTO.paragraphs) assert.ok(home.includes(paragraph), paragraph);
 	assert.ok(home.includes(MANIFESTO.title));
 	assert.doesNotMatch(home, /Hello, Astronaut|Lorem/);
@@ -62,7 +74,10 @@ test('la colonne du tampon fait au moins 11rem et le tampon ne passe pas à la l
 
 test('les colonnes des lignes ont des largeurs fixes pour aligner les titres', () => {
 	const css = pageCss(home).replace(/\s+/g, '');
-	const desktopColumns = css.match(/@media\(min-width:48rem\)\{\.article-row[^{]*\{[^}]*grid-template-columns:([^;}]+)/)?.[1] ?? '';
+	const desktopColumns =
+		css.match(
+			/@media\(min-width:48rem\)\{\.article-row[^{]*\{[^}]*grid-template-columns:([^;}]+)/,
+		)?.[1] ?? '';
 	assert.ok(desktopColumns, 'colonnes desktop introuvables');
 	assert.doesNotMatch(desktopColumns, /auto/);
 });
@@ -76,7 +91,8 @@ test('la couverture à la une est prioritaire et responsive', () => {
 });
 
 test('le lien de couverture masqué a une image décorative (alt vide), sans doublon de lien lu', () => {
-	const link = section('featured').match(/<a\b[^>]*class="[^"]*\bcover\b[^"]*"[^>]*>[\s\S]*?<\/a>/)?.[0] ?? '';
+	const link =
+		section('featured').match(/<a\b[^>]*class="[^"]*\bcover\b[^"]*"[^>]*>[\s\S]*?<\/a>/)?.[0] ?? '';
 	assert.match(link, /aria-hidden="true"/);
 	assert.match(link, /tabindex="-1"/);
 	// Astro sérialise alt="" en attribut nu `alt`.

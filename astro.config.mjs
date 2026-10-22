@@ -11,7 +11,8 @@ import { parseEnv } from 'node:util';
 // build time. The built pages then serve /_astro/… copies and never point at
 // the CMS origin, which may be internal to the build network.
 const STRAPI_URL =
-	process.env.STRAPI_URL ?? (existsSync('.env') ? parseEnv(readFileSync('.env', 'utf8')).STRAPI_URL : undefined);
+	process.env.STRAPI_URL ??
+	(existsSync('.env') ? parseEnv(readFileSync('.env', 'utf8')).STRAPI_URL : undefined);
 const cmsImages = (() => {
 	try {
 		const { protocol, hostname, port } = new URL(STRAPI_URL ?? '');

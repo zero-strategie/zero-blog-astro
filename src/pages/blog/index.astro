@@ -17,23 +17,21 @@ const posts = await getArticles();
 
 <Layout title={`${ARCHIVE_TITLE} — ${SITE_TITLE}`} description={ARCHIVE_DESCRIPTION}>
 	<h1>{ARCHIVE_TITLE}</h1>
-	{
-		posts.length === 0 ? (
-			<p class="empty">{EMPTY_ARCHIVE_MESSAGE}</p>
-		) : (
-			<ul>
-				{posts.map((post) => (
-					<ArticleRow
-						title={post.title}
-						href={articleUrl(post.slug)}
-						pubDate={post.publishedAt}
-						category={rubriqueOf(post.category)}
-						contentType={post.contentType}
-					/>
-				))}
-			</ul>
-		)
-	}
+	{posts.length === 0 ? (
+		<p class="empty">{EMPTY_ARCHIVE_MESSAGE}</p>
+	) : (
+		<ul>
+			{posts.map((post) => (
+				<ArticleRow
+					title={post.title}
+					href={articleUrl(post.slug)}
+					pubDate={post.publishedAt}
+					category={rubriqueOf(post.category)}
+					contentType={post.contentType}
+				/>
+			))}
+		</ul>
+	)}
 </Layout>
 
 <style>
