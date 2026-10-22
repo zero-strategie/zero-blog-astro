@@ -1,14 +1,13 @@
 ---
-import { CATEGORIES } from '../consts';
+import { type CategorySlug, categoryHeading } from '../consts';
 import { categoryUrl } from '../lib/url';
 
-type Props = { category: (typeof CATEGORIES)[number]['slug'] };
+type Props = { category: CategorySlug };
 
 const { category } = Astro.props;
-const { slug, number, label } = CATEGORIES.find((candidate) => candidate.slug === category)!;
 ---
 
-<a class="stamp" href={categoryUrl(slug)}>§{number} {label}</a>
+<a class="stamp" href={categoryUrl(category)}>{categoryHeading(category)}</a>
 
 <style>
 	.stamp {

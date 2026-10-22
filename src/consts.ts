@@ -33,6 +33,18 @@ export const CATEGORY_SLUGS = CATEGORIES.map(({ slug }) => slug) as [
 	...(typeof CATEGORIES)[number]['slug'][],
 ];
 
+type Category = (typeof CATEGORIES)[number];
+export type CategorySlug = Category['slug'];
+
+export const CATEGORY_BY_SLUG = Object.fromEntries(
+	CATEGORIES.map((category) => [category.slug, category]),
+) as Record<CategorySlug, Category>;
+
+export const categoryHeading = (slug: CategorySlug): string => {
+	const { number, label } = CATEGORY_BY_SLUG[slug];
+	return `§${number} ${label}`;
+};
+
 export const EMPTY_CATEGORY_MESSAGE = "Rien d'imprimé ici pour l'instant";
 export const ARCHIVE_LINK_LABEL = "Parcourir l'archive";
 export const categoryDescription = (label: string): string => `Les articles de la rubrique ${label}.`;

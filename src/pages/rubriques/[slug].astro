@@ -6,6 +6,7 @@ import {
 	ARCHIVE_LINK_LABEL,
 	CATEGORIES,
 	categoryDescription,
+	categoryHeading,
 	EMPTY_CATEGORY_MESSAGE,
 	SITE_TITLE,
 } from '../../consts';
@@ -25,7 +26,7 @@ export async function getStaticPaths() {
 }
 
 const { category, posts } = Astro.props;
-const heading = `§${category.number} ${category.label}`;
+const heading = categoryHeading(category.slug);
 ---
 
 <Layout title={`${heading} — ${SITE_TITLE}`} description={categoryDescription(category.label)}>
