@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { readDistHtml } from '../scripts/lib/dist.mjs';
+import { listDistFiles, readDistHtml } from '../scripts/lib/dist.mjs';
 
 const pages = readDistHtml();
 
@@ -61,5 +62,20 @@ test('le pied de page lie la licence CC BY-SA 4.0, le flux RSS et le dépôt sou
 		assert.ok(hrefs.includes('https://creativecommons.org/licenses/by-sa/4.0/deed.fr'), file);
 		assert.ok(hrefs.includes('/rss.xml'), file);
 		assert.ok(hrefs.includes('https://github.com/zero-strategie/zero-blog-astro'), file);
+	}
+});
+
+test('aucune trace du gabarit Astro dans dist/client', () => {
+	const forbidden = /Astro Blog|Your name here|Welcome to my website|withastro|astrodotbuild/;
+	for (const file of listDistFiles().filter((name) => /\.(html|xml|css|svg|txt)$/.test(name))) {
+		assert.doesNotMatch(readFileSync(file, 'utf8'), forbidden, file);
+	}
+});
+
+test('tout lien target="_blank" porte rel="noopener noreferrer"', () => {
+	for (const { file, html } of pages) {
+		for (const [tag] of html.matchAll(/<a\b[^>]*\btarget="_blank"[^>]*>/g)) {
+			assert.match(tag, /\brel="[^"]*\bnoopener\b[^"]*\bnoreferrer\b|\brel="[^"]*\bnoreferrer\b[^"]*\bnoopener\b/, `${file} : ${tag}`);
+		}
 	}
 });
