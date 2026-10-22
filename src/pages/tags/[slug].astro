@@ -1,0 +1,24 @@
+---
+import type { GetStaticPaths } from 'astro';
+import ArticleList from '../../components/ArticleList.astro';
+import { SITE_TITLE } from '../../consts';
+import Layout from '../../layouts/Layout.astro';
+import { getArticlesByTag } from '../../lib/strapi/article';
+import { getTags } from '../../lib/strapi/tag';
+import type { Tag } from '../../types/domain';
+
+export const getStaticPaths = (async () =>
+	(await getTags()).map((tag) => ({ params: { slug: tag.slug }, props: { tag } }))) satisfies GetStaticPaths;
+
+interface Props {
+	tag: Tag;
+}
+
+const { tag } = Astro.props;
+const articles = await getArticlesByTag(tag.slug);
+---
+
+<Layout title={`#${tag.name}`} description={`Les articles sourcés de ${SITE_TITLE} sur « ${tag.name} ».`}>
+	<h1>#{tag.name}</h1>
+	<ArticleList articles={articles} emptyMessage="Aucun article publié avec ce mot-clé pour l'instant." />
+</Layout>

@@ -1,6 +1,5 @@
 // @ts-check
 
-import mdx from '@astrojs/mdx';
 import node from '@astrojs/node';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig, envField, fontProviders } from 'astro/config';
@@ -30,7 +29,7 @@ export default defineConfig({
 		},
 	},
 
-	integrations: [mdx(), sitemap()],
+	integrations: [sitemap()],
 	fonts: [
 		{
 			provider: fontProviders.local(),

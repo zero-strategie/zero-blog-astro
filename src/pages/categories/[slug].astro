@@ -1,0 +1,31 @@
+---
+import type { GetStaticPaths } from 'astro';
+import ArticleList from '../../components/ArticleList.astro';
+import { SITE_TITLE } from '../../consts';
+import Layout from '../../layouts/Layout.astro';
+import { getArticlesByCategory } from '../../lib/strapi/article';
+import { getCategories } from '../../lib/strapi/category';
+import type { Category } from '../../types/domain';
+
+export const getStaticPaths = (async () =>
+	(await getCategories()).map((category) => ({
+		params: { slug: category.slug },
+		props: { category },
+	}))) satisfies GetStaticPaths;
+
+interface Props {
+	category: Category;
+}
+
+const { category } = Astro.props;
+const articles = await getArticlesByCategory(category.slug);
+---
+
+<Layout
+	title={category.name}
+	description={category.description ?? `Les articles sourcés de ${SITE_TITLE} sur le thème « ${category.name} ».`}
+>
+	<h1>{category.name}</h1>
+	{category.description && <p class="intro">{category.description}</p>}
+	<ArticleList articles={articles} emptyMessage="Aucun article publié dans cette catégorie pour l'instant." />
+</Layout>

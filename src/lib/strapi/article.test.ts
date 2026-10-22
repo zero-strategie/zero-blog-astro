@@ -3,10 +3,10 @@ import fixture from '../../../test/fixtures/articles.json';
 import { getArticleDetails, getArticles, getArticlesByCategory, getArticlesByTag } from './article';
 
 const respond = () =>
-	vi.fn(async () => new Response(JSON.stringify(fixture), { status: 200 }));
+	vi.fn<typeof fetch>(async () => new Response(JSON.stringify(fixture), { status: 200 }));
 
 const calledUrl = (fetch: ReturnType<typeof respond>) =>
-	decodeURIComponent(String((fetch.mock.calls[0] as unknown[])[0]));
+	decodeURIComponent(String(fetch.mock.calls[0][0]));
 
 afterEach(() => vi.unstubAllGlobals());
 

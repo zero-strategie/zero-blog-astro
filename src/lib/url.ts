@@ -20,7 +20,7 @@ export const mediaUrl = (path: string): string => resolveMediaUrl(path, STRAPI_U
 
 export const HOME_HREF = '/';
 export const BLOG_HREF = '/blog/';
-export const ABOUT_HREF = '/a-propos/';
+export const ABOUT_HREF = '/about/';
 export const RSS_HREF = '/rss.xml';
 
 export const articleHref = (slug: string): string => `/blog/${slug}/`;
