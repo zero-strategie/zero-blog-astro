@@ -146,13 +146,28 @@ pre > code {
 	font-size: inherit;
 }
 
+/* Citation façon tract : bloc encadré, filet rouge épais, texte en encre. */
 blockquote {
+	quotes: '« ' ' »';
 	margin: 1.5em 0;
-	padding: 0 0 0 1.2rem;
-	border-left: 0.35rem solid var(--ink-red);
+	padding: 0.5rem 1.2rem;
+	border: 2px solid var(--ink);
+	border-left: 0.6rem solid var(--ink-red);
 	color: var(--ink);
 	font-size: 1.2em;
 	font-style: italic;
+}
+
+blockquote > :first-child::before {
+	content: open-quote;
+}
+
+blockquote > :last-child::after {
+	content: close-quote;
+}
+
+blockquote > :last-child {
+	margin-bottom: 0;
 }
 
 hr {
