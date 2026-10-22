@@ -10,7 +10,7 @@ import {
 	SITE_TITLE,
 	SUMMARY_LABEL,
 } from '../consts';
-import { splitFeatured } from '../lib/featured';
+import { splitFeatured } from '../lib/featured.mjs';
 import { articleUrl } from '../lib/url';
 
 const { featured, summary } = splitFeatured(await getCollection('blog'));
