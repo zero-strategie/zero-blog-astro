@@ -1,20 +1,20 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { extname } from 'node:path';
+import { extname, relative } from 'node:path';
 import { test } from 'node:test';
-import { findZeroJsViolations, listDistFiles, readDistHtml } from '../scripts/lib/dist.mjs';
+import { DIST_DIR, findZeroJsViolations, listDistFiles, readDistHtml } from '../scripts/lib/dist.mjs';
 
 test('aucun HTML de dist/client ne contient de JavaScript', () => {
 	const pages = readDistHtml();
 	assert.ok(pages.length > 0, 'aucune page HTML trouvée');
 	for (const { file, html } of pages) {
-		assert.deepEqual(findZeroJsViolations(html), [], file);
+		assert.deepEqual(findZeroJsViolations(html), [], relative(DIST_DIR, file));
 	}
 });
 
 test('dist/client ne contient aucun fichier .js ni .mjs', () => {
 	const scripts = listDistFiles().filter((file) => ['.js', '.mjs'].includes(extname(file)));
-	assert.deepEqual(scripts, []);
+	assert.deepEqual(scripts.map((file) => relative(DIST_DIR, file)), []);
 });
 
 test("using-mdx.mdx ne contient plus d'onclick", () => {
