@@ -50,7 +50,7 @@ export default defineConfig({
 			provider: fontProviders.local(),
 			name: 'Fraunces',
 			cssVariable: '--font-fraunces',
-			fallbacks: ['Georgia', 'serif'],
+			fallbacks: [],
 			options: {
 				variants: [
 					{

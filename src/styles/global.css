@@ -1,6 +1,53 @@
 /* Samizdat : papier, encre, un seul rouge riso. Les couleurs vivent dans tokens.css. */
 @import './tokens.css';
 
+/*
+  Fontes de secours à métriques ajustées (évitent le saut de mise en page au
+  swap de Fraunces). Une face par fonte car les métriques diffèrent ; Astro ne
+  génère qu'un secours « Times New Roman », absent d'Android et de Linux, et
+  `fallbacks: []` (astro.config.mjs) retire sa pile Georgia/serif, qui
+  rendrait celles-ci inatteignables.
+  Valeurs = métriques de Fraunces (upm 2000, largeur moyenne 943, ascent 1956,
+  descent 510) rapportées à celles de la fonte locale, comme Astro/capsize :
+  size-adjust = largeur Fraunces / largeur locale (en em) ;
+  ascent/descent-override = métrique Fraunces / upm / size-adjust.
+    Liberation Serif (= Times New Roman) : upm 2048, largeur 832
+    Noto Serif (Android)                 : upm 1000, largeur 481
+    DejaVu Serif                         : upm 2048, largeur 1041
+*/
+@font-face {
+	font-family: 'Fraunces fallback Times';
+	src: local('Times New Roman'), local('Liberation Serif');
+	font-weight: 400 900;
+	font-style: normal;
+	size-adjust: 116.0615%;
+	ascent-override: 84.2656%;
+	descent-override: 21.9711%;
+	line-gap-override: 0%;
+}
+
+@font-face {
+	font-family: 'Fraunces fallback Noto';
+	src: local('Noto Serif');
+	font-weight: 400 900;
+	font-style: normal;
+	size-adjust: 98.0249%;
+	ascent-override: 99.7705%;
+	descent-override: 26.0138%;
+	line-gap-override: 0%;
+}
+
+@font-face {
+	font-family: 'Fraunces fallback DejaVu';
+	src: local('DejaVu Serif');
+	font-weight: 400 900;
+	font-style: normal;
+	size-adjust: 92.76%;
+	ascent-override: 105.4333%;
+	descent-override: 27.4903%;
+	line-gap-override: 0%;
+}
+
 *,
 *::before,
 *::after {

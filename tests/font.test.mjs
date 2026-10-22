@@ -58,3 +58,43 @@ for (const route of ['client/blog/index.html', 'client/blog/first-post/index.htm
 		assert.match(pageCss(html), /\.date[^{]*{[^}]*font-family:\s*var\(--font-mono\)/);
 	});
 }
+
+const SYSTEM_FALLBACKS = [
+	{ family: 'Fraunces fallback Times', local: 'Liberation Serif' },
+	{ family: 'Fraunces fallback Noto', local: 'Noto Serif' },
+	{ family: 'Fraunces fallback DejaVu', local: 'DejaVu Serif' },
+];
+
+test('chaque fonte de secours système a ses métriques ajustées (size-adjust, ascent, descent)', () => {
+	const css = pageCss(home.html).replace(/\s+/g, ' ');
+	for (const { family, local } of SYSTEM_FALLBACKS) {
+		const face = css.match(new RegExp(`@font-face\\s*{[^}]*font-family:\\s*["']?${family}["']?;[^}]*}`))?.[0];
+		assert.ok(face, `@font-face ${family} absent`);
+		assert.ok(face.includes(`local('${local}')`) || face.includes(`local("${local}")`), `${family} : local(${local}) absent`);
+		const sizeAdjust = Number(face.match(/size-adjust:\s*([\d.]+)%/)?.[1]);
+		assert.ok(sizeAdjust >= 90 && sizeAdjust <= 120, `${family} : size-adjust = ${sizeAdjust}`);
+		assert.match(face, /ascent-override:\s*[\d.]+%/);
+		assert.match(face, /descent-override:\s*[\d.]+%/);
+		assert.match(face, /line-gap-override:\s*0%/);
+	}
+});
+
+test('--font-text enchaîne Fraunces, les fontes de secours ajustées, puis Georgia et serif', () => {
+	const tokens = readFileSync(new URL('../src/styles/tokens.css', import.meta.url), 'utf8');
+	const stack = tokens
+		.match(/--font-text:([^;]*);/)?.[1]
+		.split(',')
+		.map((family) => family.replace(/['"]/g, '').trim());
+	assert.deepEqual(stack, [
+		'var(--font-fraunces)',
+		'Fraunces fallback Times',
+		'Fraunces fallback Noto',
+		'Fraunces fallback DejaVu',
+		'Georgia',
+		'serif',
+	]);
+});
+
+test("Astro n'ajoute pas Georgia ni serif derrière Fraunces (les secours système seraient inatteignables)", () => {
+	assert.match(pageCss(home.html), /--font-fraunces:\s*Fraunces-[0-9a-f]+;/);
+});
