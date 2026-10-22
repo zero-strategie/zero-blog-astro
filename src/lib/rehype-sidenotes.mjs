@@ -38,7 +38,9 @@ function inlineCopy(nodes) {
 		const children = inlineCopy(node.children ?? []);
 		if (BLOCK_TAGS.has(node.tagName ?? '')) return [{ type: 'text', value: ' ' }, ...children];
 		const { id: _id, ...properties } = node.properties ?? {};
-		return [{ ...node, properties, children }];
+		// La copie est aria-hidden : un lien focusable y serait une erreur d'accessibilité (axe aria-hidden-focus).
+		const copied = node.tagName === 'a' ? { ...properties, tabIndex: -1 } : properties;
+		return [{ ...node, properties: copied, children }];
 	});
 }
 

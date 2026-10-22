@@ -75,6 +75,8 @@ test("la copie ne contient aucun élément de bloc, garde ses liens et n'a pas d
 	const [kept] = find(sidenote, (n) => n.tagName === 'a');
 	assert.equal(kept.properties.href, 'https://example.org/');
 	assert.equal(kept.properties.id, undefined);
+	assert.equal(kept.properties.tabIndex, -1);
+	assert.equal(link.properties.tabIndex, undefined);
 	assert.equal(link.properties.id, 'dup');
 });
 

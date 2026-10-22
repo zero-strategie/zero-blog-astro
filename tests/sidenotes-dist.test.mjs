@@ -34,6 +34,18 @@ test('les notes en marge sont masquées sur mobile et flottent à droite à part
 	assert.doesNotMatch(desktop, /\.sidenote[^{}]*\{[^}]*position: ?absolute/);
 });
 
+test('tout lien de la copie en marge est retiré de l\'ordre de tabulation', () => {
+	const sidenote = html.match(/<span class="sidenote"[^>]*>(.*?)<\/span><\/cite>/s)?.[1] ?? '';
+	const links = sidenote.match(/<a [^>]*>/g) ?? [];
+	assert.ok(links.length > 0);
+	for (const link of links) assert.match(link, /tabindex="-1"/);
+});
+
+test('deux notes empilées en marge sont espacées', () => {
+	const desktop = css.match(/@media ?\(min-width: ?85rem\) ?\{(.*)/)?.[1] ?? '';
+	assert.match(desktop, /\.sidenote[^{}]*\{[^}]*margin-bottom: ?\.75rem/);
+});
+
 test('les notes de fin ne sont jamais masquées et les copies en marge sont aria-hidden', () => {
 	assert.doesNotMatch(css, /\[data-footnotes\][^{}]*\{[^}]*display: ?none/);
 	assert.match(html, /<span class="sidenote" aria-hidden="true">/);
