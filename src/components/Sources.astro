@@ -1,0 +1,94 @@
+---
+import { SOURCE_LEVEL_LABELS } from '../consts';
+import type { Source } from '../types/domain';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+	sources: readonly Source[];
+}
+
+const { sources } = Astro.props;
+---
+
+<section class="sources" aria-labelledby="sources-titre">
+	<h2 id="sources-titre">Sources</h2>
+	{
+		sources.length === 0 ? (
+			<p class="sources-vide">Cet article ne cite aucune source.</p>
+		) : (
+			<ol>
+				{sources.map((source) => (
+					<li id={`source-${source.index}`} value={source.index}>
+						<a href={source.url} rel="noopener noreferrer external">
+							{source.title}
+						</a>
+						{source.level && (
+							<span class={`source-niveau source-niveau--${source.level}`}>
+								{SOURCE_LEVEL_LABELS[source.level]}
+							</span>
+						)}
+						<span class="source-meta">
+							{source.publisher && <span class="source-editeur">{source.publisher}</span>}
+							{source.publishedOn && (
+								<span>
+									publié le <FormattedDate date={source.publishedOn} />
+								</span>
+							)}
+							<span>
+								consulté le <FormattedDate date={source.consultedOn} />
+							</span>
+						</span>
+					</li>
+				))}
+			</ol>
+		)
+	}
+</section>
+
+<style>
+	.sources {
+		margin-top: 3em;
+		padding-top: 1em;
+		border-top: 2px solid rgb(var(--gray-light));
+		font-size: 0.85em;
+	}
+	.sources h2 {
+		font-size: 1.4em;
+	}
+	ol {
+		padding-left: 1.5em;
+	}
+	li {
+		margin-bottom: 0.75em;
+		scroll-margin-top: 1em;
+	}
+	/* The source a reader jumped to from a citation call. */
+	li:target {
+		background: rgb(var(--gray-light));
+		outline: 2px solid var(--accent);
+		outline-offset: 4px;
+		border-radius: 2px;
+	}
+	.source-meta {
+		display: block;
+		color: rgb(var(--gray));
+	}
+	.source-meta > span + span::before {
+		content: ' · ';
+	}
+	.source-niveau {
+		display: inline-block;
+		margin-left: 0.5em;
+		padding: 0 0.5em;
+		border: 1px solid rgb(var(--gray));
+		border-radius: 999px;
+		font-size: 0.8em;
+		color: rgb(var(--gray-dark));
+		white-space: nowrap;
+	}
+	.source-niveau--primaire,
+	.source-niveau--institutionnelle {
+		border-color: var(--accent);
+		color: var(--accent-dark);
+	}
+</style>

@@ -1,0 +1,33 @@
+---
+import { CONTENT_TYPE_LABELS } from '../consts';
+import type { ContentType } from '../types/domain';
+
+interface Props {
+	type: ContentType;
+}
+
+const { type } = Astro.props;
+---
+
+<span class:list={['badge', `badge--${type}`]}>{CONTENT_TYPE_LABELS[type]}</span>
+
+<style>
+	.badge {
+		display: inline-block;
+		padding: 0.1em 0.6em;
+		border: 1px solid currentColor;
+		border-radius: 4px;
+		font-size: 0.75em;
+		font-weight: 700;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		line-height: 1.5;
+		color: var(--accent-dark);
+	}
+	/* An opinion must never be mistaken for reporting: filled, high contrast. */
+	.badge--opinion {
+		border-color: var(--opinion);
+		background: var(--opinion);
+		color: #fff;
+	}
+</style>

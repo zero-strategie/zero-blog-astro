@@ -1,0 +1,32 @@
+---
+import type { SafeHtml } from '../types/domain';
+
+interface Props {
+	html: SafeHtml;
+}
+
+const { html } = Astro.props;
+---
+
+<aside class="erratum" role="note" aria-labelledby="erratum-titre">
+	<p id="erratum-titre" class="erratum-titre">Rectificatif</p>
+	<div class="erratum-corps" set:html={html} />
+</aside>
+
+<style>
+	.erratum {
+		margin: 0 0 2em;
+		padding: 0.75em 1em;
+		border-left: 4px solid var(--erratum);
+		background: var(--erratum-bg);
+		font-size: 0.9em;
+	}
+	.erratum-titre {
+		margin: 0 0 0.25em;
+		font-weight: 700;
+		color: var(--erratum);
+	}
+	.erratum-corps :global(p:last-child) {
+		margin-bottom: 0;
+	}
+</style>

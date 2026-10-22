@@ -1,17 +1,14 @@
 ---
+import { DATE_LOCALE, TIME_ZONE } from '../consts';
+
 interface Props {
 	date: Date;
 }
 
 const { date } = Astro.props;
+const label = new Intl.DateTimeFormat(DATE_LOCALE, { dateStyle: 'long', timeZone: TIME_ZONE }).format(
+	date,
+);
 ---
 
-<time datetime={date.toISOString()}>
-	{
-		date.toLocaleDateString('en-us', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		})
-	}
-</time>
+<time datetime={date.toISOString()}>{label}</time>

@@ -12,6 +12,11 @@
 	--gray-light: 229, 233, 240;
 	--gray-dark: 34, 41, 57;
 	--gray-gradient: rgba(var(--gray-light), 50%), #fff;
+	/* Editorial signals: an opinion and a correction must stand out from reporting. */
+	--opinion: #9a3412;
+	--opinion-bg: #fff7ed;
+	--erratum: #991b1b;
+	--erratum-bg: #fef2f2;
 	--box-shadow:
 		0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%),
 		0 16px 32px rgba(var(--gray), 33%);
@@ -138,4 +143,30 @@ hr {
 	clip-path: inset(50%);
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
+}
+
+.skip-link {
+	position: absolute;
+	left: 1em;
+	top: -3em;
+	padding: 0.5em 1em;
+	background: rgb(var(--black));
+	color: #fff;
+	z-index: 10;
+}
+.skip-link:focus {
+	top: 1em;
+}
+
+/* Citation calls produced by renderMarkdown(): injected HTML, so global. */
+.citation {
+	font-size: 0.7em;
+	line-height: 0;
+}
+.citation a {
+	text-decoration: none;
+}
+.citation--missing {
+	color: var(--erratum);
+	cursor: help;
 }

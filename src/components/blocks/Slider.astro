@@ -1,0 +1,47 @@
+---
+import type { SliderBlock } from '../../types/domain';
+
+type Props = SliderBlock;
+
+const { images } = Astro.props;
+---
+
+{
+	images.length > 0 && (
+		<ul class="slider" role="list">
+			{images.map((image) => (
+				<li>
+					<img
+						src={image.url}
+						alt={image.alt}
+						width={image.width}
+						height={image.height}
+						loading="lazy"
+						decoding="async"
+					/>
+				</li>
+			))}
+		</ul>
+	)
+}
+
+<style>
+	/* A horizontally scrolling strip: no JavaScript needed (AGENTS.md 4.7). */
+	.slider {
+		display: flex;
+		gap: 1em;
+		margin: 2em 0;
+		padding: 0 0 0.5em;
+		list-style: none;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+	}
+	li {
+		flex: 0 0 85%;
+		scroll-snap-align: start;
+	}
+	img {
+		display: block;
+		width: 100%;
+	}
+</style>

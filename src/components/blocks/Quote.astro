@@ -1,0 +1,64 @@
+---
+import type { QuoteBlock } from '../../types/domain';
+
+type Props = QuoteBlock;
+
+const { title, html, isOpinion } = Astro.props;
+---
+
+{
+	isOpinion ? (
+		<aside class="quote quote--opinion" aria-label={title}>
+			<p class="quote-titre">{title}</p>
+			<p class="quote-avertissement">
+				Ce passage exprime une opinion, pas un constat. Les faits sur lesquels il s'appuie sont
+				sourcés en bas de page.
+			</p>
+			<div class="quote-corps" set:html={html} />
+		</aside>
+	) : (
+		<figure class="quote">
+			<blockquote set:html={html} />
+			{title && <figcaption>{title}</figcaption>}
+		</figure>
+	)
+}
+
+<style>
+	.quote {
+		margin: 2em 0;
+	}
+	figcaption {
+		margin-top: 0.5em;
+		color: rgb(var(--gray));
+		font-size: 0.9em;
+	}
+	figcaption::before {
+		content: '— ';
+	}
+	.quote--opinion {
+		padding: 1em 1.25em;
+		border: 2px solid var(--opinion);
+		border-left-width: 8px;
+		border-radius: 4px;
+		background: var(--opinion-bg);
+	}
+	.quote-titre {
+		margin: 0;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--opinion);
+	}
+	.quote-avertissement {
+		margin: 0 0 0.75em;
+		font-size: 0.8em;
+		color: rgb(var(--gray-dark));
+	}
+	.quote-corps {
+		font-style: italic;
+	}
+	.quote-corps :global(p:last-child) {
+		margin-bottom: 0;
+	}
+</style>

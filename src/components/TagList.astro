@@ -1,0 +1,45 @@
+---
+import { tagHref } from '../lib/url';
+import type { Tag } from '../types/domain';
+
+interface Props {
+	tags: readonly Tag[];
+}
+
+const { tags } = Astro.props;
+---
+
+{
+	tags.length > 0 && (
+		<ul class="tags" aria-label="Mots-clés">
+			{tags.map((tag) => (
+				<li>
+					<a href={tagHref(tag.slug)}>#{tag.name}</a>
+				</li>
+			))}
+		</ul>
+	)
+}
+
+<style>
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		font-size: 0.85em;
+	}
+	a {
+		display: inline-block;
+		padding: 0 0.6em;
+		border-radius: 999px;
+		background: rgb(var(--gray-light));
+		color: rgb(var(--gray-dark));
+		text-decoration: none;
+	}
+	a:hover {
+		color: var(--accent);
+	}
+</style>

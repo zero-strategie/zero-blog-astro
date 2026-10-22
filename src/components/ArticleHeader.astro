@@ -1,0 +1,90 @@
+---
+import { categoryHref } from '../lib/url';
+import type { Category, ContentType } from '../types/domain';
+import ContentTypeBadge from './ContentTypeBadge.astro';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+	title: string;
+	description?: string;
+	contentType: ContentType;
+	category?: Category;
+	authorName?: string;
+	publishedAt: Date;
+	updatedAt?: Date;
+	verifiedOn?: Date;
+}
+
+const { title, description, contentType, category, authorName, publishedAt, updatedAt, verifiedOn } =
+	Astro.props;
+const isOpinion = contentType === 'opinion';
+---
+
+<header class="article-header">
+	<p class="kicker">
+		<ContentTypeBadge type={contentType} />
+		{category && <a class="category" href={categoryHref(category.slug)}>{category.name}</a>}
+	</p>
+	<h1>{title}</h1>
+	{description && <p class="chapo">{description}</p>}
+	{
+		isOpinion && (
+			<p class="opinion-notice" role="note">
+				<strong>Opinion.</strong> Tu lis un texte d'opinion : il défend le point de vue de son
+				auteur et n'engage que lui. Les faits sur lesquels il s'appuie sont sourcés en bas de page.
+			</p>
+		)
+	}
+	<ul class="meta">
+		{authorName && <li>Par {authorName}</li>}
+		<li>Publié le <FormattedDate date={publishedAt} /></li>
+		{updatedAt && <li>Mis à jour le <FormattedDate date={updatedAt} /></li>}
+		{verifiedOn && <li class="verified">Vérifié le <FormattedDate date={verifiedOn} /></li>}
+	</ul>
+</header>
+
+<style>
+	.article-header {
+		margin-bottom: 2em;
+	}
+	.kicker {
+		display: flex;
+		align-items: center;
+		gap: 0.75em;
+		margin: 0 0 0.5em;
+	}
+	.category {
+		font-size: 0.85em;
+	}
+	h1 {
+		font-size: 2.4em;
+	}
+	.chapo {
+		font-size: 1.15em;
+		color: rgb(var(--gray-dark));
+	}
+	.opinion-notice {
+		padding: 0.75em 1em;
+		border-left: 6px solid var(--opinion);
+		background: var(--opinion-bg);
+		font-size: 0.9em;
+	}
+	.opinion-notice strong {
+		color: var(--opinion);
+		text-transform: uppercase;
+	}
+	.meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0 1.25em;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		color: rgb(var(--gray));
+		font-size: 0.85em;
+	}
+	.verified::before {
+		content: '✓ ';
+		color: var(--accent);
+	}
+</style>
