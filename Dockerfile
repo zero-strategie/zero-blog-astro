@@ -38,6 +38,11 @@ COPY . .
 ENV NODE_ENV=production
 # Public origin of the CMS, validated by the astro:env schema. Not a secret.
 ARG STRAPI_URL
+# Changes on every CI run. A content rebuild (repository_dispatch from the
+# Strapi webhook) has the same code and the same arguments as the previous
+# build, so without this BuildKit serves the prerender below from cache and a
+# newly published article never reaches the site.
+ARG CONTENT_REVISION
 # The token IS a secret, so it arrives through a BuildKit secret mount instead
 # of an ARG: nothing lands in a layer or in `docker history`.
 RUN --mount=type=secret,id=strapi_token \
