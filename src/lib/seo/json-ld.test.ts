@@ -52,7 +52,10 @@ describe('faqPageJsonLd', () => {
 				{
 					'@type': 'Question',
 					name: "Le CLOUD Act s'applique-t-il à un hébergeur français ?",
-					acceptedAnswer: { '@type': 'Answer', text: expect.stringContaining('<em>via</em>') },
+					acceptedAnswer: {
+						'@type': 'Answer',
+						text: 'Seulement s\'il relève de la juridiction américaine, par exemple via une maison mère.',
+					},
 				},
 			],
 		});

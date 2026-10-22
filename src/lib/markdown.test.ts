@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { renderMarkdown } from './markdown';
+import { markdownToText, renderMarkdown } from './markdown';
 
 const sources = [
 	{ index: 1, title: 'H.R.4943 — CLOUD Act' },
@@ -61,5 +61,20 @@ describe('renderMarkdown', () => {
 		it('leaves other fragment links alone', () => {
 			expect(renderMarkdown('[voir](#faq)')).toBe('<p><a href="#faq">voir</a></p>');
 		});
+	});
+});
+
+describe('markdownToText', () => {
+	it('keeps the words, drops the formatting and the citation calls', () => {
+		expect(markdownToText('Seulement *via* une [maison mère](https://ex.org) [[1]](#source-1).')).toBe(
+			'Seulement via une maison mère.',
+		);
+	});
+
+	it('drops raw HTML tags', () => {
+		// Inline tags are separate nodes: the text between them survives, as text.
+		const text = markdownToText('Avant <script>alert(1)</script> après');
+		expect(text).not.toContain('<');
+		expect(text).toBe('Avant alert(1) après');
 	});
 });

@@ -13,7 +13,7 @@ import type {
 	Source,
 } from '../../types/domain';
 import type { ArticleDetailDto, ArticleSummaryDto, BlockDto, SourceDto } from '../../types/strapi';
-import { type RenderOptions, renderMarkdown } from '../markdown';
+import { markdownToText, type RenderOptions, renderMarkdown } from '../markdown';
 import { toImageRef } from './media';
 import { toCategory, toTag } from './taxonomy';
 
@@ -97,6 +97,7 @@ export function toArticleDetail(dto: ArticleDetailDto): ArticleDetail {
 	const faq: FaqItem[] = (dto.faq ?? []).map((item) => ({
 		question: item.question,
 		answer: md(item.reponse),
+		answerText: markdownToText(item.reponse),
 	}));
 
 	const seo: Seo = {

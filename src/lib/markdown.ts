@@ -8,6 +8,8 @@
  * ours, not the author's.
  */
 import type { Element, ElementContent, Root } from 'hast';
+import type { Root as MdastRoot } from 'mdast';
+import { toString } from 'mdast-util-to-string';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
 import remarkGfm from 'remark-gfm';
@@ -89,4 +91,23 @@ export function renderMarkdown(markdown: string, options: RenderOptions = {}): S
 		.processSync(markdown)
 		.toString();
 	return html as SafeHtml;
+}
+
+/**
+ * Plain text for places that cannot carry markup (JSON-LD). Raw HTML and
+ * citation calls are dropped; the words stay.
+ */
+export function markdownToText(markdown: string): string {
+	const tree = unified().use(remarkParse).use(remarkGfm).parse(markdown) as MdastRoot;
+	visit(tree, (node, index, parent) => {
+		const isCitation = node.type === 'link' && CITATION_HREF.test(node.url);
+		if ((isCitation || node.type === 'html') && parent && index !== undefined) {
+			parent.children.splice(index, 1);
+			return index;
+		}
+	});
+	return toString(tree)
+		.replace(/\s+/g, ' ')
+		.replace(/\s+([.,)])/g, '$1')
+		.trim();
 }

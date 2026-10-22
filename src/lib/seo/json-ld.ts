@@ -39,7 +39,7 @@ export function faqPageJsonLd(faq: readonly FaqItem[]): JsonLd | undefined {
 		mainEntity: faq.map((item) => ({
 			'@type': 'Question',
 			name: item.question,
-			acceptedAnswer: { '@type': 'Answer', text: item.answer },
+			acceptedAnswer: { '@type': 'Answer', text: item.answerText },
 		})),
 	};
 }

@@ -133,6 +133,9 @@ describe('toArticleDetail', () => {
 		expect(detail.faq).toHaveLength(1);
 		expect(detail.faq[0].question).toBe("Le CLOUD Act s'applique-t-il à un hébergeur français ?");
 		expect(detail.faq[0].answer).toContain('<em>via</em>');
+		expect(detail.faq[0].answerText).toBe(
+			"Seulement s'il relève de la juridiction américaine, par exemple via une maison mère.",
+		);
 	});
 
 	it('parses verifieLe as a date', () => {

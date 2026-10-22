@@ -52,6 +52,8 @@ export interface Source {
 export interface FaqItem {
 	question: string;
 	answer: SafeHtml;
+	/** The same answer without markup, for structured data. */
+	answerText: string;
 }
 
 /** `<head>` metadata, CMS `seo` already resolved over title/description/cover. */
