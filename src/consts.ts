@@ -76,11 +76,11 @@ export const FOOTER_LINKS = [
 
 // Manifeste provisoire (Q2), à faire confirmer par le client.
 export const MANIFESTO = {
-	kicker: 'Manifeste',
-	title: 'Publier soi-même, ça reste un acte politique.',
+	kicker: 'Ligne éditoriale',
+	title: 'Une veille indépendante sur l’open source, l’IA et leurs enjeux géopolitiques.',
 	paragraphs: [
-		"Ce carnet est imprimé à la main, sur un serveur qui nous appartient. Pas de plateforme entre vous et nous, pas de pistage, pas de script : du texte, de l'encre, une adresse.",
-		"On y parle d'open source, d'intelligence artificielle et de souveraineté numérique, avec une conviction : ce qu'on ne peut pas lire, copier et réparer ne nous appartient pas.",
+		"zero-stratégie relaie et explique l'actualité de l'open source, de l'intelligence artificielle et de la souveraineté numérique, là où elle croise les décisions publiques et les rapports de force entre États.",
+		"Chaque article s'appuie sur des sources citées et datées. Les faits sont présentés tels qu'ils sont, les positions de chaque partie attribuées à leurs auteurs, et toute opinion est signalée comme telle.",
 	],
 } as const;
 export const FEATURED_LABEL = 'À la une';
